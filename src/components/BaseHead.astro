@@ -1,0 +1,59 @@
+---
+// Import the global.css file here so that it is included on
+// all pages through the use of the <BaseHead /> component.
+import '@/styles/global.css';
+import {SITE_METADATA} from "@/consts";
+import {ViewTransitions} from 'astro:transitions';
+import '@fontsource/onest';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  robots?: string; // default to SITE_METADATA.robots
+}
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const {title, description, image = '/blog-placeholder-1.jpg', robots = SITE_METADATA.robots} = Astro.props;
+---
+
+<head>
+    <!-- Global Metadata -->
+    <meta charset="utf-8" lang={SITE_METADATA.language}/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+    <meta name="generator" content={Astro.generator}/>
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalURL}/>
+
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="description" content={description}/>
+
+    <!-- Robots -->
+    <meta name="robots" content={robots}>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content={Astro.url}/>
+    <meta property="og:title" content={title}/>
+    <meta property="og:description" content={description}/>
+    <meta property="og:image" content={new URL(image, Astro.url)}/>
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image"/>
+    <meta property="twitter:url" content={Astro.url}/>
+    <meta property="twitter:title" content={title}/>
+    <meta property="twitter:description" content={description}/>
+    <meta property="twitter:image" content={new URL(image, Astro.url)}/>
+
+    <!-- Favicons -->
+    <meta name="msapplication-TileColor" content="#000000"/>
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff"/>
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000"/>
+    <link rel="alternate" type="application/rss+xml" href="/rss.xml"/>
+
+    <ViewTransitions/>
+</head>

@@ -1,0 +1,126 @@
+---
+title: How to safely expose OctoPrint to the internet using Cloudflare Tunnels and Access.
+date: '2024-02-09'
+tags: ['octoprint']
+draft: false
+summary: Short article on how to use Cloudflare Tunnels and Access to provide a secure gateway to your 3D printer using OctoPrint.
+---
+
+## Introduction
+
+You want to access your OctoPrint instance from anywhere in the world, but you've been warned by many users and OctoPrint itself of the dangers imposed by exposing it to the internet? Thankfully, Cloudflare have a service (completely free to use, by the way) which can help you create a secure tunnel straight to your Raspberry Pi, assuming it is running on one, with 2FA to protect it from any potential intruders.
+
+## Prerequisites
+
+There are two things you will need in order to get this working:
+- Raspberry Pi running an instance of OctoPrint
+    - With SSH access (or other means to access the terminal)
+- A Cloudflare account
+    - Domain linked to Cloudflare
+
+## Creating a Cloudflare Tunnel
+
+In order to create a Cloudflare Tunnel for your Raspberry Pi, login to the Cloudflare dashboard and follow these steps:
+ 
+1. Click "Zero Trust" in the sidebar
+2. Once you have access the Zero Trust dashboard, click on "Networks" and then "Tunnels".
+3. Click on the "Create a tunnel" button.
+4. Click on "Cloudflared" as your connector type and then click "Next"
+5. Give your tunnel a name - I have simply named it "OctoPrint", you can name it whatever you'd like
+
+The next step will require you to install the `cloudflared` connector on your Raspberry Pi. However, none of the example install and run code blocks that Cloudflare provide will work. Keep this page open, we will need it later.
+
+## Installing cloudflared
+
+According to [this blog post by Cloudflare](https://blog.cloudflare.com/building-a-pet-cam-using-a-raspberry-pi-cloudflare-tunnels-and-teams/): The only issue is that the architecture of the Raspberry Pi is based on armv7l (32-bit) and there is no package for it in the remote repositories.
+
+Thankfully, PiMyLifeUp have created a very easy [step-by-step guide](https://pimylifeup.com/raspberry-pi-cloudflare-tunnel/) on installing `cloudflared` on a Raspberry Pi.
+
+You can follow steps 1-6 in the linked guide above, but for simplicity, I will repeat the steps here:
+
+### 1. Install relevant packages
+
+```
+sudo apt update
+sudo apt upgrade
+sudo apt install curl lsb-release
+```
+
+### 2. Grab GPG key for cloudfared repository
+
+```
+curl -L https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-archive-keyring.gpg >/dev/null
+```
+
+### 3. Add cloudflared repository to Raspberry Pi
+
+```
+echo "deb [signed-by=/usr/share/keyrings/cloudflare-archive-keyring.gpg] https://pkg.cloudflare.com/cloudflared $(lsb_release -cs) main" | sudo tee  /etc/apt/sources.list.d/cloudflared.list
+```
+
+### 4. Update repository cache
+
+```
+sudo apt update
+```
+
+### 5. Install cloudflared
+
+```
+sudo apt install cloudflared
+```
+
+Optionally, you can choose to verify your installation of cloudflared by running the `cloudflared -v` command. YOu should be able to see a version number in the output.
+
+```
+$ cloudflared -v
+cloudflared version 2024.1.5 (built 2024-01-25-1729 UTC)
+```
+
+## Running the connector
+
+Now that we have `cloudflared` installed on our Raspberry Pi, we can connect our tunnel to Cloudflare. Go back to the Cloudflare dashboard, click Debian at the top and copy the code in the code block under "If you already have cloudflared installed on your machine:". This should look something similar to this:
+
+```
+sudo cloudflared service install eyJhIjo....
+```
+
+This is a sensitive token, so ensure that this token is kept a secret.
+
+Paste the copied code block straight into the terminal on your Raspberry Pi.
+
+If your tunnel is created successfully, the connector should pop up at the bottom of the page. Click on "Next".
+
+## Routing the tunnel
+
+Now we have our tunnel running, select a domain that your tunnel will be exposed to. Optionally, you can select a subdomain. I have decided to route it to `octoprint.akif.fyi` but you may choose whatever you would like.
+
+Select the service type as HTTP in the dropdown and the URL should be `localhost:80`. Click on "Save Tunnel".
+
+## Securing OctoPrint
+
+Now you should be able to go to the URL that you specified and your OctoPrint instance now exposed to the internet. However, you might be thinking, hold on - this isn't very secure...
+
+and you would be correct. Let's fix that:
+
+1. On the Zero Trust dashboard, click on "Access" in the sidebar and then click "Applications".
+2. Click the "Add an application" button.
+3. Select "Self-hosted" as your type of application.
+4. Give the application a name. I have simply called it "OctoPrint".
+5. Select the subdomain/domain just as you did when you were routing the tunnel in the previous step.
+6. Scroll down and click "Next".
+7. Enter a policy name, I have called it "OctoPrint Server" for simplicity.
+8. Under "Configure Rules", set the "Selector" as "Emails".
+9. In the "Value" box, enter your email address.
+10. Click "Next".
+11. Click "Add application".
+
+## Testing Cloudflare Access
+
+Now we get to test our security. Open a new tab and go to the domain as we specified in the "Routing the tunnel" step. You should be greeted with a screen asking you to input your email.
+
+If you set everything up correctly, and you input your email here, you should be sent a one-time code. Input this code from your email and voila, access granted!
+
+Remember, for security reasons, even if you enter your email wrong, Cloudflare will take you to the next page where you will be prompted to enter the one-time code. This is intentional - so that any intruders cannot guess what email addresses are permitted to access the site.
+
+Cloudflare also provide other forms of access control, so feel free to dig around. However, be careful, as soon as you remove that application that we created, your OctoPrint instance will be directly exposed to the internet again.
