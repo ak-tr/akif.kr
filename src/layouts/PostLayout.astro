@@ -2,21 +2,20 @@
 import SectionContainer from "../components/SectionContainer.astro";
 import PageTitle from "../components/PageTitle.astro";
 import RootLayout from "./RootLayout.astro";
-import {type CollectionEntry} from "astro:content";
+import { type CollectionEntry } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
 import ScrollTopAndComments from "@/solid/ScrollTopAndComments.tsx";
 
 interface Props {
-    post: CollectionEntry<'blog'>;
-    next?: CollectionEntry<'blog'>;
-    prev?: CollectionEntry<'blog'>;
+    post: CollectionEntry<"blog">;
 }
 
 const { post } = Astro.props as Props;
+console.log("headings ->", post.data);
 
-// TODO: Later add support for headings and remarkPluginFrontmatter
-const {Content} = await post.render();
+const { Content } = await post.render();
 ---
+
 <RootLayout title={post.data.title} description={post.data.summary}>
     <SectionContainer>
         <ScrollTopAndComments client:only="solid-js" />
@@ -27,8 +26,10 @@ const {Content} = await post.render();
                         <dl class="space-y-10">
                             <div>
                                 <dt class="sr-only">Published on</dt>
-                                <dd class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
-                                    <FormattedDate date={post.data.date}/>
+                                <dd
+                                    class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400"
+                                >
+                                    <FormattedDate date={post.data.date} />
                                 </dd>
                             </div>
                         </dl>
@@ -37,18 +38,27 @@ const {Content} = await post.render();
                         </div>
                     </div>
                 </header>
-                <div class="grid-rows-[auto_1fr] divide-y divide-gray-200 pb-8 dark:divide-gray-700 xl:grid xl:grid-cols-1 xl:gap-x-6 xl:divide-y-0">
-                    <div class="divide-y divide-gray-200 dark:divide-gray-700 xl:row-span-2 xl:pb-0">
-                        {post.data.draft && (
-                          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 dark:bg-yellow-500 dark:border-yellow-300 mt-10">
-                              <p class="leading-5 text-yellow-700 dark:text-yellow-300">
-                                  This is a draft. It might be incomplete or have errors.
-                              </p>
-                          </div>
-                        )}
-                        <div class="prose max-w-none pb-8 pt-10 dark:prose-invert">
-                            <slot/>
-                            <Content/>
+                <div
+                    class="grid-rows-[auto_1fr] divide-y divide-gray-200 pb-8 dark:divide-gray-700 xl:grid xl:grid-cols-1 xl:gap-x-6 xl:divide-y-0"
+                >
+                    <div
+                        class="divide-y divide-gray-200 dark:divide-gray-700 xl:row-span-2 xl:pb-0"
+                    >
+                        {
+                            post.data.draft && (
+                                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 dark:bg-yellow-500 dark:border-yellow-300 mt-10">
+                                    <p class="leading-5 text-yellow-700 dark:text-yellow-300">
+                                        This is a draft. It might be incomplete
+                                        or have errors.
+                                    </p>
+                                </div>
+                            )
+                        }
+                        <div
+                            class="prose max-w-none pb-8 pt-10 dark:prose-invert"
+                        >
+                            <slot />
+                            <Content />
                         </div>
                     </div>
                 </div>
