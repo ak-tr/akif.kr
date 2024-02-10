@@ -1,12 +1,10 @@
 ---
-title: How to safely expose OctoPrint to the internet using Cloudflare Tunnels and Access.
+title: Safely expose OctoPrint to the internet using Cloudflare Tunnels and Access.
 date: '2024-02-09'
 tags: ['octoprint']
 draft: false
 summary: Short article on how to use Cloudflare Tunnels and Access to provide a secure gateway to your 3D printer using OctoPrint.
 ---
-
-## Introduction
 
 You want to access your OctoPrint instance from anywhere in the world, but you've been warned by many users and OctoPrint itself of the dangers imposed by exposing it to the internet? Thankfully, Cloudflare have a service (completely free to use, by the way) which can help you create a secure tunnel straight to your Raspberry Pi, assuming it is running on one, with 2FA to protect it from any potential intruders.
 
@@ -70,7 +68,7 @@ sudo apt update
 sudo apt install cloudflared
 ```
 
-Optionally, you can choose to verify your installation of cloudflared by running the `cloudflared -v` command. YOu should be able to see a version number in the output.
+Optionally, you can choose to verify your installation of cloudflared by running the `cloudflared -v` command. You should be able to see a version number in the output.
 
 ```
 $ cloudflared -v
