@@ -34,4 +34,8 @@ input:-webkit-autofill:focus {
         font-family: "Space Mono", monospace;
         @apply flex items-center gap-2 scroll-mt-20;
     }
+
+    *:is(nav) {
+        font-family: "Space Mono", monospace;
+    }
 }
