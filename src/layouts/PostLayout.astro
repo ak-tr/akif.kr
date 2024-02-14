@@ -83,8 +83,8 @@ const { Content, headings } = await post.render();
                 // Add/remove the .active class based on whether the
                 // section is visible
                 const addRemove =
-                    section.intersectionRatio > 0 ? "add" : "remove";
-                link.classList[addRemove]("border-black");
+                    section.isIntersecting ? "add" : "remove";
+                link.classList[addRemove]("border-black", "dark:font-extrabold", "dark:text-gray-50");
             });
         });
 
