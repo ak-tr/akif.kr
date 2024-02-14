@@ -1,0 +1,277 @@
+---
+title: Get printer notifications to almost any device using Ntfy.sh
+date: '2024-02-10'
+tags: ['octoprint']
+draft: false
+summary: Get notifications to almost any device about your 3D printer using Ntfy.sh using Python and OctoPrint.
+---
+
+You have OctoPrint up and running but you don't want to check every now and then to get updates on your printers progress? Well, I have the solution just for you. For this project, we will be setting up a REST API using `flask` and `flask-restful` so although not necessarily required, some Python experience could come in handy.
+
+Bear in mind, there are much easier and less technical ways to receive notifications from your OctoPrint instance, but this is definitely one of the more powerful and customisable options.
+
+## Prerequisites
+
+There are two things you will need in order to get this working:
+- Raspberry Pi running an instance of OctoPrint
+    - With SSH access (or other means to access the terminal)
+- A Ntfy.sh account
+    - There is a step to create this, so don't worry if you haven't set one up already.
+
+## OctoPrint setup
+
+First, we need to install the "Webhooks" plugin to OctoPrint. This is what will send events such as print progress to the endpoint we shall make later on.
+
+- Click the wrench icon in the top right corner of OctoPrint
+- Select "Plugin Manager" in the sidebar
+- Click "+ Get More" button in the top right
+- In the textbox under "... from URL", enter the URL provided below
+
+```
+https://github.com/derekantrican/OctoPrint-Webhooks/archive/master.zip
+```
+
+Give your OctoPrint instance a restart if required and you should now see the "Webhooks" section under "Plugins" when you access your settings.
+
+## Ntfy.sh setup
+
+Now we can put OctoPrint aside for a moment, we need a way to send notifications to our chosen device. [Ntfy](https://ntfy.sh) provide a very handy (and free) solution for this. If you don't already have an account, you'll be required to create one. Head over to [ntfy.sh/signup](https://ntfy.sh/signup) and create a free account.
+
+## Creating a Python REST API
+
+Now, as the "Webhooks" plugin will be firing HTTP requests, we will need a way to parse these requests and then forward them to our Ntfy topic.
+
+Begin by SSH'ing into your Raspberry Pi - if you do not have SSH access, you can also plug a keyboard and display directly to your Raspberry Pi albeit I wouldn't recommend this as a long term solution.
+
+We will need to install some Python libraries
+
+```
+pip install flask flask_restful requests
+```
+
+This will install the three libraries we need for this project, `flask`, `flask_restful` and `requests`.
+
+Now, let's create a directory for our Python files, move into it and create a `main.py` file
+
+```
+mkdir api
+cd api/
+nano main.py
+```
+
+We will begin by importing the required libraries
+
+```python
+from flask import Flask, request
+from flask_restful import Resource, Api
+import requests
+```
+
+We can then store some constants and intialise our Flask app
+
+```python
+ntfy_url = "ntfy.sh"
+topic_name = "octoprint_server"
+
+app = Flask(__name__)
+api = Api(app)
+```
+
+Make sure you choose a unique topic name. This should be something someone else is unlikely to guess. This is because anyone can subscribe to these topics. This is a limitation of the free tier.
+
+**Important: Do not send any sensitive information such as names, pictures or other pieces of data unless you have a paid Ntfy account as topics are open to public otherwise.**
+
+Now we can create our API. We will intialise a value for our topic using the constant variables we created at the top of our file. We will create a GET request for testing purposes and then a POST request for the actual webhooks.
+
+```python
+class Root(Resource):
+    def __init__(self):
+        self.topic = f"https://{ntfy_url}/{topic_name}"
+
+    def get(self):
+        return {"status": 200, "message": "success"}
+
+    def post(self):
+        data = request.json
+
+        topic = data.get("topic")
+        message = data.get("message")
+
+        try:
+            requests.post(self.topic,
+                headers={
+                    "Title": f"Octoprint Server ({topic})"
+                },
+                data=message.encode(encoding="utf-8"))
+
+            return {"status": 200, "message": "success"}
+        except:
+            return { "status": 500, "message": "error" }
+```
+
+The Webhooks plugin will send a JSON payload to the endpoint we have created. The JSON payload will look something like this.
+
+```json
+{
+  "deviceIdentifier": "the DEVICE IDENTIFIER in settings",
+  "apiSecret": "the API SECRET in settings",
+  "topic": "the name of the event",
+  "message": "a description of the event - can be used for display purposes",
+  "extra": {
+    ...
+  } //a json object of data related to the event - different for each event
+}
+```
+
+You can narrow down the extra data from each event by looking at the [available events](https://docs.octoprint.org/en/master/events/index.html#printing) in the OctoPrint docs. Here you can see, in our `post` function, we are only retrieving the `topic` and `message` properties. This is to keep things simple. You may choose to make it as complex as you wish.
+
+Then, we use the `add_resource` to register the routes (GET and POST) with the framework. We will pass `/` as our base route.
+```python
+api.add_resource(Root, "/")
+```
+
+Finally, use `app.run` to start the server.
+
+```python
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5173)
+```
+
+We use `0.0.0.0` as our host so it runs locally, and the port can be whatever you like though I found that 5173 was likely to be unused.
+
+Our full Python file should now look like this:
+
+```python
+from flask import Flask, request
+from flask_restful import Resource, Api
+import requests
+
+ntfy_url = "ntfy.sh"
+topic_name = "909ak_octoprint_server"
+
+app = Flask(__name__)
+api = Api(app)
+
+class Root(Resource):
+    def __init__(self):
+        self.topic = f"https://{ntfy_url}/{topic_name}"
+
+    def get(self):
+        return {"status": 200, "message": "success"}
+
+    def post(self):
+        data = request.json
+
+        topic = data.get("topic")
+        message = data.get("message")
+
+        try:
+            requests.post(self.topic,
+                headers={
+                    "Title": f"Octoprint Server ({topic})"
+                },
+                data=message.encode(encoding="utf-8"))
+
+            return {"status": 200, "message": "success"}
+        except:
+            return { "status": 500, "message": "error" }
+
+
+api.add_resource(Root, "/")
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5173)
+```
+
+Press CTRL+X (even on Mac) to exit. Click Y to save and then enter to confirm the file name. We have created our API! Let's run it by simply running the Python file.
+
+```
+python main.py
+```
+
+We should see the following:
+
+```
+ * Serving Flask app 'main'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5173
+ * Running on http://192.168.0.100:5173
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 131-259-503
+```
+
+## Adding our API to the Webhooks plugin
+
+Now we can head back into OctoPrint and head back to our OctoPrint settings menu. Under plugins, click "Webhooks" and then the "New Hook" button.
+
+Since OctoPrint is running on the same device as our Flask server, we can use the localhost URL `http://127.0.0.1:5173` as our webhook URL. Paste this value into the URL textbox.
+
+Scroll down to the advanced section, and open it. Paste the following into textbox named "DATA":
+
+```json
+{
+  "deviceIdentifier":"@deviceIdentifier",
+  "apiSecret":"@apiSecret",
+  "topic":"@topic",
+  "message":"@message",
+  "extra":"@extra",
+  "state": "@state",
+  "job": "@job",
+  "progress": "@progress",
+  "currentZ": "@currentZ",
+  "offsets": "@offsets",
+  "meta": "@meta",
+  "currentTime": "@currentTime"
+}
+```
+
+This gets rid of the `@snapshot` value which is required as this will force the "Content-Type" header to be something other than "application/json" which will cause our Flask server to throw an error.
+
+## Subscribing to our topic
+
+Now we can go back to our Ntfy dashboard. Click "Subscribe to a topic" on the sidebar. This is for the web version of Ntfy so your experience may differ for the Android/iOS (or other) variants but should be fairly similar. Now you can enter your topic name in the textbox and click subscribe. You should see your subscribed topics in the sidebar on the left. Click on the topic you just subscribed to.
+
+## Testing the webhooks
+
+Go back to your OctoPrint tab, and under "Testing" select a test event from the dropdown and click "Send Test Webhook". Head back over to your Ntfy tab, and you should see a message pop up. If you don't, a toast alert should pop up on OctoPrint whenever there is an error thrown by the API, or you can look at the logs from the running Python script.
+
+## Running the Python script in the background and startup
+
+Now, we want this Python script running 24/7.  We can use the `nohup` command.
+
+```
+nohup python main.py &
+```
+
+This will run the Python script in the background and write its output to `nohup.out` should you need to debug. Now, whenever we restart our Raspberry Pi, we want this to automatically run without human intervention. To do this on a Raspberry Pi, we can edit the `rc.local` file in the `etc` folder.
+
+```
+sudo nano /etc/rc.local
+```
+
+Navigate to the bottom of the file and add the nohup command from before. Ensure the command is above the `exit 0` line. It is important that this line is the last line in the file. Don't forget, this command will run from a different directory than the file is in, so we need to use absolute path. We also didn't use sudo to install our Python packages using pip so it is likely that when we try to run our Python script from `rc.local` it will not be able to find the Python libraries. We can mitigate this by running the command as a user of our choice using `sudo -H -u {username}`. The end of your file should look something like this.
+
+```
+sudo -H -u akif nohup python /home/akif/api/main.py &
+exit 0
+```
+
+Ensure the `rc.local` is executable:
+
+```
+sudo chmod +x /etc/rc.local
+```
+
+Finally, we can test to see if we implemented that correctly by rebooting our Raspberry Pi.
+
+```
+sudo reboot
+```
+
+## Customisation
+
+Now that the base is there, you have free reign to customise it how you would like. Remember, you are not limited to just Ntfy, you can make calls to other services. You could make an LED connected to the Raspberry Pi flash, or connect a buzzer to the GPIO pins. The possibilities are endless.
