@@ -2,7 +2,7 @@
 // github.com/rezahedi/rezahedi.dev/blob/main/src/components/TOCHeading.astro
 const { heading } = Astro.props;
 ---
-<li class="border-l-2 pl-4 pb-2 transition-colors duration-500" id={heading.slug}>
+<li class="border-l-2 pl-4 pb-2 transition-colors duration-500 dark:border-0" id={heading.slug}>
   <a href={'#' + heading.slug}>
     {heading.text}
   </a>
