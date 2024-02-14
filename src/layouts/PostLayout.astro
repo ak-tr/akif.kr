@@ -5,15 +5,15 @@ import RootLayout from "./RootLayout.astro";
 import { type CollectionEntry } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
 import ScrollTopAndComments from "@/solid/ScrollTopAndComments.tsx";
+import TableOfContents from "@/components/TableOfContents.astro";
 
 interface Props {
     post: CollectionEntry<"blog">;
 }
 
 const { post } = Astro.props as Props;
-console.log("headings ->", post.data);
 
-const { Content } = await post.render();
+const { Content, headings } = await post.render();
 ---
 
 <RootLayout title={post.data.title} description={post.data.summary}>
@@ -38,9 +38,10 @@ const { Content } = await post.render();
                         </div>
                     </div>
                 </header>
-                <div
-                    class="grid-rows-[auto_1fr] divide-y divide-gray-200 pb-8 dark:divide-gray-700 xl:grid xl:grid-cols-1 xl:gap-x-6 xl:divide-y-0"
-                >
+                <div class="divide-y divide-gray-200 pb-8 dark:divide-gray-700">
+                    <div class="sticky top-12 float-right toc:hidden">
+                        <TableOfContents headings={headings} />
+                    </div>
                     <div
                         class="divide-y divide-gray-200 dark:divide-gray-700 xl:row-span-2 xl:pb-0"
                     >
@@ -66,3 +67,34 @@ const { Content } = await post.render();
         </article>
     </SectionContainer>
 </RootLayout>
+
+<script is:inline>
+    function addIntersectionObserver() {
+        const observer = new IntersectionObserver((sections) => {
+            sections.forEach((section) => {
+                const heading = section.target.querySelector("h2");
+                if (!heading) return;
+                const id = heading.getAttribute("id");
+
+                // Get the link to this section's heading
+                const link = document.querySelector(`nav ul li#${id}`);
+                if (!link) return;
+
+                // Add/remove the .active class based on whether the
+                // section is visible
+                const addRemove =
+                    section.intersectionRatio > 0 ? "add" : "remove";
+                link.classList[addRemove]("border-black");
+            });
+        });
+
+        document.querySelectorAll("section.heading").forEach((section) => {
+            observer.observe(section);
+        });
+    }
+
+    // document.addEventListener("astro:after-swap", () => {});
+
+    console.log("Adding interesction observer...");
+    addIntersectionObserver();
+</script>

@@ -1,0 +1,42 @@
+---
+// github.com/rezahedi/rezahedi.dev/blob/main/src/components/TOC.astro
+import TableOfContentHeading from "@/components/TableOfContentHeading.astro";
+import type { MarkdownHeading } from "astro";
+
+const { headings } = Astro.props;
+
+const buildHierarchy = (headings: MarkdownHeading[]) => {
+    const toc: any[] = [];
+    const parentHeadings = new Map();
+
+    if (!headings) return toc;
+
+    headings.forEach((h: any) => {
+        const heading = { ...h, subheadings: [] };
+        parentHeadings.set(heading.depth, heading);
+        // Change 2 to 1 if your markdown includes your <h1>
+        if (heading.depth === 2) {
+            toc.push(heading);
+        }
+    });
+    return toc;
+};
+
+const tableOfContents = buildHierarchy(headings);
+console.log(tableOfContents);
+---
+
+{
+    tableOfContents && tableOfContents.length > 0 && (
+        <nav class="absolute w-64 translate-x-8 flex flex-col text-sm">
+            <span class="pb-2 font-extrabold border-l-2 pl-4">
+                On this page...
+            </span>
+            <ul class="text-ellipsis overflow-hidden text-slate-400">
+                {tableOfContents.map((heading) => (
+                    <TableOfContentHeading heading={heading} />
+                ))}
+            </ul>
+        </nav>
+    )
+}

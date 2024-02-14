@@ -7,10 +7,13 @@ import solidJs from "@astrojs/solid-js";
 // Add anchors to blogs
 import { toString } from "hast-util-to-string";
 import { h } from "hastscript";
-import autolinkHeadings from "rehype-autolink-headings";
 
 import { SITE_METADATA } from "./src/consts.ts";
+
+// Rehype plugins
+import autolinkHeadings from "rehype-autolink-headings";
 import rehypeSlug from "rehype-slug";
+import sectionize from '@hbsnow/rehype-sectionize';
 
 // The following configuration for rehype-autolink-headings was taken from https://github.com/withastro/docs/blob/main/astro.config.ts
 const AnchorLinkIcon = h(
@@ -29,26 +32,16 @@ const AnchorLinkIcon = h(
     })
 );
 
-const createSROnlyLabel = (text) => {
-    const node = h("span.sr-only", `Section titled ${escape(text)}`);
-    node.properties["is:raw"] = true;
-    return node;
-};
-
 // https://astro.build/config
 export default defineConfig({
     integrations: [
         mdx({
             rehypePlugins: [
                 rehypeSlug,
-                () =>
+                () => // autoLinkHeadings
                     autolinkHeadings({
                         behavior: "prepend",
-                        group: ({ tagName }) =>
-                            h(`div.heading-wrapper.level-${tagName}`, {
-                                tabIndex: -1,
-                            }),
-                        content: (heading) => [
+                        content: () => [
                             h(
                                 `span.anchor-icon`,
                                 {
@@ -56,9 +49,9 @@ export default defineConfig({
                                 },
                                 AnchorLinkIcon
                             ),
-                            createSROnlyLabel(toString(heading)),
                         ],
                     }),
+                sectionize,
             ],
         }),
         sitemap(),
