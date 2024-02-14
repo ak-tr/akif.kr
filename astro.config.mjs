@@ -14,6 +14,10 @@ import { SITE_METADATA } from "./src/consts.ts";
 import autolinkHeadings from "rehype-autolink-headings";
 import rehypeSlug from "rehype-slug";
 import sectionize from '@hbsnow/rehype-sectionize';
+import rehypeHighlight from "rehype-highlight";
+
+import langPython from "highlight.js/lib/languages/python";
+import langJson from "highlight.js/lib/languages/json";
 
 // The following configuration for rehype-autolink-headings was taken from https://github.com/withastro/docs/blob/main/astro.config.ts
 const AnchorLinkIcon = h(
@@ -52,6 +56,12 @@ export default defineConfig({
                         ],
                     }),
                 sectionize,
+                () => rehypeHighlight({
+                    languages: {
+                        python: langPython,
+                        json: langJson,
+                    }
+                })
             ],
         }),
         sitemap(),
