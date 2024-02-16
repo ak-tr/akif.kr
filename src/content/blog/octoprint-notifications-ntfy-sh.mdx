@@ -45,7 +45,7 @@ Begin by SSH'ing into your Raspberry Pi - if you do not have SSH access, you can
 
 We will need to install some Python libraries
 
-```
+```sh
 pip install flask flask_restful requests
 ```
 
@@ -53,7 +53,7 @@ This will install the three libraries we need for this project, `flask`, `flask_
 
 Now, let's create a directory for our Python files, move into it and create a `main.py` file
 
-```
+```sh
 mkdir api
 cd api/
 nano main.py
@@ -185,7 +185,7 @@ if __name__ == "__main__":
 
 Press CTRL+X (even on Mac) to exit. Click Y to save and then enter to confirm the file name. We have created our API! Let's run it by simply running the Python file.
 
-```
+```sh
 python main.py
 ```
 
@@ -243,13 +243,13 @@ Go back to your OctoPrint tab, and under "Testing" select a test event from the 
 
 Now, we want this Python script running 24/7.  We can use the `nohup` command.
 
-```
+```sh
 nohup python main.py &
 ```
 
 This will run the Python script in the background and write its output to `nohup.out` should you need to debug. Now, whenever we restart our Raspberry Pi, we want this to automatically run without human intervention. To do this on a Raspberry Pi, we can edit the `rc.local` file in the `etc` folder.
 
-```
+```sh
 sudo nano /etc/rc.local
 ```
 
@@ -262,13 +262,13 @@ exit 0
 
 Ensure the `rc.local` is executable:
 
-```
+```sh
 sudo chmod +x /etc/rc.local
 ```
 
 Finally, we can test to see if we implemented that correctly by rebooting our Raspberry Pi.
 
-```
+```sh
 sudo reboot
 ```
 

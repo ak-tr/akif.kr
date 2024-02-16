@@ -38,7 +38,7 @@ You can follow steps 1-6 in the linked guide above, but for simplicity, I will r
 
 ### 1. Install relevant packages
 
-```
+```sh
 sudo apt update
 sudo apt upgrade
 sudo apt install curl lsb-release
@@ -46,31 +46,31 @@ sudo apt install curl lsb-release
 
 ### 2. Grab GPG key for cloudfared repository
 
-```
+```sh
 curl -L https://pkg.cloudflare.com/cloudflare-main.gpg | sudo tee /usr/share/keyrings/cloudflare-archive-keyring.gpg >/dev/null
 ```
 
 ### 3. Add cloudflared repository to Raspberry Pi
 
-```
+```sh
 echo "deb [signed-by=/usr/share/keyrings/cloudflare-archive-keyring.gpg] https://pkg.cloudflare.com/cloudflared $(lsb_release -cs) main" | sudo tee  /etc/apt/sources.list.d/cloudflared.list
 ```
 
 ### 4. Update repository cache
 
-```
+```sh
 sudo apt update
 ```
 
 ### 5. Install cloudflared
 
-```
+```sh
 sudo apt install cloudflared
 ```
 
 Optionally, you can choose to verify your installation of cloudflared by running the `cloudflared -v` command. You should be able to see a version number in the output.
 
-```
+```sh
 $ cloudflared -v
 cloudflared version 2024.1.5 (built 2024-01-25-1729 UTC)
 ```
@@ -79,7 +79,7 @@ cloudflared version 2024.1.5 (built 2024-01-25-1729 UTC)
 
 Now that we have `cloudflared` installed on our Raspberry Pi, we can connect our tunnel to Cloudflare. Go back to the Cloudflare dashboard, click Debian at the top and copy the code in the code block under "If you already have cloudflared installed on your machine:". This should look something similar to this:
 
-```
+```sh
 sudo cloudflared service install eyJhIjo....
 ```
 

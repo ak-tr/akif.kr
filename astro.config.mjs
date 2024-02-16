@@ -18,6 +18,7 @@ import rehypeHighlight from "rehype-highlight";
 
 import langPython from "highlight.js/lib/languages/python";
 import langJson from "highlight.js/lib/languages/json";
+import langShell from "highlight.js/lib/languages/shell";
 
 // The following configuration for rehype-autolink-headings was taken from https://github.com/withastro/docs/blob/main/astro.config.ts
 const AnchorLinkIcon = h(
@@ -60,6 +61,7 @@ export default defineConfig({
                     languages: {
                         python: langPython,
                         json: langJson,
+                        sh: langShell,
                     }
                 })
             ],
