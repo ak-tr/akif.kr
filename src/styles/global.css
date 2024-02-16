@@ -32,10 +32,32 @@ input:-webkit-autofill:focus {
 @layer components {
     *:is(header, h1, h2, h3, h4, h5, h6) {
         font-family: "Space Mono", monospace;
-        @apply flex items-center gap-2 scroll-mt-20;
+        @apply flex items-center gap-2 scroll-mt-10;
     }
 
     *:is(nav) {
         font-family: "Space Mono", monospace;
     }
+
+    h2 a,
+    h3 a {
+        @apply hidden sm:block;   
+    }
+}
+
+h2 a[class="heading-anchor"],
+h3 a[class="heading-anchor"] {
+  margin-left: -2rem;
+}
+
+.heading-anchor__btn {
+  all: unset; /** replace with buttom reset */
+  width: 1.6rem;
+  opacity: 0;
+}
+
+h2:hover a[class="heading-anchor"] .heading-anchor__btn,
+h3:hover a[class="heading-anchor"] .heading-anchor__btn {
+  opacity: 1;
+  cursor: pointer;
 }
