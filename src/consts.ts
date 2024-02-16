@@ -9,7 +9,7 @@ export const SITE_METADATA = {
     description: 'Personal website and blog',
     language: 'en-GB',
     theme: 'light', // Options: system, light, dark
-    siteUrl: 'https://tasb.yon.fun/',
+    siteUrl: 'https://akif.kr/',
     siteRepo: 'https://github.com/wanoo21/tailwind-astro-starting-blog',
     siteLogo: '/static/images/logo.png',
     socialBanner: '/static/images/twitter-card.png',
