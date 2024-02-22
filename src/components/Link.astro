@@ -11,10 +11,10 @@ const isAnchorLink = href && href.startsWith('#')
 
 {
     (isInternalLink || isAnchorLink) ?
-    <a href={href} {...rest}>
+    <a class="text-[#ec4899] hover:text-[#db2777] transition-colors underline underline-offset-1" href={href} {...rest}>
         <slot/>
     </a> :
-    <a target="_blank" rel="noopener noreferrer" href={href} {...rest}>
+    <a class="text-[#ec4899] hover:text-[#db2777] transition-colors underline underline-offset-1" target="_blank" rel="noopener noreferrer" href={href} {...rest}>
         <slot/>
     </a>
 }
