@@ -28,20 +28,14 @@ input:-webkit-autofill:focus {
     transition: background-color 600000s 0s, color 600000s 0s;
 }
 
+:root {
+    font-size: 15px;
+}
+
 /* Apply styling to anchor tags and change font for headings */
 @layer components {
     *:is(header, h1, h2, h3, h4, h5, h6) {
         font-family: "Space Mono", monospace;
-        @apply flex items-center gap-2 scroll-mt-10;
-    }
-
-    *:is(nav) {
-        font-family: "Space Mono", monospace;
-    }
-
-    h2 a,
-    h3 a {
-        @apply hidden sm:block;   
     }
 }
 
