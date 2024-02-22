@@ -7,6 +7,7 @@ import RootLayout from "./RootLayout.astro";
 import Link from "../components/Link.astro";
 import { sortBlogPosts } from "../functions";
 import { ITEMS_PER_PAGE } from "../consts";
+import type { Code } from "astro:components";
 
 interface Props {
     content: CollectionEntry<"authors">;
@@ -45,30 +46,8 @@ const authorPosts = await getCollection(
 <RootLayout title={name} description={shortBio}>
     <div class="items-start space-y-2 xl:gap-x-8 xl:space-y-0">
         <div class="xl:col-span-2 max-w-none d-flex">
-          <div class="flex flex-rows items-center space-x-2 pt-8">
-            {avatar && (
-                    <Image src={avatar} alt="avatar" width={192} height={192}
-                           class="h-48 w-48 rounded-2xl drop-shadow-md"/>
-            )}
-            <div class="flex flex-col pl-8">
-              <h2 class="pb-2 pt-4 text-2xl font-bold leading-8 tracking-tight">{name}</h2>
-              <div class="text-gray-500 dark:text-gray-400">{occupation}</div>
-              <div class="text-gray-500 dark:text-gray-400">{company}</div>
-              <div class="flex space-x-3 pt-6">
-                  {email && (
-                          <SocialIcon kind="mail" href={`mailto:${email}`}/>
-                  )}
-                  {github && (
-                          <SocialIcon kind="github" href={github}/>
-                  )}
-                  {linkedin && (
-                          <SocialIcon kind="linkedin" href={linkedin}/>
-                  )}
-                  {twitter && (
-                          <SocialIcon kind="twitter" href={twitter}/>
-                  )}
-              </div>
-            </div>
+          <div class="prose flex flex-rows items-center space-x-2 pt-8">
+            <h2>I'm Akif, a growing Full Stack Developer...</h2>
           </div>
             <div class="prose pb-8 pt-8 dark:prose-invert">
                 <slot />
