@@ -10,7 +10,7 @@ export const SITE_METADATA = {
     language: 'en-GB',
     theme: 'light', // Options: system, light, dark
     siteUrl: 'https://akif.kr/',
-    siteRepo: 'https://github.com/wanoo21/tailwind-astro-starting-blog',
+    siteRepo: 'https://git.akif.kr/akif.kr',
     siteLogo: '/static/images/logo.png',
     socialBanner: '/static/images/twitter-card.png',
     locale: 'en-US',
