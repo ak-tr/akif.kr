@@ -4,24 +4,24 @@
  * A few of these are not used yet, and are subject to change, example of this is Author.
  */
 export const SITE_METADATA = {
-    title: 'akif.kr',
-    headerTitle: 'akif.kr',
-    description: 'Personal website and blog',
-    language: 'en-GB',
-    theme: 'light', // Options: system, light, dark
-    siteUrl: 'https://akif.kr/',
-    siteRepo: 'https://git.akif.kr/akif.kr',
-    siteLogo: '/static/images/logo.png',
-    socialBanner: '/static/images/twitter-card.png',
-    locale: 'en-US',
-    robots: 'index, follow', // Options: index, noindex, follow, nofollow
+    title: "akif.kr",
+    headerTitle: "akif.kr",
+    description: "Personal website and blog",
+    language: "en-GB",
+    theme: "light", // Options: system, light, dark
+    siteUrl: "https://akif.kr/",
+    siteRepo: "https://git.akif.kr/akif.kr",
+    siteLogo: "/static/images/logo.png",
+    socialBanner: "/static/images/twitter-card.png",
+    locale: "en-US",
+    robots: "index, follow", // Options: index, noindex, follow, nofollow
 
     // The following are subject to change. They are placeholders for now.
     // This project provide a default author content see src/content/authors/default.mdx, so these details are better to be inserted there.
-    author: 'Akif Karakus',
-    email: 'akif@muhl.is',
-    github: 'https://git.akif.kr',
-    linkedin: 'https://www.linkedin.akif.kr',
+    author: "Akif Karakus",
+    email: "akif@muhl.is",
+    github: "https://git.akif.kr",
+    linkedin: "https://linkedin.akif.kr",
 
     // These are not supported yet
     // analytics: {
@@ -100,8 +100,8 @@ export const SITE_METADATA = {
 export const ITEMS_PER_PAGE = 5;
 
 export const NAVIGATION = [
-    {href: '/', title: 'Home'},
-    {href: '/blog', title: 'Blog'},
-    {href: '/tags', title: 'Tags'},
+    { href: "/", title: "Home" },
+    { href: "/blog", title: "Blog" },
+    { href: "/tags", title: "Tags" },
     // {href: '/projects', title: 'Projects'},
-]
+];
