@@ -5,15 +5,19 @@ import RootLayout from "./RootLayout.astro";
 import { type CollectionEntry } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
 import ScrollTopAndComments from "@/solid/ScrollTopAndComments.tsx";
-import TableOfContents from "@/components/TableOfContents.astro";
+
+import Hero from "@/components/Hero.astro"
+import Collapsible from "@/components/Collapsible.astro";
+import StepFlow from "@/components/StepFlow.astro";
+export const components = { Hero, Collapsible, StepFlow }
 
 interface Props {
     post: CollectionEntry<"blog">;
 }
 
-const { post } = Astro.props as Props;
+const { post } = Astro.props;
 
-const { Content, headings } = await post.render();
+const { Content } = await post.render();
 ---
 
 <RootLayout title={post.data.title} description={post.data.summary}>
@@ -38,9 +42,6 @@ const { Content, headings } = await post.render();
                         </div>
                     </div>
                 </header>
-                <!-- <div class="sticky top-12 float-right toc:hidden">
-                    <TableOfContents headings={headings} />
-                </div> -->
                 <div class="divide-y divide-gray-200 pb-8 dark:divide-gray-700">
                     <div
                         class="divide-y divide-gray-200 dark:divide-gray-700 xl:row-span-2 xl:pb-0"
@@ -56,10 +57,11 @@ const { Content, headings } = await post.render();
                             )
                         }
                         <div
-                            class="prose max-w-none pb-8 pt-10 dark:prose-invert"
+                            id="content"
+                            class="prose max-w-none pb-8 dark:prose-invert"
                         >
                             <slot />
-                            <Content />
+                            <Content components={{ ...components }} />
                         </div>
                     </div>
                 </div>
@@ -92,8 +94,6 @@ const { Content, headings } = await post.render();
             observer.observe(section);
         });
     }
-
-    // document.addEventListener("astro:after-swap", () => {});
 
     console.log("Adding interesction observer...");
     addIntersectionObserver();
