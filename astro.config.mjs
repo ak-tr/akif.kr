@@ -15,6 +15,8 @@ import langPython from "highlight.js/lib/languages/python";
 import langJson from "highlight.js/lib/languages/json";
 import langShell from "highlight.js/lib/languages/shell";
 
+import robotsTxt from "astro-robots-txt";
+
 // https://astro.build/config
 export default defineConfig({
     integrations: [
@@ -31,6 +33,7 @@ export default defineConfig({
             ],
         }),
         sitemap(),
+        robotsTxt(),
         tailwind(),
         solidJs(),
     ],
