@@ -25,8 +25,22 @@ export default function ThemeSwitcher() {
   });
 
   const toggleTheme = () => {
-    setTheme(theme() === 'dark' ? 'light' : 'dark');
-  }
+    const isDark = theme() === 'dark';
+    const newTheme = isDark ? 'light' : 'dark';
+
+    // Apply theme class
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+
+    // Update your reactive theme state
+    setTheme(newTheme);
+
+    // Update meta theme-color
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute('content', newTheme === 'dark' ? '#000' : '#fff');
+      console.log(meta.getAttribute('content'))
+    }
+  };
 
   return (
     <button aria-label="Toggle Dark Mode" onClick={toggleTheme}>
