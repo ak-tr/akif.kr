@@ -41,17 +41,22 @@ input:-webkit-autofill:focus {
 
 h2 a[class="heading-anchor"],
 h3 a[class="heading-anchor"] {
-  margin-left: -2rem;
+    margin-left: -1.6rem;
 }
 
 .heading-anchor__btn {
-  all: unset; /** replace with buttom reset */
-  width: 1.6rem;
-  opacity: 0;
+    all: unset;
+    /** replace with buttom reset */
+    width: 1.6rem;
+    opacity: 0;
 }
 
 h2:hover a[class="heading-anchor"] .heading-anchor__btn,
 h3:hover a[class="heading-anchor"] .heading-anchor__btn {
-  opacity: 1;
-  cursor: pointer;
+    opacity: 1;
+    cursor: pointer;
+}
+
+#content:not(:has(#hero)) {
+    padding-top: 20px;
 }
