@@ -1,0 +1,11 @@
+---
+const { src, alt } = Astro.props
+---
+
+<div id="hero" class="not-prose w-full flex justify-center items-start my-8 h-auto">
+  <img
+    src={src}
+    alt={alt}
+    class="w-[90vw] max-w-[800px] rounded-lg block"
+  />
+</div>
