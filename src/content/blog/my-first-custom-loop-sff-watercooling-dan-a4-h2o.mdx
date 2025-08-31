@@ -1,0 +1,123 @@
+---
+title: "My First Custom Loop: SFF Watercooling in the Dan A4-H2O"
+date: "2025-08-28"
+tags: ["my-pc"]
+draft: true
+summary: "Built my first custom loop in the Dan A4-H2O with a 5800X3D and RTX 3080. Documenting my lessons, challenges, and tips for SFF watercooling."
+---
+<Hero
+  src="/static/images/my-first-custom-loop-sff-watercooling-dan-a4-h2o-hero.jpeg"
+  alt="PC on desk showcasing GPU side of watercooling loop"
+/>
+
+*No time for words? [Beam me straight to the parts list.](#parts-list)*
+
+*To keep the blog post clean and readable all images related to this build can be found in the gallery [here.](/gallery/custom-loop)*
+
+## Introduction
+
+I built my first custom watercooling loop inside the Dan A4-H2O case, cooling a Ryzen 7 5800X3D and RTX 3080. This write-up covers my full experience—from part selection and layout planning to flushing, leak testing, and switching from PVC to EPDM tubing mid-way. I ran into a few challenges typical of SFF builds but came away with a quiet, efficient, and clean setup. If you're considering custom watercooling for a small form factor build, this post should give you a realistic look at what to expect and what I’d do differently next time.
+
+### Why I Built This Custom Loop?
+
+The main motivations for this loop were thermals, noise, aesthetics, and the itch to tinker.
+
+Originally, I had the CPU running into an NZXT Kraken X53 AIO, but there were thermal issues. The CPU would often run quite hot—even after setting custom fan and pump curves based on liquid temperature. This was partly due to a lack of radiator cleaning but also because the GPU dumped a lot of heat into the system, which would then be pulled into the radiator.
+
+The GPU was also modified (deshroud mod) to remove the original shroud, and I added 3x Noctua NF-A9x14 fans on top of a custom 3D printed bracket. The GPU was further modded with extra thermal paste and pads between the cooler and VRAM. Despite these efforts, thermals were still on the hotter side, especially for the GPU memory.
+
+With higher fan speeds, I could’ve improved thermals a bit, but I prioritised noise over cooling performance.
+
+### Why the Dan A4-H2O?
+
+Simply put, this is the case I already had and have been using for over 2.5 years (as of August 2025). If I were doing this from scratch or had the option to pick a new case, I’d likely go with something like the Meshroom S V2, as I prefer its design and layout.
+
+### Why Watercooling Over Air?
+
+It’s safe to say the benefits of watercooling don’t necessarily outweigh the maintenance, planning, and effort compared to air cooling. So why go this route instead of the safer option? Because this is something I’ve wanted to do since building my first PC over 10 years ago. Now that I’ve had this setup in the A4-H2O for a while, I decided it was time to finally do it.
+
+## Parts List
+
+For your information, any parts used, printed, or acquired to finalise this build have been listed below.
+
+<Collapsible title="View Parts List" useMonoFont>
+- **Case**: Dan A4-H2O
+- **CPU**: Ryzen 7 5800X3D
+- **GPU**: Dell RTX 3080
+- **PSU**: Corsair SF600
+- **Motherboard**: GIGABYTE B550I AORUS PRO AX
+- **Blocks**:
+    - **GPU Block**: EK Quantum Vector GeForce RTX 3080/3090
+    - **CPU Block**: EK Quantum Velocity RGB Black Acetal Top
+- **Radiator**: EK Quantum Surface S240 - Black Edition
+- **Fans**: 2x Noctua NF-A12x25 PWM Chromax Black
+- **Reservoir**: EK-Quantum Kinetic FLT 80 D5/DDC
+- **Pump**: Laing DDC pump 12V DDC-1T (4.2) Plus PWM
+- **Coolant**: EK-CryoFuel Clear 1L Premix
+- **Tubing**: 2 x XSPC 13/10mm EPDM Tubing 2m (Originally started with Barrow PVC)
+- **Fittings/Connectors/Sensors**:
+    - 7x Barrow MINI 90 Degree 360 Rotary Offset
+    - 8x Barrow 13/10mm Compression Fittings
+    - 2x Barrow 7.5mm Male to Female Extension Adapter
+    - 1x Aqua Computer Temperature sensor internal/external thread G1/4
+- **Controller**: Aqua Computer QUADRO
+- **Other Miscellaneous**:
+    - Custom PSU cables (a must for ease of cable management)
+    - Barrow Water-proof Leak-proof Seal Tester
+    - 500ml Drip Liquid Bottle
+    - Generic Power Supply Starter Tester Start Up Jumper with ON/OFF Switch (for leak testing)
+    - Generic PC Water Cooling Cutter For PETG/Acrylic Hard Tubes
+    - Motherboard RGB SYNC Splitter (Needed one extra 4 pin RGB header)
+- **3D Printed Parts**:
+    - [FLT80 Bracket](https://www.printables.com/model/397822-dan-a4-h2o-flt80-ddc-holder)
+    - [Molex Pin Remover](https://www.printables.com/model/1117258-molex-pin-remover) - Printed at 110% scale
+    - Custom Designed Quadro Holder
+</Collapsible>
+
+## Planning & Layout
+
+This section outlines the planning required before starting the build as well as layout decisions made.
+
+### Loop order decisions
+
+The finalised loop order starts from the reservoir outlet and follows the loop below:
+
+<StepFlow steps={["Pump/Res", "GPU", "CPU", "Radiator", "Pump/Res"]} />
+
+### Fittings & Routing
+
+Due to the nature of the case (and SFF in general), things are quite tight. The routing specified above is the simplest to follow. To make things easier, I decided to use the smallest 90-degree fittings I could find. I originally opted for EK's micro rotary fitting lineup, but due to stock issues, I went with Barrow's mini rotary fittings instead.
+
+These mini rotary fittings were the only way to get the CPU outlet to radiator inlet connection to fit. Three chained mini fittings allowed a perfect route. This was nearly the only way to do it without flipping the PSU so the fan faces inward, as I’ve seen in other builds.
+
+### Inverted Reservoir
+
+Although the FLT80 bracket design by [Dallatore](https://www.printables.com/@Dallatorre_226167) allows the reservoir to be mounted as intended, I had to invert it because the GPU block was too long to allow access to the reservoir fittings.
+
+### Radiator Size
+
+This was one area I didn’t realise would be problematic. The A4-H2O has a bracket that makes removing the radiator easy. However, the S240 radiator I bought is about 10mm wider than a 120mm fan. Because of this, you have to remove the entire top section of the case to fit the radiator. That means removing an extra 7–8 screws, not to mention how much tighter the fan cables have to be tucked inside the case. You even have to bend the front panel slightly to get it in and out.
+
+### Radiator Flushing
+
+Flushing was another challenge that required a lot of research, especially as a first-time builder. EK recommends against using harsh chemicals or vinegar to flush the radiator before use—surprisingly, a lot of people online suggest otherwise. I ended up buying a 5L bottle of distilled water (hard to find in the UK), an aquarium pump, coffee filter, and a small storage box. I cut a small hole in the top of the box to route a tube from the outlet of the pump, and a large hole to house the coffee filter. The tubing ran from the distilled water to the radiator, and then out through the coffee filter. I flushed the radiator this way for 20–30 minutes, then swapped the inlet and outlet and repeated the process. Some debris came out, though not as much as I expected—but I deemed it enough to proceed.
+
+## Assembly Challenges
+
+### Radiator 
+
+The most challenging part of the build, by far, was connecting the fittings to and from the radiator. There’s not much space to work with—especially on the inlet side near the PSU—so getting it to work came down to pure luck (thanks to the aforementioned mini Barrow 90-degree fittings).
+
+### Cable Management
+
+Another fairly challenging part of the build was cable management. Even though I used custom PSU cables that were almost the perfect length, it was still tricky due to the extra wires for fans, the Quadro, RGB, and the new tubing now present inside the case.
+
+I also needed two Molex connectors for the pump and Quadro. For this, I used the original cable that came with the PSU. Unfortunately, it had three connectors and I only needed two. I printed a Molex pin remover (linked in the [parts list](#parts-list)) and used it to depin the extra one. With some careful cutting, I removed the unused connector, reducing it to two.
+
+### Tubing
+
+When sourcing parts, I initially chose Barrow’s 13/10mm PVC tubing. After further research, I discovered that PVC tubing can leach plasticizers into the loop over time. Since the build was still incomplete, I switched to XSPC’s 13/10mm EPDM tubing instead. I found it just as easy to work with, and far more durable.
+
+The only downside was that EPDM was a bit harder to cut due to its softness. The PVC tubing was easier to cut thanks to its stiffness, but that also made it more prone to kinking. I originally ordered 90-degree adapters to remove the kink in the GPU-to-CPU run, but with EPDM, they weren’t necessary.
+
+Why 13/10mm instead of 16/10mm? I’m personally not a fan of how chunky 16/10mm tubing looks. Even though it’s much more kink-resistant—which is useful in an SFF watercooling build—I just couldn't bring myself to use it.
