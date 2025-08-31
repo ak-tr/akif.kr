@@ -1,0 +1,21 @@
+---
+import { getCollection } from "astro:content";
+import RootLayout from "@/layouts/RootLayout.astro";
+import Gallery from "@/components/Gallery.astro";
+
+export async function getStaticPaths() {
+  const galleries = await getCollection("gallery");
+
+  return galleries.map((gallery) => ({
+    params: { page: gallery.id }, // note: from JSON data
+    props: { gallery },
+  }));
+}
+
+const { gallery: galleryData } = Astro.props;
+const { data: gallery } = galleryData;
+---
+
+<RootLayout title={gallery.title}>
+    <Gallery images={gallery.images} />
+</RootLayout>

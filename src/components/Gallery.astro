@@ -1,0 +1,102 @@
+---
+import { sortForMasonryLayout } from '@/functions';
+import { Image } from 'astro:assets';
+
+interface Props {
+  images: {
+    url: ImageMetadata;
+    alt: string;
+  }[];
+}
+
+const { images } = Astro.props;
+---
+
+<section class="relative z-10 w-full overflow-visible">
+  <div class="relative overflow-x-visible">
+    <div
+      class="max-w-none
+        w-full md:w-[130%]
+        -translate-x-0 md:-translate-x-[10%]
+        mx-auto
+        columns-1 sm:columns-2 lg:columns-3
+        gap-2 space-y-2"
+      id="gallery"
+    >
+      {sortForMasonryLayout(images, 3).map((img, i) => (
+        <div
+          id={`overlay-${i}`}
+          class="break-inside-avoid relative group cursor-pointer"
+        >
+          <Image
+            src={img.url}
+            alt={img.alt}
+            width={1}
+            height={1}
+            inferSize
+            loading="lazy"
+            class="w-full h-auto rounded-md"
+          />
+          <div
+            class="
+              absolute bottom-0 left-0 right-0 px-3 py-2 text-xs
+              text-white bg-black/60 rounded-b-md
+              pointer-events-none
+            "
+          >
+            {img.alt}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<div id='overlay' class="hidden fixed inset-0 z-10 items-center justify-center bg-black/60 p-4">
+  <div class="relative shadow-black shadow-2xl">
+    <Image
+      src={images[0].url}
+      alt={images[0].alt}
+      width={1}
+      height={1}
+      inferSize
+      loading="lazy"
+      class="relative w-full h-auto max-w-full max-h-full sm:max-w-[70vw] sm:max-h-[70vh] rounded-md shadow-lg"
+    />
+    <div
+      class="absolute bottom-0 left-0 right-0 px-3 py-2 text-xs text-white bg-black/60 rounded-b-md pointer-events-none z-20"
+    >
+      ""
+    </div>
+  </div>
+</div>
+
+<script>
+const imageElements = document.querySelectorAll('[id^="overlay-"]');
+const overlayImageDiv = document.getElementById('overlay') as HTMLDivElement;
+
+imageElements.forEach((img) => {
+  img.addEventListener('click', () => {;
+    if (!overlayImageDiv) return;
+
+    const image = img.children[0] as HTMLImageElement;
+    const alt = img.children[1] as HTMLDivElement;
+
+    const underlayingImage = overlayImageDiv.children[0]
+    const overlayImage = underlayingImage.children[0] as HTMLImageElement;
+    const overlayAlt = underlayingImage.children[1] as HTMLDivElement;
+
+    overlayImage.src = image.src
+    overlayImage.alt = alt.textContent || '';
+    overlayAlt.textContent = alt.textContent || '';
+
+    overlayImageDiv.classList.remove('hidden');
+    overlayImageDiv.classList.add('flex');
+  })
+})
+
+overlayImageDiv.addEventListener('click', () => {
+  overlayImageDiv.classList.remove('flex');
+  overlayImageDiv.classList.add('hidden');
+})
+</script>

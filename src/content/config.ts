@@ -16,6 +16,20 @@ const authors = defineCollection({
     }),
 });
 
+const gallery = defineCollection({
+    type: "data",
+    schema: z.object({
+        id: z.string(),
+        title: z.string(),
+        images: z.array(
+            z.object({
+                url: z.string(),
+                alt: z.string(),
+            })
+        ),
+    }),
+});
+
 const blog = defineCollection({
     type: 'content',
     schema: z.object({
@@ -47,4 +61,4 @@ const tags = defineCollection({
     }),
 });
 
-export const collections = {blog, authors, tags};
+export const collections = { blog, authors, tags, gallery };
