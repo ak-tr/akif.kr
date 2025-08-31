@@ -1,11 +1,16 @@
 ---
+import Image from "astro/components/Image.astro";
+
 const { src, alt } = Astro.props
 ---
 
 <div id="hero" class="not-prose w-full flex justify-center items-start my-8 h-auto">
-  <img
+  <Image
     src={src}
     alt={alt}
+    width={1}
+    height={1}
+    loading="eager"
     class="w-[90vw] max-w-[800px] rounded-lg block"
   />
 </div>
