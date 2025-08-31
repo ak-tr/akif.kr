@@ -1,0 +1,103 @@
+---
+import RootLayout from "@/layouts/RootLayout.astro";
+
+interface Content {
+  name: string;
+  description: string;
+  type?: string;
+  url?: string;
+}
+
+const content: Record<string, Content[]> = {
+  "Development": [
+    { name: "Trae", type: "IDE (Personal)", description: "Switched from VSCode now that agentic IDEs are the new wave. Autocomplete by far one of my favourite features" },
+    { name: "Cursor", type: "IDE (Work)", description: "Very similar to Trae, another agentic IDE, nothing more to add here" },
+    { name: "Warp", type: "terminal", description: "Go to terminal, also agentic. Helps speed things up a bit, and I love the way it looks" },
+    { name: "Raycast", type: "productivity", description: "This isn't purely for development, but also for productivity, game changer" },
+    { name: "Zen Browser", type: "browser", description: "Firefox based browser used for development at work" },
+    { name: "Opera", type: "browser", description: "Browser used for mainly personal development and your average daily internet consumption" }
+  ],
+  "Laptops": [
+    { name: "2021 MacBook Pro M1 Pro", type: "laptop (personal)", description: "14”, 16GB RAM - fast, quiet, perfect (needs battery replacement though)" },
+    { name: "2024 MacBook Pro M4 Pro", type: "laptop (work)", description: "16”, 24GB RAM - also fast, quiet, perfect but very heavy" },
+  ],
+  "PC Setup": [
+    { name: "PC (Personal)", description: "Dan A4-H2O, Ryzen 7 5800X3D, RTX 3080 - read more about it in my watercooling blog post", url: "/blog/my-first-custom-loop-sff-watercooling-dan-a4-h2o" },
+    { name: "HUAWEI MateView GT 34-inch", type: "main monitor", description: "Ultrawide monitor, amazing for gaming, consuming content and development" },
+    { name: "HEMUDU Single Desk Monitor Arm Mount", type: "main monitor arm", description: "Very sturdy monitor arm, perfect for the very heavy GT34" },
+    { name: "UPERFECT 144Hz Gaming Monitor 16\" 2K", type: "secondary monitor", description: "Very small 16\" monitor, vertical height is practically same height as my GT34, looks seamless" },
+    { name: "Womier SK71", type: "keyboard", description: "By far the best sounding fully pre-built mechanical keyboard at a very affordable price" },
+    { name: "Glorious Model D 2 PRO Wireless", type: "mouse", description: "Good mouse for gaming, has its quirks, can be annoying at times" }
+  ],
+  "Workspace": [
+    { name: "Herman Miller Aeron", type: "chair", description: "Pricey, but worth it after long hours, fully loaded" },
+    { name: "MAIDeSITe Adjustable Height Standing Desk Frame", type: "standing desk frame", description: "Simply just a frame for an adjustable height desk setup" },
+    { name: "IKEA LILLTRÄSK", type: "kitchen worktop", description: "The worktop I went for for my standing desk frame. Nice, somewhat thin, but still very sturdy" },
+    { name: "IKEA ALEX", type: "drawers", description: "Alex drawers for storage on the left and right side of my standing desk" }
+  ],
+  "Cars": [
+    { name: "2007 Vauxhall Astra VXR", type: "project", description: "Best sounding inline 4 to date, no debates about this one" },
+    { name: "2002 BMW E46 330i Touring", type: "daily", description: "Currently sitting at over 180k miles, workhorse, doesn't skip a beat" }
+  ]
+};
+---
+
+<RootLayout title="Uses">
+    <div class="divide-y divide-gray-200 dark:divide-gray-700">
+        <div class="space-y-2 pb-8 pt-6 md:space-y-5">
+            This page is to showcase a list of what's on my desk, in my dock, and in my stack (and more).
+        </div>
+        <div>
+        <section class="py-12">
+          {
+            Object.entries(content).map(([category, items]) => (
+              <div class="mb-12">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">{category}</h2>
+                <ul class="divide-y divide-gray-200 dark:divide-gray-600">
+                  {
+                    items.map((details) => {
+                      const Wrapper = details.url ? 'a' : 'div';
+
+                      return (
+                        <li class="pl-4 border-l-4 py-4 relative">
+                          <Wrapper
+                            href={details.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class={details.url ? "block rounded-md px-2 -mx-2 py-2" : ""}
+                            aria-label={details.url ? `Visit ${details.name} website` : undefined}
+                          >
+                            <div class="flex justify-between items-start gap-4">
+                              <div class="font-medium text-gray-900 dark:text-white">{details.name}</div>
+                              <div class="flex items-center gap-1 text-xs font-mono font-semibold uppercase text-gray-400 dark:text-gray-500 text-right">
+                                <span>{details.type}</span>
+                                {
+                                  details.url && (
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="16"
+                                      height="16"
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      class="text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300"
+                                    >
+                                      <path d="m16 8.4l-8.9 8.9q-.275.275-.7.275t-.7-.275t-.275-.7t.275-.7L14.6 7H7q-.425 0-.712-.288T6 6t.288-.712T7 5h10q.425 0 .713.288T18 6v10q0 .425-.288.713T17 17t-.712-.288T16 16z"/>
+                                    </svg>
+                                  )
+                                }
+                              </div>
+                            </div>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">{details.description}</p>
+                          </Wrapper>
+                        </li>
+                      );
+                    })
+                  }
+                </ul>
+              </div>
+            ))
+          }
+        </section>
+        </div>
+    </div>
+</RootLayout>
