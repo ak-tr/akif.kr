@@ -8,6 +8,7 @@
       "@/solid/*": ["src/components/solidjs/*"],
     },
     "jsx": "preserve",
-    "jsxImportSource": "solid-js"
+    "jsxImportSource": "solid-js",
+    "allowJs": true,
   }
 }
