@@ -1,0 +1,54 @@
+{
+  "id": "custom-loop-gallery",
+  "title": "Dan A4-H2O SFF Watercooling Gallery",
+  "images": [
+    {
+      "url": "/static/images/custom-loop-gallery/1.jpeg",
+      "alt": "Custom 3D printed bracket for Quadro"
+    },
+    {
+      "url": "/static/images/custom-loop-gallery/2.jpeg",
+      "alt": "GPU side with no radiator bracket installed, final tubing run"
+    },
+    {
+      "url": "/static/images/custom-loop-gallery/3.jpeg",
+      "alt": "GPU side prior to custom bracket, old tubing run"
+    },
+    {
+      "url": "/static/images/custom-loop-gallery/4.jpeg",
+      "alt": "Top of case, no radiator bracket installed"
+    },
+    {
+      "url": "/static/images/custom-loop-gallery/5.jpeg",
+      "alt": "Radiator flushing technique"
+    },
+    {
+      "url": "/static/images/custom-loop-gallery/6.jpeg",
+      "alt": "Molex connectors depinned and made into two from three"
+    },
+    {
+      "url": "/static/images/custom-loop-gallery/7.jpeg",
+      "alt": "GPU first install, no res"
+    },
+    {
+      "url": "/static/images/custom-loop-gallery/8.jpeg",
+      "alt": "Close up of res and clearance with PSU"
+    },
+    {
+      "url": "/static/images/custom-loop-gallery/9.jpeg",
+      "alt": "Front of GPU after block install"
+    },
+    {
+      "url": "/static/images/custom-loop-gallery/10.jpeg",
+      "alt": "Back of GPU after block install, no backplate"
+    },
+    {
+      "url": "/static/images/custom-loop-gallery/11.jpeg",
+      "alt": "GPU after removal of old heatsink"
+    },
+    {
+      "url": "/static/images/custom-loop-gallery/12.jpeg",
+      "alt": "GPU side all installed, final tubing run"
+    }
+  ]
+}
