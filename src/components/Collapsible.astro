@@ -1,10 +1,63 @@
 ---
-const { title, useMonoFont = false } = Astro.props
+const { title, useMonoFont = false } = Astro.props;
 ---
 
-<div class="border border-gray-400 dark:border-gray-200 bg-gray-100 dark:bg-gray-800 px-5 py-3 rounded-md">
-    <details class={useMonoFont ? "font-mono" : ""}>
-    <summary>{title}</summary>
-        <slot />
-    </details>
+<script type="module" client:load>
+  document.querySelectorAll('[data-collapsible]').forEach((el) => {
+    const toggle = el.querySelector('[data-toggle]');
+    const content = el.querySelector('[data-content]');
+    const icon = el.querySelector('svg');
+
+    let open = false;
+
+    toggle.addEventListener('click', () => {
+      open = !open;
+      if (open) {
+        content.style.height = content.scrollHeight + 'px';
+        icon?.classList.add('rotate-90');
+        setTimeout(() => (content.style.height = 'auto'), 300);
+      } else {
+        content.style.height = content.scrollHeight + 'px';
+        requestAnimationFrame(() => {
+          content.style.height = '0px';
+        });
+        icon?.classList.remove('rotate-90');
+      }
+    });
+  });
+</script>
+
+<div
+  data-collapsible
+  class="border border-gray-400 dark:border-gray-200 bg-gray-100 dark:bg-gray-800 px-5 py-3 rounded-md"
+>
+  <div
+    data-toggle
+    role="button"
+    tabindex="0"
+    class={`flex items-center justify-between gap-2 cursor-pointer select-none ${useMonoFont ? 'font-mono' : ''}`}
+  >
+    <span class="py-1">{title}</span>
+    <svg
+      class="transition-transform duration-300"
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M9 18l6-6-6-6" />
+    </svg>
+  </div>
+
+  <div
+    data-content
+    style="height: 0; overflow: hidden; transition: height 300ms ease;"
+  >
+    <slot />
+  </div>
 </div>
