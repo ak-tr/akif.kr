@@ -49,6 +49,14 @@
     {
       "url": "/static/images/custom-loop-gallery/12.jpeg",
       "alt": "GPU side all installed, final tubing run"
+    },
+    {
+      "url": "/static/images/custom-loop-gallery/13.jpeg",
+      "alt": "Old air-cooled GPU setup, 2x slim Noctua 120mm fans, first version"
+    },
+    {
+      "url": "/static/images/custom-loop-gallery/14.jpeg",
+      "alt": "Old air-cooled GPU setup, 3x slim Noctua 90mm fans, second version, ran for 2.5 years"
     }
   ]
 }
