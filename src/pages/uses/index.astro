@@ -35,6 +35,13 @@ const content: Record<string, Content[]> = {
     { name: "IKEA LILLTRÄSK", type: "kitchen worktop", description: "The worktop I went for for my standing desk frame. Nice, somewhat thin, but still very sturdy" },
     { name: "IKEA ALEX", type: "drawers", description: "Alex drawers for storage on the left and right side of my standing desk" }
   ],
+  "Audio": [
+    { name: "Sennheiser IE 100 PRO", type: "iem", description: "Not used for very long, bought to replace my Simgot EW200" },
+    { name: "FiiO KA11", type: "dongle dac & amp", description: "Dongle DAC and Amp, used with Sennheiser IE 100 PRO" },
+    { name: "Simgot EW200 (USB-C Version)", type: "iem", description: "Used for gaming and consuming content comfortably, found was not as comfortable for long runs as I had hoped" },
+    { name: "Steelseries Arctis Nova Pro Wireless", type: "headphones", description: "Used for gaming mostly, best battery system ever, alright sound" },
+    { name: "Fifine K688", type: "microphone", description: "Budget microphone, used overhead in my setup, picks up sound quite well in close proximity, good sound" },
+  ],
   "Cars": [
     { name: "2007 Vauxhall Astra VXR", type: "project", description: "Best sounding inline 4 to date, no debates about this one" },
     { name: "2002 BMW E46 330i Touring", type: "daily", description: "Currently sitting at over 180k miles, workhorse, doesn't skip a beat" }
@@ -43,12 +50,16 @@ const content: Record<string, Content[]> = {
 ---
 
 <RootLayout title="Uses">
-    <div class="divide-y divide-gray-200 dark:divide-gray-700">
-        <div class="space-y-2 pb-8 pt-6 md:space-y-5">
-            This page is to showcase a list of what's on my desk, in my dock, and in my stack (and more).
-        </div>
-        <div>
-        <section class="py-12">
+        <div class="space-y-2 pb-8 pt-6 md:space-y-5 divide-y divide-gray-200 dark:divide-gray-700">
+          <h1 class="text-4xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:leading-10 md:text-6xl md:leading-14">
+              Uses
+          </h1>
+          <div class="pb-8 pt-6">
+              This page is to showcase a list of what's on my desk, in my dock, and in my stack (and more).
+          </div>
+      </div>
+      <div>
+        <section>
           {
             Object.entries(content).map(([category, items]) => (
               <div class="mb-12">
@@ -98,6 +109,5 @@ const content: Record<string, Content[]> = {
             ))
           }
         </section>
-        </div>
-    </div>
+      </div>
 </RootLayout>
