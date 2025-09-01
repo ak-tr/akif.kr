@@ -52,8 +52,15 @@ const { images } = Astro.props;
   </div>
 </section>
 
-<div id='overlay' class="hidden fixed inset-0 z-10 items-center justify-center bg-black/60 p-4">
-  <div class="relative shadow-black shadow-2xl">
+<div
+  id="overlay"
+  class="fixed inset-0 z-10 flex items-center justify-center bg-black/0 p-4 opacity-0 pointer-events-none transition-opacity duration-300 data-[visible=true]:bg-black/60 data-[visible=true]:opacity-100 data-[visible=true]:pointer-events-auto"
+  data-visible="false"
+>
+  <div
+    class="relative shadow-black shadow-2xl opacity-0 scale-95 transition-all duration-300 ease-out data-[visible=true]:opacity-100 data-[visible=true]:scale-100"
+    data-zoom-target
+  >
     <Image
       src={images[0].url}
       alt={images[0].alt}
@@ -73,30 +80,37 @@ const { images } = Astro.props;
 
 <script>
 const imageElements = document.querySelectorAll('[id^="overlay-"]');
-const overlayImageDiv = document.getElementById('overlay') as HTMLDivElement;
+const overlay = document.getElementById('overlay') as HTMLElement;
+const zoomTarget = overlay.querySelector('[data-zoom-target]') as HTMLElement;
 
 imageElements.forEach((img) => {
-  img.addEventListener('click', () => {;
-    if (!overlayImageDiv) return;
+  img.addEventListener('click', () => {
+    if (!overlay || !zoomTarget) return;
 
     const image = img.children[0] as HTMLImageElement;
-    const alt = img.children[1] as HTMLDivElement;
+    const alt = img.children[1];
 
-    const underlayingImage = overlayImageDiv.children[0]
-    const overlayImage = underlayingImage.children[0] as HTMLImageElement;
-    const overlayAlt = underlayingImage.children[1] as HTMLDivElement;
+    const overlayImage = zoomTarget.children[0] as HTMLImageElement;
+    const overlayAlt = zoomTarget.children[1] as HTMLDivElement;
 
-    overlayImage.src = image.src
+    overlayImage.src = image.src;
     overlayImage.alt = alt.textContent || '';
     overlayAlt.textContent = alt.textContent || '';
 
-    overlayImageDiv.classList.remove('hidden');
-    overlayImageDiv.classList.add('flex');
-  })
-})
+    overlay.dataset.visible = 'true';
+    zoomTarget.dataset.visible = 'true'; // needed to trigger zoom
+  });
+});
 
-overlayImageDiv.addEventListener('click', () => {
-  overlayImageDiv.classList.remove('flex');
-  overlayImageDiv.classList.add('hidden');
-})
+overlay?.addEventListener('click', () => {
+  overlay.dataset.visible = 'false';
+  zoomTarget?.removeAttribute('data-visible');
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    overlay.dataset.visible = 'false';
+    zoomTarget?.removeAttribute('data-visible');
+  }
+});
 </script>
