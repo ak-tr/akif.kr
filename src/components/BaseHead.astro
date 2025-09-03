@@ -59,5 +59,25 @@ const {title, description, image = '/blog-placeholder-1.jpg', robots = SITE_META
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-    <ViewTransitions/>
+    <script>
+      const applyTheme = () => {
+        const theme = localStorage.getItem('theme') || 'system';
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = theme === 'dark' || (theme === 'system' && prefersDark);
+
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(isDark ? 'dark' : 'light');
+
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) {
+          meta.setAttribute('content', isDark ? 'rgb(3 7 18 / 1)' : '#fff');
+        }
+      };
+
+      applyTheme();
+
+      document.addEventListener('astro:after-swap', applyTheme);
+    </script>
+
+    <ViewTransitions />
 </head>

@@ -37,7 +37,7 @@ export default function ThemeSwitcher() {
     // Update meta theme-color
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
-      meta.setAttribute('content', newTheme === 'dark' ? '#000' : '#fff');
+      meta.setAttribute('content', newTheme === 'dark' ? 'rgb(3 7 18 / 1)' : '#fff');
       console.log(meta.getAttribute('content'))
     }
   };
