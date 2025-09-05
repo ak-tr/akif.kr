@@ -12,14 +12,18 @@ type Props = {
     title: string;
     description?: string;
     robots?: string;
+    hero?: {
+        src?: string;
+        alt?: string;
+    };
 };
 
-const { title, description, robots } = Astro.props;
+const { title, description, robots, hero } = Astro.props;
 
 ---
 
 <html lang={SITE_METADATA.language} class="scroll-smooth">
-<BaseHead {title} description={description ?? ''} {robots}/>
+<BaseHead {title} description={description ?? ''} {robots} {hero}/>
 <body class="bg-white text-black antialiased dark:bg-gray-950 dark:text-white">
 
 <SectionContainer>
