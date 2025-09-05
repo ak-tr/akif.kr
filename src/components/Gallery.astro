@@ -4,7 +4,7 @@ import { Image } from 'astro:assets';
 
 interface Props {
   images: {
-    url: ImageMetadata;
+    url: string;
     alt: string;
   }[];
 }
@@ -23,7 +23,7 @@ const { images } = Astro.props;
         gap-2 space-y-2"
       id="gallery"
     >
-      {sortForMasonryLayout(images, 3).map((img, i) => (
+      {sortForMasonryLayout(images, 1).map((img, i) => (
         <div
           id={`overlay-${i}`}
           class="break-inside-avoid relative group cursor-pointer"
@@ -71,7 +71,7 @@ const { images } = Astro.props;
       class="relative w-full h-auto max-w-full max-h-full sm:max-w-[70vw] sm:max-h-[70vh] rounded-md shadow-lg"
     />
     <div
-      class="absolute bottom-0 left-0 right-0 px-3 py-2 text-xs text-white bg-black/60 rounded-b-md pointer-events-none z-20"
+      class="absolute bottom-0 left-0 right-0 px-3 py-2 text-sm sm:text-md text-white bg-black/60 rounded-b-md pointer-events-none z-20"
     >
       ""
     </div>
