@@ -1,0 +1,93 @@
+---
+title: "5800X3D Undervolt: My Experience with PBO2 Tuner and Undervolting"
+date: "2025-09-05"
+tags: ["my-pc"]
+draft: false
+summary: "After my custom loop was completed, I decided to try and undervolt the CPU to see if I could get the temperatures down."
+hero: {
+    src: "/static/images/5800x3d-pbo2-tuner-undervolt-hero.png",
+    alt: "PBO2 Tuner GUI"
+}
+---
+
+*Jump straight to the [results.](#results)*
+
+## Introduction
+
+For those who read my previous blog regarding my custom loop, I mentioned that I would be undervolting the CPU to see if I could get the temperatures down. Here is my experience and how I got to a much quieter and cooler system.
+
+## PBO2 Tuner
+
+### What is PBO2 Tuner?
+
+This is a tool that allows you to tweak your Ryzen CPU's behavior for better performance, thermals, or efficiency without diving into the BIOS every time. I believe for some, this isn't even available in the BIOS so this tool is the only way to do it.
+
+### What is PBO2?
+
+Precision Boost Overdrive 2 (PBO2) is AMD's feature that lets your Ryzen processor boost higher when there's enough thermal and power headroom. It basically pushes your CPU a bit harder, but in a smart, dynamic way.
+
+### What is Curve Optimiser?
+
+This is a part of PBO2 that lets you undervolt or fine-tune each individual core. You can make certain cores run more efficiently, which often results in better boost clocks and lower temps. It's a bit of trial and error, but worth it if you're chasing free performance.
+
+### How to install PBO2 Tuner?
+
+You can download PBO2 Tuner from [here](https://www.overclock.net/threads/corecycler-tool-for-testing-single-core-stability-e-g-curve-optimizer-settings.1777398/page-45?post_id=28999750#post-28999750). Simply unzip the archive into a folder and run the .exe. Please not that Windows Defender may flag it as a potential security risk, so run at your own risk.
+
+## My Options
+
+After some research these are the options I went with:
+
+- PPT Limit set to 120W
+- TDC limit set to 75A
+- EDC limit set to 110A
+- All-core curve set to -30
+
+It is recommended to start at -10 and go down -5 each time and run a stress test for stability, but I have run -30 all-core previously with no issues so I decided to go for it.
+
+## Results
+
+I ran a 10 minute Cinebench R23 benchmark both before and after setting the limits and curve. I used HWiNFO to log the CPU temperature, power usage, clock speed and the liquid temperature of the loop. This is what I saw.
+
+Some things to note:
+
+- All tests are carried out with panels closed.
+- The tests before tuning were done in a room with an ambient temperature of 20.3C.
+- The tests after tuning were done in a room with an ambient temperature of 20.8C.
+- I have the fan curves set to a very silence-focused curve until it hits around 40C where it then begins to ramp up. Due to this CPU temps are going to be higher than they would be if I was using a more aggressive fan curve.
+- All averages are calculated after 10s of the test to filter out any initial low values.
+- The average clock value also filters out any values below 4125MHz to give a true representation of the average clock speed. These drops are due to Cinebench pausing briefly before running the next test.
+
+### CPU Temperature
+
+<PostImage src="/static/images/pbo2-undervolt-results/cpu_temperature_chart.png" alt="Cinebench R23 temperature graph before and after undervolt" />
+
+This is arguably the most important value we're trying to reduce. As you can see, the temperature ramps up quite quickly for both tests. We can see before the undervolt, it continues to ramp up for about 5 minutes before it flattens, where it shortly reaches 90C. However, after the undervolt, the temperature ramps up and flattens out pretty much instantly and stays at about 10C lower (at its peak) than before the undervolt.
+
+It is important to note that the CPU is a lot less effective at transferring heat to the liquid than say the GPU, so because the liquid temperature doesn't get hot enough as quick, the radiator fans and pump don't know to work harder until the liquid finally starts to absorb enough heat. This could be fixed by setting a virtual sensor and then setting the radiator and CPU fans to look at both that temp and the liquid temp, but with the undervolt, it is such a non-issue that I don't mind it how it is now.
+
+### Power Usage
+
+<PostImage src="/static/images/pbo2-undervolt-results/cpu_power_chart.png" alt="Cinebench R23 power usage graph before and after undervolt" />
+
+As you can see, the power usage is around 17W lower on average after the curve tuning. This is likely what contributes to the 10C lower temperature. Nothing more to add here.
+
+### Clock Speed
+
+<PostImage src="/static/images/pbo2-undervolt-results/cpu_clock_chart.png" alt="Cinebench R23 clock speed graph before and after undervolt" />
+
+This is where it gets interesting. Even though it is pulling less power and thus generating less heat, the effective clock speed is actually higher (over 200MHz on average) after the curve tuning. So not only have we saved on power usage and thus generated less heat, but we've also gained a bit of performance.
+
+What is more interesting though is that even though after the tuning the temps are stable along with the power usage, it is slowly pulling less and less clock speed. This might be something to watch out during a real world workload.
+
+### Liquid Temperature
+
+<PostImage src="/static/images/pbo2-undervolt-results/liquid_temperature_chart.png" alt="Cinebench R23 liquid temperature graph before and after undervolt" />
+
+The final graph in this lineup shows the liquid temperature. We can see that 10 minutes is not enough to see the liquid temperature stabilise, but what we can see is that even though for the runs after tuning, even though it is starting at a higher temperature, it is still staying at a lower temperature at the end before the tuning.
+
+## Conclusion
+
+Overall, I am very happy with the results. We'll have to see how stable it is outside of a simple benchmark, but with my previous experience with PBO2 tuner, I'm confident I won't have any issues. 
+
+Would I recommend doing this? Absolutely. It is a simple process and it has given me a much cooler and quieter system. More importantly, it's free and costs you nothing but your time.
