@@ -1,14 +1,14 @@
 ---
 title: "My First Custom Loop: SFF Watercooling in the Dan A4-H2O"
-date: "2025-08-28"
+date: "2025-09-04"
 tags: ["my-pc"]
-draft: true
+draft: false
 summary: "Built my first custom loop in the Dan A4-H2O with a 5800X3D and RTX 3080. Documenting my lessons, challenges, and tips for SFF watercooling."
+hero: {
+    src: "/static/images/my-first-custom-loop-sff-watercooling-dan-a4-h2o-hero.jpeg",
+    alt: "PC on desk showcasing GPU side of watercooling loop"
+}
 ---
-<Hero
-  src="/static/images/my-first-custom-loop-sff-watercooling-dan-a4-h2o-hero.jpeg"
-  alt="PC on desk showcasing GPU side of watercooling loop"
-/>
 
 *No time for words? [Beam me straight to the parts list.](#parts-list)*
 
@@ -16,7 +16,7 @@ summary: "Built my first custom loop in the Dan A4-H2O with a 5800X3D and RTX 30
 
 ## Introduction
 
-I built my first custom watercooling loop inside the Dan A4-H2O case, cooling a Ryzen 7 5800X3D and RTX 3080. This write-up covers my full experience—from part selection and layout planning to flushing, leak testing, and switching from PVC to EPDM tubing mid-way. I ran into a few challenges typical of SFF builds but came away with a quiet, efficient, and clean setup. If you're considering custom watercooling for a small form factor build, this post should give you a realistic look at what to expect and what I’d do differently next time.
+I built my first custom watercooling loop inside the Dan A4-H2O case, cooling a Ryzen 7 5800X3D and RTX 3080. This write-up covers my full experience—from part selection and layout planning to flushing, leak testing, and switching from PVC to EPDM tubing mid-way. I ran into a few challenges typical of SFF builds but came away with a quiet, efficient, and clean setup. If you're considering custom watercooling for a small form factor build, this post should give you a realistic look at what to expect and what I'd do differently next time.
 
 ### Why I Built This Custom Loop?
 
@@ -26,15 +26,15 @@ Originally, I had the CPU running into an NZXT Kraken X53 AIO, but there were th
 
 The GPU was also modified (deshroud mod) to remove the original shroud, and I added 3x Noctua NF-A9x14 fans on top of a custom 3D printed bracket. The GPU was further modded with extra thermal paste and pads between the cooler and VRAM. Despite these efforts, thermals were still on the hotter side, especially for the GPU memory.
 
-With higher fan speeds, I could’ve improved thermals a bit, but I prioritised noise over cooling performance.
+With higher fan speeds, I could've improved thermals a bit, but I prioritised noise over cooling performance.
 
 ### Why the Dan A4-H2O?
 
-Simply put, this is the case I already had and have been using for over 2.5 years (as of August 2025). If I were doing this from scratch or had the option to pick a new case, I’d likely go with something like the Meshroom S V2, as I prefer its design and layout.
+Simply put, this is the case I already had and have been using for over 2.5 years (as of August 2025). If I were doing this from scratch or had the option to pick a new case, I'd likely go with something like the Meshroom S V2, as I prefer its design and layout.
 
 ### Why Watercooling Over Air?
 
-It’s safe to say the benefits of watercooling don’t necessarily outweigh the maintenance, planning, and effort compared to air cooling. So why go this route instead of the safer option? Because this is something I’ve wanted to do since building my first PC over 10 years ago. Now that I’ve had this setup in the A4-H2O for a while, I decided it was time to finally do it.
+It's safe to say the benefits of watercooling don't necessarily outweigh the maintenance, planning, and effort compared to air cooling. So why go this route instead of the safer option? Because this is something I've wanted to do since building my first PC over 10 years ago. Now that I've had this setup in the A4-H2O for a while, I decided it was time to finally do it.
 
 ## Parts List
 
@@ -44,6 +44,7 @@ For your information, any parts used, printed, or acquired to finalise this buil
 - **Case**: Dan A4-H2O
 - **CPU**: Ryzen 7 5800X3D
 - **GPU**: Dell RTX 3080
+- **RAM**: Corsair VENGEANCE LPX 32GB (2x16GB)
 - **PSU**: Corsair SF600
 - **Motherboard**: GIGABYTE B550I AORUS PRO AX
 - **Blocks**:
@@ -88,7 +89,7 @@ The finalised loop order starts from the reservoir outlet and follows the loop b
 
 Due to the nature of the case (and SFF in general), things are quite tight. The routing specified above is the simplest to follow. To make things easier, I decided to use the smallest 90-degree fittings I could find. I originally opted for EK's micro rotary fitting lineup, but due to stock issues, I went with Barrow's mini rotary fittings instead.
 
-These mini rotary fittings were the only way to get the CPU outlet to radiator inlet connection to fit. Three chained mini fittings allowed a perfect route. This was nearly the only way to do it without flipping the PSU so the fan faces inward, as I’ve seen in other builds.
+These mini rotary fittings were the only way to get the CPU outlet to radiator inlet connection to fit. Three chained mini fittings allowed a perfect route. This was nearly the only way to do it without flipping the PSU so the fan faces inward, as I've seen in other builds.
 
 ### Inverted Reservoir
 
@@ -96,7 +97,7 @@ Although the FLT80 bracket design by [Dallatore](https://www.printables.com/@Dal
 
 ### Radiator Size
 
-This was one area I didn’t realise would be problematic. The A4-H2O has a bracket that makes removing the radiator easy. However, the S240 radiator I bought is about 10mm wider than a 120mm fan. Because of this, you have to remove the entire top section of the case to fit the radiator. That means removing an extra 7–8 screws, not to mention how much tighter the fan cables have to be tucked inside the case. You even have to bend the front panel slightly to get it in and out.
+This was one area I didn't realise would be problematic. The A4-H2O has a bracket that makes removing the radiator easy. However, the S240 radiator I bought is about 10mm wider than a 120mm fan. Because of this, you have to remove the entire top section of the case to fit the radiator. That means removing an extra 7–8 screws, not to mention how much tighter the fan cables have to be tucked inside the case. You even have to bend the front panel slightly to get it in and out.
 
 ### Radiator Flushing
 
@@ -106,7 +107,7 @@ Flushing was another challenge that required a lot of research, especially as a 
 
 ### Radiator 
 
-The most challenging part of the build, by far, was connecting the fittings to and from the radiator. There’s not much space to work with—especially on the inlet side near the PSU—so getting it to work came down to pure luck (thanks to the aforementioned mini Barrow 90-degree fittings).
+The most challenging part of the build, by far, was connecting the fittings to and from the radiator. There's not much space to work with—especially on the inlet side near the PSU—so getting it to work came down to pure luck (thanks to the aforementioned mini Barrow 90-degree fittings).
 
 ### Cable Management
 
@@ -116,8 +117,81 @@ I also needed two Molex connectors for the pump and Quadro. For this, I used the
 
 ### Tubing
 
-When sourcing parts, I initially chose Barrow’s 13/10mm PVC tubing. After further research, I discovered that PVC tubing can leach plasticizers into the loop over time. Since the build was still incomplete, I switched to XSPC’s 13/10mm EPDM tubing instead. I found it just as easy to work with, and far more durable.
+When sourcing parts, I initially chose Barrow's 13/10mm PVC tubing. After further research, I discovered that PVC tubing can leach plasticizers into the loop over time. Since the build was still incomplete, I switched to XSPC's 13/10mm EPDM tubing instead. I found it just as easy to work with, and far more durable.
 
-The only downside was that EPDM was a bit harder to cut due to its softness. The PVC tubing was easier to cut thanks to its stiffness, but that also made it more prone to kinking. I originally ordered 90-degree adapters to remove the kink in the GPU-to-CPU run, but with EPDM, they weren’t necessary.
+The only downside was that EPDM was a bit harder to cut due to its softness. The PVC tubing was easier to cut thanks to its stiffness, but that also made it more prone to kinking. I originally ordered 90-degree adapters to remove the kink in the GPU-to-CPU run, but with EPDM, they weren't necessary.
 
-Why 13/10mm instead of 16/10mm? I’m personally not a fan of how chunky 16/10mm tubing looks. Even though it’s much more kink-resistant—which is useful in an SFF watercooling build—I just couldn't bring myself to use it.
+Why 13/10mm instead of 16/10mm? I'm personally not a fan of how chunky 16/10mm tubing looks. Even though it's much more kink-resistant—which is useful in an SFF watercooling build—I just couldn't bring myself to use it.
+
+### Front Panel Connectors
+
+The front panel on this case features a standard USB A port, a type C port, and audio jack outputs. Now, I rarely ever use any of these—I mostly have things plugged into hubs or the rear IO—so I decided this just had to go. 
+
+The USB cables are a nightmare to work with and as my motherboard doesn't even have a type C header, it was a no brainer. This freed up so much space and make managing things a whole lot easier. I think in the future, thanks to Dan cases making the STEP file available, I will create my own plugs for the front panel connectors so it isn't just sitting there empty.
+
+## Leak Testing & Filling
+
+This is a crucial step in the build process. It ensures that there are no leaks in the loop, and especially in a tight build like this with runs flowing directly above the vented part of the power supply, it is critical that we prepare in advance.
+
+### Dry Leak Test
+
+This method of leak testing is the cleanest and safest way. Using Barrow's leak tester, I pumped to around 0.6 bar on the inlet port of the reservoir. I felt this was well below the 1 bar maximum and slightly above the recommended 0.5 bar to catch any leaks that might occur.
+
+After about an hour and a half, the gauge was just about the same spot, if not a little bit under. After some research, I found that this is normal, and that if it hasn't changed in 40 minutes then the loop is secure.
+
+### Filling the Reservoir
+
+This part wasn't too difficult. I had the case on its side, with the top fill port open. I used my 24 pin flip switch to trick the PSU into powering on, which in turn powered the pump. I topped up the reservoir as much as I could, turned the pump on to circulate, then switched it off before the pump got dry. I repeated this until the pump had filled the reservoir and turning the pump on would not cause the fluid in the reservoir to drop.
+
+### Bleeding
+
+I found the FLT 80 to be a bit problematic to bleed. My method was to leave loop running for an extended period of time, and come back to tilt and remove any air bubbles.
+
+This proved to be a bit more difficult, however, as a lot of bubbles were getting shot straight from the reservoir inlet back into the pump inlet. Slower pump speeds might help, but without powering the full PC on and logging into Windows, this isn't possible. To ease with bleeding, I let it run continously and occasionally came back to tilt the case and aid any stuck bubbles to come loose.
+
+After about 4 hours of constant pump operation, most of the random gurgling and bubbling was mostly gone, with some here and there. At this point, tilting the case in any direction didn't make much of a difference either. I let it run for the remainder of the day, equating to about 12 hours of pump operation to let it bleed.
+
+By the next day, all the micro bubbles in the loop were no longer present. Operation of the pump also yielded no circulation of further bubbles. I was confident that the loop was *mostly* bubble free.
+
+## Cooling Performance
+
+Now that the loop is all complete and running, I went ahead and plugged everything in, and installed Aquacomputer's Aquasuite. I set a super silence-focused fan curve-pump at 1000 RPM and fans at 600 RPM until it hits 35 degree liquid temperature-at which point it starts ramping up.
+
+### CPU
+
+I ran a Cinebench R23 benchmark for 10 minutes, and stayed within about 5% of the thermal limit. Unfortunately, the X3D version of these chips run a fair bit hotter than the non-X3D variants and pulling the max 120W the whole time didn't help either.
+
+I will look into using PBO2 and undervolting the CPU to see if I can get the temperatures down while still maintaining optimal performance.
+
+10 minutes isn't an awful lot of time to judge the peak performance of the loop, but I can see the loop temperatures as well as CPU temperatures flatten out quite quickly, so I'm happy with the judgement I was able to make.
+
+For reference, on my 5800X3D I ran a Cinebench R23 score of 14220.
+
+### GPU
+
+For the GPU, I ran a Furmark stress test. After about 10 minutes, the liquid temperature plateaued at around 44C with an ambient room temp of 21C. I found this to be well within an acceptable range. GPU temps sat at around 68C at the main sensor, with 74C at the memory and 85C at the hot spot. Considering my VRMs were hitting upwards of 100C with my old cooler, this is a much welcomed improvement.
+
+Throughout the whole test the GPU pulled a healthy 320W. Now I know a lot of people say 100W per 120mm of radiator, but at  2700 RPM at the pump and 1500 RPM at the fans, I think this is quite a good noise-to-performance ratio. 
+
+I would also like to note that the CPU was also pulling around 50-60W throughout the test so with a total of 380W being pulled, the performance is spot on.
+
+I stopped the stress test after about 30 minutes as I was happy that the temperatures were stable and the loop was running great.
+
+## Final Thoughts
+
+Overall, I am very happy with the build. I have only used it for a single day as of writing this, so I have yet to make the most of it, but with what I'm seeing already, it's looking very good.
+
+For those who want to do this, I would recommend it as long as you have the patience and your current setup isn't adequate. If your current setup is doing fine, then it's probably not worth the hassle, but otherwise if you want something to tinker with and have fun, then I would do go for it.
+
+### Next steps
+
+The next steps for this build are to probably get the CPU temperatures down. I'm not too fussed about the GPU temps as they are working quite well, though I will probably do an undervolt for that too, but I will definitely be using PBO2 Tuner for the CPU to get the temperatures down.
+
+I will also probably do some 3D modelling for the front panel connectors - as I had them removed, there's just a blank space there now, so I will model and print some plugs for the front panel connectors.
+
+I will also be modelling and printing a custom bracket for the FLT80. The bracket on there now is good for the time being but it sits a bit wonky and means some of the G1/4 plugs on the reservoir touch the panel and the reservoir itself touches the case.
+The new design I'm hoping to get working will use all the mounting points on the reservoir and hopefully will mount to the front panel as opposed to the SSD mounting points on the bottom. I will create another post about this if it comes to fruition.
+
+## Thank you for reading!
+
+I hope you enjoyed reading this and I hope it was helpful. If you have any questions, feel free send me an email using the link in the footer.
