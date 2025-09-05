@@ -47,6 +47,10 @@ const blog = defineCollection({
         canonicalUrl: z.string().optional(), // Maybe remove later, as Astro provide a better solution for canonical urls
         // Add related posts
         related: z.array(reference('blog')).default([]),
+        hero: z.object({
+            src: z.string().optional(),
+            alt: z.string().optional(),
+        }).optional(),
     }),
 });
 
