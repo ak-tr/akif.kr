@@ -79,7 +79,7 @@ For your information, any parts used, printed, or acquired to finalise this buil
 
 This section outlines the planning required before starting the build as well as layout decisions made.
 
-### Loop order decisions
+### Loop Order
 
 The finalised loop order starts from the reservoir outlet and follows the loop below:
 
@@ -176,6 +176,22 @@ Throughout the whole test the GPU pulled a healthy 320W. Now I know a lot of peo
 I would also like to note that the CPU was also pulling around 50-60W throughout the test so with a total of 380W being pulled, the performance is spot on.
 
 I stopped the stress test after about 30 minutes as I was happy that the temperatures were stable and the loop was running great.
+
+### Real World Workload
+
+Note: This section has been added after relase of this blog post.
+
+As a final test, I played a 40 minute session of BeamNG.drive. Please note that this was done after my PBO2 undervolt. The results are promising.
+
+<PostImage src="/static/images/custom-loop-charts/temp_beamng.png" alt="BeamNG.drive performance" />
+
+In this chart I have plotted the CPU, GPU and liquid temperatures over time. We can see that the temperatures stabilise around 10-15 minutes into gameplay and are very good for the single radiator setup.
+
+<PostImage src="/static/images/custom-loop-charts/power_beamng.png" alt="BeamNG.drive performance" />
+
+We can also see that it is consuming around 380W through most of the gameplay, and around 360W on average.
+
+At its loudest, the pump is running at 2700RPM and the radiator fans run at around 1500RPM.
 
 ## Final Thoughts
 
