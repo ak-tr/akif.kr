@@ -1,0 +1,84 @@
+---
+title: "RTX 3080 Undervolt: MSI Afterburner and Undervolting"
+date: "2025-09-07"
+tags: ["my-pc"]
+draft: false
+summary: "Now that I've got the CPU undervolt working, I'm going to try and undervolt the GPU to see if I can get the temperatures down."
+---
+
+## Introduction
+
+Those of you who have looked at my previous posts will know that I've been trying to get the temperatures down across the board since I went down the custom loop route. We had quite a bit of success with the CPU thanks to PBO2 Tuner. Now, it's time to try and get the GPU temperatures down.
+
+## Setup
+
+Much like the CPU, we just need to tell the GPU to consume less power while still maintaining the same performance. How do we plan on doing that? Voltage curves.
+
+### MSI Afterburner
+
+To play with the voltage curves, we need to use a tool like MSI Afterburner. You can download it from [here](https://www.msi.com/Landing/afterburner/graphics-cards).
+
+### Prerequisites
+
+The first step is to open up the tool, go into settings and enable the two settings under "Compatibility properties" for:
+
+- Unlock voltage control
+- Unlock voltage monitoring
+
+We also need a benchmark running in the background. For this I used Unigine's Heaven Benchmark. You can download it from [here](https://benchmark.unigine.com/heaven).
+
+Once we have these two enabled and a benchmark engine running, we can start playing with the voltage curves.
+
+### Undervolting Steps
+
+1. Let's first open the Curve Editor. You should see something like this
+
+<PostImage src="/static/images/msi-afterburner-undervolt/curve_editor_default.png" alt="MSI Afterburner Curve Editor Default State" />
+
+2. In Afterburner, let's add a -200 on the Core clock. You will see the whole curve shift down by 200MHz.
+
+<PostImage src="/static/images/msi-afterburner-undervolt/curve_editor_negative_200.png" alt="MSI Afterburner Curve Editor Initial Negative State at -200MHz" />
+
+3. Now, select the point at 900mV and drag it up to around 1900MHz. You won't always be able to get 1900MHz exactly, but you should be able to get close.
+
+<PostImage src="/static/images/msi-afterburner-undervolt/curve_editor_final.png" alt="MSI Afterburner Curve Editor Final State" />
+
+4. Finally, once you let go and your benchmark is running, you should see a flat line like so:
+
+<PostImage src="/static/images/msi-afterburner-undervolt/curve_editor_final_flat.png" alt="MSI Afterburner Curve Editor Final State" />
+
+This is your undervolt curve set. This is a good baseline to work from or to just play on, and if you want to go further you can always select a lower voltage point and drag it up to the same frequency. This will basically ask your GPU to consume less power while still maintaining the same performance. It might not be stable however and this is something you will have to test.
+
+## Comparison
+
+While I was doing this, I decided to run a 15 minute benchmark before and after the undervolt. I have put my findings in some graphs for your viewing pleasure.
+
+### GPU Temperature
+
+<PostImage src="/static/images/msi-afterburner-undervolt/gpu_core_temperature.png" alt="GPU Temperature Chart" />
+
+This is the one thing that matters the most. As you can see, the temperatures are slightly lower than before, at around 3 degrees on average. This is an improvement we got at the cost of nothing.
+
+### GPU Clock
+
+<PostImage src="/static/images/msi-afterburner-undervolt/gpu_clock.png" alt="GPU Clock Chart" />
+
+This one was very interesting. As you can see, the clock speed before started quite well but fell very quickly. Now, why this happened is beyond my knowledge, maybe something about thermals or power limits, who knows.
+
+What I am happy with though is how much more stable the clock speeds are after the undervolt. Now, not only is it more stable but it is literally better on average.
+
+### GPU Power Usage
+
+<PostImage src="/static/images/msi-afterburner-undervolt/gpu_power.png" alt="GPU Power Usage Chart" />
+
+Here's the reason for our lower temperatures. Throughout the whole test we drew on average 22W lower. Now along with our 17W saving with our CPU undervolt, we are saving almost 40W across the board. 
+
+### Liquid Temperature
+
+<PostImage src="/static/images/msi-afterburner-undervolt/liquid_temperature.png" alt="Liquid Temperature Chart" />
+
+The liquid temperature is very interesting. They're both pretty much within the same range. You could argue that the test after the undervolt had to sustain higher room temperatures due to the heat generated from the previous test, but even so, the difference is very minimal. I am seeing lower temperatures and power usage across the board, so although we have very similar results for the liquid, it is net positive.
+
+## Conclusion
+
+Overall, I am very happy with the results. We got a significant improvement in temperatures at the cost of nothing. I would definitely recommend doing this if you are looking to lower your temperatures.
