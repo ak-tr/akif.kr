@@ -48,8 +48,13 @@ const hasDefaultSlot = Astro.slots.has('default');
                                     </Link>
                                 </h3>
                                 <div class="flex flex-wrap mt-3">
-                                    {tags.map(({slug}) =>
-                                            <Tag slug={slug}/>
+                                    {tags.map(({slug}, i) =>
+                                        {
+                                            if (i < tags.length - 1) {
+                                                return <Tag slug={slug}/> <span class="pr-2">,</span>
+                                            }
+                                            return <Tag slug={slug}/> 
+                                        }   
                                     )}
                                 </div>
                             </div>
