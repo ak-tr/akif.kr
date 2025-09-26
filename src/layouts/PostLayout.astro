@@ -27,53 +27,51 @@ const { Content, headings } = await post.render();
 <RootLayout title={post.data.title} description={post.data.summary} hero={post.data.hero}>
     <SectionContainer>
         <ScrollTopAndComments client:only="solid-js" />
-        <div class="flex">
-            <article>
-                <div class="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700">
-                    <header class="pt-6 xl:pb-6">
-                        <div class="space-y-1 text-center">
-                            <dl class="space-y-10">
-                                <div>
-                                    <dt class="sr-only">Published on</dt>
-                                    <dd
-                                        class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400"
-                                    >
-                                        <FormattedDate date={post.data.date} />
-                                    </dd>
-                                </div>
-                            </dl>
+        <article>
+            <div class="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700">
+                <header class="pt-6 xl:pb-6">
+                    <div class="space-y-1 text-center">
+                        <dl class="space-y-10">
                             <div>
-                                <PageTitle>{post.data.title}</PageTitle>
+                                <dt class="sr-only">Published on</dt>
+                                <dd
+                                    class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400"
+                                >
+                                    <FormattedDate date={post.data.date} />
+                                </dd>
                             </div>
+                        </dl>
+                        <div>
+                            <PageTitle>{post.data.title}</PageTitle>
                         </div>
-                    </header>
-                    <div class="divide-y divide-gray-200 pb-8 dark:divide-gray-700">
+                    </div>
+                </header>
+                <div class="divide-y divide-gray-200 pb-8 dark:divide-gray-700">
+                    <div
+                        class="xl:row-span-2 xl:pb-0"
+                    >
+                        {
+                            post.data.draft && (
+                                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-10 rounded-md">
+                                    <p class="leading-5 text-yellow-700">
+                                        This is a draft. It might be incomplete
+                                        or have errors.
+                                    </p>
+                                </div>
+                            )
+                        }
                         <div
-                            class="xl:row-span-2 xl:pb-0"
+                            id="content"
+                            class="prose max-w-none pb-8 dark:prose-invert"
                         >
-                            {
-                                post.data.draft && (
-                                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-10 rounded-md">
-                                        <p class="leading-5 text-yellow-700">
-                                            This is a draft. It might be incomplete
-                                            or have errors.
-                                        </p>
-                                    </div>
-                                )
-                            }
-                            <div
-                                id="content"
-                                class="prose max-w-none pb-8 dark:prose-invert"
-                            >
-                                <slot />
-                                {post.data.hero?.src && post.data.hero?.alt && <Hero src={post.data.hero.src} alt={post.data.hero.alt} />}
-                                <Content components={{ ...components }} {headings} />
-                            </div>
+                            <slot />
+                            {post.data.hero?.src && post.data.hero?.alt && <Hero src={post.data.hero.src} alt={post.data.hero.alt} />}
+                            <Content components={{ ...components }} {headings} />
                         </div>
                     </div>
                 </div>
-            </article>
-        </div>
+            </div>
+        </article>
     </SectionContainer>
 </RootLayout>
 
