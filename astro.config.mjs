@@ -39,4 +39,10 @@ export default defineConfig({
     ],
     prefetch: true,
     site: SITE_METADATA.siteUrl,
+    markdown: {
+        shikiConfig: {
+            theme: 'houston',
+            wrap: true,
+        },
+    },
 });
