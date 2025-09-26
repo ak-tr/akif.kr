@@ -1,0 +1,482 @@
+---
+title: "Exploring Lua from a JavaScript Developer's Perspective"
+date: "2025-09-25"
+tags: ["programming", "lua", "javascript"]
+draft: false
+summary: "Decided I wanted to get the basics of Lua learnt so I could create some code for a Minecraft mod, ComputerCraft."
+hero: {
+    src: "/static/images/lua-js-hero.jpeg",
+    alt: "AI generated creative hero image"
+}
+---
+
+## Introduction
+
+I've recently taken up modded Minecraft as a hobby, and with it came a mod that completely hooked me: ComputerCraft.  
+
+For those unfamiliar, ComputerCraft is an incredibly deep Minecraft mod that introduces programmable computers, turtles (mobile computers that can mine, build, and more), and a host of other techy tools into the game.  
+
+These computers run Lua scripts and expose APIs that let players interact with the world in all kinds of ways. The possibilities are only limited by imagination.  
+
+What really got me started was the `inventory` module. It allows scripts to interact directly with chests, machines, and any block with an inventory. And honestly, who doesn't want to automate a bit of inventory management?
+
+That was all the spark I needed. I just had to learn Lua. And what better way to learn than to teach? This article is my take on the very basics of Lua, explained from the perspective of my primary language, JavaScript.  
+
+Before diving in, I want to shout out one resource that helped me a ton: [**"Learn Lua in 15 Minutes" by Tyler Neylon**](https://tylerneylon.com/a/learn-lua). It's short, clean, and written entirely as a single code block. I highly recommend it as a complement to this article.
+
+## Variables
+
+In Lua, variables are declared using the `local` keyword.
+
+Omitting the `local` keyword will make the variable global.
+
+```lua
+local x = 10 -- local variable
+y = 20 -- global variable
+```
+
+In JavaScript, variables are declared using the `var`, `let` and `const` keywords. Each of these have their own quirks and differences.
+
+In simple terms:
+
+- `var` is global if used outside of a function, otherwise it is local
+- `let` is block scoped
+- `const` is block scoped and immutable
+
+```js
+var x = 10
+let y = 20
+const z = 30
+```
+
+## Base Data Types
+
+Both languages have numbers, strings, booleans, and `nil`/`null`.
+
+Using Lua, we define them like so:
+
+```lua
+local a = 42        -- number
+local b = "hello"   -- string
+local c = true      -- boolean
+local d = nil       -- nil (like null/undefined)
+```
+
+Very similarly, in JavaScript we define them like this:
+
+```js
+const a = 42        // number
+const b = "hello"   // string
+const c = true      // boolean
+const d = null      // null
+```
+
+## Nil vs Undefined
+
+In Lua, `nil` is a value that represents nothing. It is equivalent to `undefined` in JavaScript.
+
+```lua
+local a
+print(a) -- nil
+```
+
+JavaScript has both `undefined` and `null`. However, `undefined` is the value given by default to variables that are not initialized, while `null` is a value that represents nothing.
+
+```js
+let a
+console.log(a) // undefined
+
+const b = null
+console.log(b) // null
+```
+
+## Strings (Concatenation)
+
+In Lua, we can concatenate strings using the `..` operator.
+
+```lua
+local a = "Hello"
+local b = "world"
+local c = a .. b
+print(c) -- hello world
+```
+
+JavaScript has many ways to concatenate strings, but I tend to use template literals for this.
+
+```js
+const a = "Hello"
+const b = "world"
+const c = `${a} ${b}`
+console.log(c) // hello world
+```
+
+## Strings (Multi-line)
+
+In Lua, we can use the `[[` and `]]` syntax to create a multi-line string.
+
+```lua
+local a = [[
+    Hello
+    world
+]]
+```
+
+In JavaScript, we can use the backticks to create a multi-line string.
+
+```js
+const a = `
+    Hello
+    world
+`
+```
+
+Both will preserve the newlines and tabs in the string.
+
+## Truthy vs Falsy
+
+In both Lua and JavaScript, `false` and `nil`/`null`/`undefined` are falsy, while everything else is truthy including `0` and `""`.
+
+```lua
+print (not not "")      -- true
+print (not not 0)       -- true
+print (not not false)   -- false
+print (not not nil)     -- false
+```
+
+```js
+console.log(!! "") // true
+console.log(!! 0) // true
+console.log(!! false) // false
+console.log(!! null) // false
+console.log(!! undefined) // false
+```
+
+## If Statements
+
+Both languages use the `if` statement for conditional logic. Lua uses `then` and `end` to wrap the block.
+
+```lua
+local x = 5
+if x > 3 then
+    print("Greater than 3")
+elseif x == 3 then
+    print("Equal to 3")
+else
+    print("Less than 3")
+end
+```
+
+In JavaScript, we can use `{}` instead.
+
+```js
+const x = 5
+if (x > 3) {
+    console.log("Greater than 3")
+} else if (x === 3) {
+    console.log("Equal to 3")
+} else {
+    console.log("Less than 3")
+}
+```
+
+## Loops
+
+Both languages use the `for` and `while` keyword for loops.
+
+Both are very similar, but similar to Lua conditionals, `do` and `end` are used to wrap the block.
+
+```lua
+local x = 5
+while x > 3 do
+    print(x) -- prints 5, 4
+    x = x - 1
+end
+
+for i = 1, x do
+    print(i) -- prints 1, 2, 3
+end
+```
+
+Whereas in JavaScript, we use `{}`.
+
+```js
+let x = 5
+while (x > 3) {
+    console.log(x) // prints 5, 4
+    x = x - 1
+}
+
+for (let i = 1; i <= x; i++) {
+    console.log(i) // prints 1, 2, 3
+}
+```
+
+Lua does not have the `++`, `+=`, `--`, `-=` operators like JavaScript does. We have to use `x = x - 1` instead.
+
+### Custom Step Size
+
+In Lua, we can use the `step` parameter in the `for` loop to specify the step size.
+
+```lua
+for i = 1, 10, 2 do
+    print(i) -- prints 1, 3, 5, 7, 9
+end
+```
+
+In JavaScript, we can use the `+=` (or `-=`) operator to specify the step size.
+
+```js
+for (let i = 1; i <= 10; i += 2) {
+    console.log(i) // prints 1, 3, 5, 7, 9
+}
+```
+
+### Repeat
+
+Lua also has a `repeat` keyword for loops.
+
+```lua
+local num = 5
+repeat
+    print(num)
+    num = num - 1
+until num == 0 -- prints 5, 4, 3, 2, 1
+```
+
+In JavaScript, we can use the `do...while` loop to achieve the same effect.
+
+```js
+let num = 5
+do {
+    console.log(num)
+    num = num - 1
+} while (num > 0) // prints 5, 4, 3, 2, 1
+```
+
+## Functions
+
+Lua uses the `function` keyword to define a function.
+
+```lua
+function add(a, b)
+    return a + b
+end
+```
+
+In JavaScript, we can use the `function` keyword or the arrow syntax. Using the arrow syntax is more concise and is often the preferred way to define functions in JavaScript.
+
+```js
+function add(a, b) { // using the function keyword
+    return a + b
+}
+
+const add = (a, b) => a + b // using the arrow syntax
+```
+
+Fun fact: with Lua, if a function accepts only one table as an argument, we can omit the parentheses.
+
+```lua
+function greet(person)
+    return "Hello, " .. person.name .. "!"
+end
+
+local greeting = greet{ name = "John" }
+print(greeting) -- Hello, John!
+```
+
+### Multiple Return Values
+
+In Lua, we can return multiple values from a function by using commas in the `return` keyword.
+
+```lua
+function add(a, b)
+    return a + b, a - b
+end
+
+local sum, difference = add(10, 5)
+print(sum) -- 15
+print(difference) -- 5
+```
+
+In JavaScript, we can return an array and destructure it in the function call.
+
+```js
+const add = (a, b) => [a + b, a - b] // using the arrow function syntax
+
+const [sum, difference] = add(10, 5)
+console.log(sum) // 15
+console.log(difference) // 5
+```
+
+## Tables (Lua's Arrays + Objects)
+
+Unlike JavaScript, Lua only has one data structure, the table.
+Tables can be used interchangeably as arrays and objects.
+
+### Arrays
+
+For arrays in Lua, we use the `{}` syntax.
+
+```lua
+-- Lua (array-like)
+local fruits = { "apple", "banana", "cherry" }
+print(fruits[1]) -- apple (1-indexed!)
+```
+
+In JavaScript, we use the `[]` syntax.
+
+```js
+// JavaScript (array)
+const fruits = ["apple", "banana", "cherry"]
+console.log(fruits[0]) // apple (0-indexed)
+```
+
+### Objects
+
+For objects in Lua, we use the same `{}` syntax, but with `=` to define the value for the key.
+
+```lua
+local person = { name = "John", age = 30 }
+-- access using dot notation like JavaScript
+print(person.name) -- John
+```
+
+In JavaScript, we switch to the `{}` syntax.
+
+```js
+const person = { name: "John", age: 30 }
+console.log(person.name) // John
+```
+
+### Iterating Over Tables
+
+In Lua, we can iterate over tables using the `for` keyword and wrapping the table in `pairs` or `ipairs`.
+
+The easiest way I found to differentiate between the two is as follows:
+- `pairs` will iterate over all the key-value pairs in the table, while
+- `ipairs` will only iterate over the numerical indices of the table.
+
+[A comment by Alain Merigot on a StackOverflow question](https://stackoverflow.com/questions/55108794/what-is-the-difference-between-pairs-and-ipairs-in-lua), explained quite well.
+
+```lua
+table = {}
+table[-1] = "y"
+table[0] = "z"
+table[1] = "a"
+table[3] = "b"
+table[2] = "c"
+table[4] = "d"
+table[6] = "e"
+table["hello"] = "world"
+
+for key, value in ipairs(table) do 
+    print(key, value) 
+end
+
+-- returns elements 1..4
+-- 1	a
+-- 2	c
+-- 3	b
+-- 4	d
+
+for key, value in pairs(table) do 
+    print(key, value) 
+end
+
+-- returns all elements
+-- 1	a
+-- 2	c
+-- 3	b
+-- 4	d
+-- 6	e
+-- 0	z
+-- hello	world
+-- -1	y
+```
+
+In JavaScript, we can use the `for...of` or `for...in` loop or the `forEach` array prototype method to iterate over array of objects.
+
+```js
+const people = [
+  { name: "John", age: 30 },
+  { name: "Jeff", age: 24 },
+  { name: "Joe", age: 43 },
+]
+
+for (const person of people) {
+    console.log(person.name) // prints John, Jeff, Joe
+}
+
+for (const index in people) {
+    // returns index so we have to access the value through the index
+    console.log(people[index].age) // prints 30, 24, 43
+}
+
+people.forEach(({ name, age }) => {
+    console.log(name, age) 
+    // prints
+    // John 30
+    // Jeff 24
+    // Joe 43
+})
+```
+
+In Lua, we can also use the `#` operator to get the length of an array. This can be used to iterate over the array.
+
+```lua
+local fruits = { "apple", "banana", "cherry" }
+for i = 1, #fruits do
+    print(fruits[i]) -- prints apple, banana, cherry
+end
+```
+
+In JavaScript, we'd use the `length` property.
+
+```js
+const fruits = ["apple", "banana", "cherry"]
+for (let i = 0; i < fruits.length; i++) {
+    console.log(fruits[i]) // prints apple, banana, cherry
+}
+```
+
+## Modules
+
+In Lua, we can define modules using tables.
+
+```lua
+-- mathUtils.lua
+local M = {}
+
+function M.add(a, b)
+    return a + b
+end
+
+return M
+
+-- main.lua
+local mathUtils = require("mathUtils")
+print(mathUtils.add(2, 3)) -- 5
+```
+
+In JavaScript, we can simply export the function.
+
+```js
+// mathUtils.js
+export function add(a, b) {
+    return a + b
+}
+
+// main.js
+import { add } from "./mathUtils"
+console.log(add(2, 3)) // 5
+```
+
+## Conclusion
+
+These are just the foundations I've explored so far and I'm sure Lua has a lot more depth with things like classes and metatables that I have yet to uncover.
+
+But even at this level, I would say it's more than enough to get you started on something real, especially in something like ComputerCraft.
+
+What stood out to me is how two languages can solve the same problems with such different syntax and philosophies. It's a reminder that learning a new language isn't just about new keywords but about seeing programming from another angle.  
+
+For me, picking up Lua wasn't just about code, it was about adding a new tool to my creative arsenal. And turning that into something I could use in my gaming world? That's the kind of crossover that makes learning a language genuinely fun.
