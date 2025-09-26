@@ -22,6 +22,8 @@ const { post } = Astro.props;
 const { Content, headings } = await post.render();
 ---
 
+<script src="/src/scripts/copyCode.ts"></script>
+
 <RootLayout title={post.data.title} description={post.data.summary} hero={post.data.hero}>
     <SectionContainer>
         <ScrollTopAndComments client:only="solid-js" />
