@@ -30,6 +30,7 @@ export default function ThemeSwitcher() {
 
     // Apply theme class
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    document.documentElement.style.colorScheme = newTheme;
 
     // Update your reactive theme state
     setTheme(newTheme);
