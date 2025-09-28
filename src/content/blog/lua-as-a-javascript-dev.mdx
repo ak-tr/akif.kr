@@ -480,3 +480,106 @@ But even at this level, I would say it's more than enough to get you started on 
 What stood out to me is how two languages can solve the same problems with such different syntax and philosophies. It's a reminder that learning a new language isn't just about new keywords but about seeing programming from another angle.  
 
 For me, picking up Lua wasn't just about code, it was about adding a new tool to my creative arsenal. And turning that into something I could use in my gaming world? That's the kind of crossover that makes learning a language genuinely fun.
+
+## Code Used in Hero image
+
+Finally, for those who are curious, the code used to generate the hero image is below. For the sake of time, I got ChatGPT to write this one for me.
+
+<Collapsible title="View Code" useMonoFont>
+```lua
+local TITLE  = "Lua as a Javascript Developer"
+local FOOTER = "akif.kr"
+
+-- find monitor: prefer arg side, else first monitor
+local side = ({ ... })[1]
+local mon = side and peripheral.wrap(side) or peripheral.find("monitor")
+if not mon then error("No monitor found. Attach one or pass a side.") end
+
+-- center helper
+local function center(mon, y, text)
+    local w = select(1, mon.getSize())
+    local x = math.floor((w - #text) / 2) + 1
+    if x < 1 then x = 1 end
+    mon.setCursorPos(x, y)
+    mon.write(text)
+end
+
+-- plain word-wrap to a given width
+local function wrapText(s, width)
+    local out = {}
+    -- handle any embedded newlines just in case
+    for line in s:gmatch("[^\n]+") do
+        local rest = line
+        while #rest > width do
+            local chunk = rest:sub(1, width + 1)
+            local cut = chunk:match(".*()%s+")  -- last space position (end idx)
+            if cut and cut > 1 then
+                table.insert(out, rest:sub(1, cut - 1))
+                rest = rest:sub(cut + 1):gsub("^%s+", "")
+            else
+                table.insert(out, rest:sub(1, width))
+                rest = rest:sub(width + 1)
+            end
+        end
+        table.insert(out, rest)
+    end
+    return out
+end
+
+-- choose a text scale that fits the title inside the frame
+local function pickScale(mon, title)
+    local scales = {5.0, 4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.5}
+    for _, sc in ipairs(scales) do
+        mon.setTextScale(sc)
+        local w, h = mon.getSize()
+        local innerW, innerH = w - 4, h - 4
+        if innerW >= 8 and innerH >= 3 then
+            local lineCount = (#title <= innerW) and 1 or #wrapText(title, innerW)
+            if lineCount <= innerH then return sc end
+        end
+    end
+    mon.setTextScale(0.5)
+    return 0.5
+end
+
+local function drawFrame(mon)
+    local w, h = mon.getSize()
+    mon.clear()
+    mon.setCursorPos(1, 1); mon.write("+" .. string.rep("-", w - 2) .. "+")
+    mon.setCursorPos(1, h); mon.write("+" .. string.rep("-", w - 2) .. "+")
+    for y = 2, h - 1 do
+        mon.setCursorPos(1, y); mon.write("|")
+        mon.setCursorPos(w, y); mon.write("|")
+    end
+end
+
+local function render(mon, title, footer)
+    local w, h = mon.getSize()
+    drawFrame(mon)
+    local innerW, innerH = w - 4, h - 4
+    local lines = (#title <= innerW) and { title } or wrapText(title, innerW)
+    if #lines > innerH then
+        while #lines > innerH do table.remove(lines) end
+    end
+    local topY = math.max(3, math.floor((h - #lines) / 2))
+    for i, line in ipairs(lines) do
+        center(mon, topY + i - 1, line)
+    end
+    if footer and #footer > 0 then
+        local y = h
+        local xRight = w - #footer
+        if xRight > 1 then
+            mon.setCursorPos(xRight, y); mon.write(footer)
+        else
+            mon.setCursorPos(2, y); mon.write(footer)
+        end
+    end
+end
+
+-- main
+local prev = term.redirect(mon)
+mon.setTextScale(pickScale(mon, TITLE))
+render(mon, TITLE, FOOTER)
+term.redirect(prev)
+```
+</Collapsible>
