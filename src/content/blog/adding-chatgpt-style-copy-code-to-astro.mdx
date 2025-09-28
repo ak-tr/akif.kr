@@ -1,0 +1,201 @@
+---
+title: "Adding a ChatGPT style copy code button to Markdown Code Blocks in Astro"
+date: "2025-09-28"
+tags: ["programming", "javascript", "astro"]
+draft: false
+summary: "Felt like my code blocks were missing something, so I added a ChatGPT style copy code button to them."
+---
+
+## Introduction
+
+For those that don't know, this blog is built with Astro and I have been creating some more articles now that leverage code blocks to showcase code examples.
+
+What those code blocks have been missing is a copy button, so I did some googling to see what solutions existed already. I stumbled across this post by [Tim Neubauer](https://timneubauer.dev/blog/copy-code-button-in-astro) that had a very similar solution to what I wanted to achieve.
+
+The following code is based (somewhat) on Tim's solution, except I have changed the styling and added one small feature.
+
+## What do you mean by ChatGPT style?
+
+Well, if you've ever used ChatGPT and it returns a code block long enough to span larger than your devices screen, you'll notice that the copy code moves down as you scroll. This is a very simple feature that's just nice to have.
+
+See the example in the image below. See how even though I'm at the bottom of a long code block, the copy code button is still visible:
+
+<PostImage src="/static/images/chatgpt-copy-code-button.png" alt="ChatGPT style copy code button" />
+
+## Things to note
+
+Before we continue, if you'd like to use this solution, you will need the following (unless you're comfortable adapting the code to your own needs):
+
+- Typescript
+- Tailwind
+- An Astro project (of course)
+
+## The script
+
+In order to make this work, we need to create a script. This is what will add copy code buttons to our code blocks. When Astro renders your .mdx files into HTML, any code blocks will be wrapped in a `pre` tag. So our script will need to simply find all `pre` tags and add a copy code button to them.
+
+I will include the steps below; if you'd like to skip ahead, you can find the full script at the end of this post or if you'd prefer, as the source for this blog post is available on GitHub, you can find the script [here](https://git.akif.kr/akif.kr/blob/main/src/scripts/copyCode.ts).
+
+Firstly, let's create a new file in our scripts folder. I have simply named it `copyCode.ts`. We will import this script in our `RootLayout.astro` file later on. You can also simply write the script in a `<script>` tag wherever you please.
+
+At the top of the script we will define the values that will represent the HTML code for our copy button as well as its copied state. Yes, these look like a mess, but don't worry about it for now:
+
+```typescript
+const copyCodeSvg = 
+    '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="M9 18q-.825 0-1.412-.587T7 16V4q0-.825.588-1.412T9 2h9q.825 0 1.413.588T20 4v12q0 .825-.587 1.413T18 18zm0-2h9V4H9zm-4 6q-.825 0-1.412-.587T3 20V7q0-.425.288-.712T4 6t.713.288T5 7v13h10q.425 0 .713.288T16 21t-.288.713T15 22zm4-6V4z"/></svg>'
+
+const copyButtonLabel = `<div class="flex items-center gap-1">${copyCodeSvg}<div>Copy Code</div></div>`;
+
+const copiedCodeSvg = 
+    '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="m10 13.6l5.9-5.9q.275-.275.7-.275t.7.275t.275.7t-.275.7l-6.6 6.6q-.3.3-.7.3t-.7-.3l-2.6-2.6q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275z"/></svg>'
+
+const copiedButtonLabel = `<div class="flex items-center gap-1">${copiedCodeSvg}<div>Copied</div></div>`
+```
+
+The SVGs used for the buttons are from [iconify](https://iconify.design/).
+
+Now we need to fetch all the `pre` tags present in the document:
+
+```typescript
+const codeBlocks = Array.from(document.querySelectorAll("pre"));
+```
+
+`codeBlocks` will now hold all the elements on the page that represent a code block.
+
+Now we simply loop through each code block and create a wrapper element with relative positioning:
+
+```typescript
+for (const codeBlock of codeBlocks) {
+    const wrapper = document.createElement("div");
+    wrapper.style.position = "relative";
+}
+```
+
+Now we need to create a container for the copy button and position it absolute:
+
+```typescript
+const copyButtonContainer = document.createElement("div");
+copyButtonContainer.className = "absolute top-1 right-1 w-full h-full pointer-events-none flex justify-end items-start";
+```
+
+Now we need to create the copy button itself, and position it using sticky. We can also set the `innerHTML` value to our copy button label. The sticky attribute is what will give us the ChatGPT style effect.
+
+```typescript
+const copyButton = document.createElement("button");
+copyButton.className = "sticky top-2 right-2 text-white hover:text-white/75 px-3 py-2 text-xs leading-4 rounded z-10 pointer-events-auto";
+copyButton.innerHTML = copyButtonLabel;
+```
+
+Now let's simply append/insert the wrapper, the code block, the copy button container, and the copy button itself:
+
+```typescript
+codeBlock?.parentNode?.insertBefore(wrapper, codeBlock);
+wrapper.appendChild(codeBlock);
+wrapper.appendChild(copyButtonContainer);
+copyButtonContainer.appendChild(copyButton);
+```
+
+When we click the button, we want it to copy the code block to the keyboard so let's add an event listener to the copy button. The function needs to be asynchronous as the clipboards `writeText` method which we use in `copyCode`is asynchronous:
+
+```typescript
+copyButton.addEventListener("click", async () => {
+    await copyCode(codeBlock, copyButton);
+});
+```
+
+Now let's create our `copyCode` function. This function takes the code block and the copy button as arguments. The code block is used to grab the contents and write it to the users clipboard. The copy button is used to update the button's innerHTML to the copied state and then after sometime (2 seconds) it will update the button's innerHTML back to the original state:
+
+```typescript
+const copyCode = async (block: HTMLPreElement, button: HTMLButtonElement) => {
+    const code = block.querySelector("code");
+    const text = code?.innerText;
+
+    await navigator.clipboard.writeText(text ?? "");
+
+    button.innerHTML = copiedButtonLabel;
+
+    setTimeout(() => {
+        button.innerHTML = copyButtonLabel;
+    }, 2000);
+}
+```
+
+Perfect, now we can load the script into our layout file, or wherever you need it. BUT, if your project is anything like mine and uses view transitions, there are some caveats with loading scripts and them running.
+
+In this case, I have wrapped the parts of the script that need to run in a function and then added an event listener which will listen to the `astro:page-load` event and then run the function.
+
+```typescript
+document.addEventListener("astro:page-load", () => {
+    addCopyCodeButtons();
+});
+```
+
+I have a `PostLayout.astro` file which is used to render my blog posts. I have simply imported the script here:
+
+```astro
+<script src="/src/scripts/copyCode.ts"></script>
+```
+
+And now you should have a copy code button on each code block.
+
+## The full code
+
+As promised, here is the full code for the script:
+
+<Collapsible title="View Full Code" useMonoFont>
+
+```typescript
+const copyCodeSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="M9 18q-.825 0-1.412-.587T7 16V4q0-.825.588-1.412T9 2h9q.825 0 1.413.588T20 4v12q0 .825-.587 1.413T18 18zm0-2h9V4H9zm-4 6q-.825 0-1.412-.587T3 20V7q0-.425.288-.712T4 6t.713.288T5 7v13h10q.425 0 .713.288T16 21t-.288.713T15 22zm4-6V4z"/></svg>'
+const copyButtonLabel = `<div class="flex items-center gap-1">${copyCodeSvg}<div>Copy code</div></div>`;
+
+const copiedCodeSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="m10 13.6l5.9-5.9q.275-.275.7-.275t.7.275t.275.7t-.275.7l-6.6 6.6q-.3.3-.7.3t-.7-.3l-2.6-2.6q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275z"/></svg>'
+const copiedButtonLabel = `<div class="flex items-center gap-1">${copiedCodeSvg}<div>Copied</div></div>`
+
+const addCopyCodeButtons = () => {
+    const codeBlocks = Array.from(document.querySelectorAll("pre"));
+
+    for (const codeBlock of codeBlocks) {
+        const wrapper = document.createElement("div");
+        wrapper.style.position = "relative";
+
+        const copyButtonContainer = document.createElement("div");
+        copyButtonContainer.className = "absolute top-1 right-1 w-full h-full pointer-events-none flex justify-end items-start";
+
+        const copyButton = document.createElement("button");
+        copyButton.className = "sticky top-2 right-2 text-white hover:text-white/75 px-3 py-2 text-xs leading-4 rounded z-10 pointer-events-auto";
+        copyButton.innerHTML = copyButtonLabel;
+
+        codeBlock?.parentNode?.insertBefore(wrapper, codeBlock);
+        wrapper.appendChild(codeBlock);
+        wrapper.appendChild(copyButtonContainer);
+        copyButtonContainer.appendChild(copyButton);
+
+        copyButton.addEventListener("click", async () => {
+            await copyCode(codeBlock, copyButton);
+        });
+    }
+}
+
+const copyCode = async (block: HTMLPreElement, button: HTMLButtonElement) => {
+    const code = block.querySelector("code");
+    const text = code?.innerText;
+
+    await navigator.clipboard.writeText(text ?? "");
+
+    button.innerHTML = copiedButtonLabel;
+
+    setTimeout(() => {
+        button.innerHTML = copyButtonLabel;
+    }, 2000);
+}
+
+document.addEventListener("astro:page-load", () => {
+    addCopyCodeButtons();
+});
+```
+
+</Collapsible>
+
+If you have any questions or suggestions, feel free to reach out to me using any of the links in the footer. If you end up using this script, I'd also love to hear about it!
+
+Again, shoutout to [Tim Neubauer](https://timneubauer.dev/blog/copy-code-button-in-astro) for the original solution.
