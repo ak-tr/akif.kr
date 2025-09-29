@@ -9,6 +9,12 @@ import { SITE_METADATA } from "./src/consts.ts";
 // Rehype plugins
 import rehypeSlugAnchorSectionize from "rehype-slug-anchor-sectionize";
 
+// Shiki plugins
+import { 
+    transformerNotationFocus, 
+    transformerRenderIndentGuides,
+} from '@shikijs/transformers'
+
 import robotsTxt from "astro-robots-txt";
 
 // https://astro.build/config
@@ -27,9 +33,14 @@ export default defineConfig({
     prefetch: true,
     site: SITE_METADATA.siteUrl,
     markdown: {
+        syntaxHighlight: 'shiki',
         shikiConfig: {
             theme: 'houston',
             wrap: true,
+            transformers: [
+                transformerNotationFocus(),
+                transformerRenderIndentGuides({ position: 'trailing' })
+            ],
         },
     },
 });
