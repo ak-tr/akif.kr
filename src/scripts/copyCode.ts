@@ -15,7 +15,7 @@ const addCopyCodeButtons = () => {
         copyButtonContainer.className = "absolute top-1 right-1 w-full h-[90%] pointer-events-none flex justify-end items-start";
 
         const copyButton = document.createElement("button");
-        copyButton.className = "sticky top-2 right-2 text-white hover:text-white/75 bg-[#17191E] bg-opacity-75 px-3 py-2 text-xs leading-4 rounded z-10 pointer-events-auto";
+        copyButton.className = "sticky top-2 right-2 rounded-md text-white hover:text-white/75 bg-[#17191E] bg-opacity-75 px-3 py-2 text-xs leading-4 rounded z-10 pointer-events-auto";
         copyButton.innerHTML = copyButtonLabel;
 
         codeBlock?.parentNode?.insertBefore(wrapper, codeBlock);

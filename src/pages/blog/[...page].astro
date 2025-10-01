@@ -1,5 +1,7 @@
 ---
-import { type Page, getCollection } from "astro:content";
+import { getCollection } from "astro:content";
+import type { Page } from "astro";
+
 import { ITEMS_PER_PAGE } from "@/consts";
 import { sortBlogPosts, excludeDrafts } from "@/functions";
 import ListLayout from "@/layouts/ListLayout.astro";
@@ -8,7 +10,7 @@ interface Props {
     page: Page;
 }
 
-export async function getStaticPaths({ paginate }) {
+export async function getStaticPaths({ paginate }: { paginate: Function }) {
     const posts = await getCollection("blog", excludeDrafts).then(
         sortBlogPosts
     );
@@ -18,4 +20,4 @@ export async function getStaticPaths({ paginate }) {
 const { page } = Astro.props;
 ---
 
-<ListLayout title="Blog" page={page} />
+<ListLayout title="Blog" page={page} description="Blog" />

@@ -2,11 +2,13 @@
 const { title, useMonoFont = false } = Astro.props;
 ---
 
-<script type="module" client:load>
+<script>
   document.querySelectorAll('[data-collapsible]').forEach((el) => {
-    const toggle = el.querySelector('[data-toggle]');
-    const content = el.querySelector('[data-content]');
-    const icon = el.querySelector('svg');
+    const toggle = el.querySelector('[data-toggle]') as HTMLElement;
+    const content = el.querySelector('[data-content]') as HTMLElement;
+    const icon = el.querySelector('svg') as SVGElement;
+
+    if (!toggle || !content) return;
 
     let open = false;
 

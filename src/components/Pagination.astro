@@ -1,11 +1,22 @@
 ---
-import type {Page} from "astro:content";
+import type { Page } from "astro";
 
 import Link from "./Link.astro";
 
-type Props = Page;
+type Props = {
+    page: Page,
+};
 
-const {page: {currentPage, lastPage, url: {prev, next}}} = Astro.props;
+const {
+    page: {
+        currentPage,
+        lastPage, 
+        url: {
+            prev, 
+            next
+        }
+    }
+} = Astro.props;
 ---
 
 <div class="space-y-2 pb-8 pt-6 md:space-y-5">

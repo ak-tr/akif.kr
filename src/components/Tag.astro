@@ -6,14 +6,20 @@ interface Props {
     tag?: CollectionEntry<'tags'>;
     slug?: CollectionEntry<'tags'>['slug'];
 }
-let Tag = Astro.props.tag;
 
-if (!Tag && Astro.props.slug) {
-    Tag = await getEntry('tags', Astro.props.slug);
+let tag = Astro.props.tag;
+
+if (!tag && Astro.props.slug) {
+    tag = await getEntry('tags', Astro.props.slug);
 }
-const {slug, data} = Tag;
+const slug = tag?.slug;
+const data = tag?.data;
+
 ---
-<Link href={`/tags/${slug}`}
-      class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 pt-3">
-    {data.name}
+{slug && data ? (
+  <Link href={`/tags/${slug}`}
+        class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 pt-3">
+      {data.name}
+  </Link>
+) : null}
 </Link>

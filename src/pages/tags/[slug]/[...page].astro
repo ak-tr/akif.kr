@@ -1,8 +1,9 @@
 ---
-import {type Page, getCollection, type CollectionEntry} from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
+import type { Page } from "astro";
 
-import {ITEMS_PER_PAGE} from "@/consts";
-import {excludeDrafts, sortBlogPosts} from "@/functions";
+import { ITEMS_PER_PAGE } from "@/consts";
+import { excludeDrafts, sortBlogPosts } from "@/functions";
 import ListLayout from '@/layouts/ListLayout.astro';
 
 interface Props {
@@ -10,7 +11,7 @@ interface Props {
     entry: CollectionEntry<'tags'>;
 }
 
-export async function getStaticPaths({paginate}) {
+export async function getStaticPaths({ paginate }: { paginate: Function }) {
     const tags = await getCollection('tags');
     const posts = await getCollection('blog', excludeDrafts).then(sortBlogPosts);
 
@@ -30,6 +31,6 @@ if (page.currentPage > 1) {
 }
 ---
 
-<ListLayout title={entry.data.name} description={entry.data.description} page={page} {robots}>
+<ListLayout title={entry.data.name} description={entry.data.description ?? ""} page={page} robots={robots ?? undefined}>
     <Content/>
 </ListWithTagsLayout>

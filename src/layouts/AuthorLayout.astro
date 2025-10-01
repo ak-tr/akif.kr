@@ -9,7 +9,7 @@ import { ITEMS_PER_PAGE } from "../consts";
 import Hero from "@/components/Hero.astro"
 
 interface Props {
-    content: CollectionEntry<"authors">;
+    content: CollectionEntry<"authors">["data"];
     slug: string;
 }
 
@@ -53,7 +53,7 @@ const authorPosts = await getCollection(
                         </h2>
                         <ul class="space-y-4 mt-4">
                             {authorPosts.map((post) => (
-                                <li key={post.slug}>
+                                <li>
                                     <Link href={`/blog/${post.slug}`}>
                                         {post.title}
                                     </Link>

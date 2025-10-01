@@ -1,5 +1,6 @@
 ---
-import type {Page, CollectionEntry} from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import type { Page } from "astro";
 
 import FormattedDate from "../components/FormattedDate.astro";
 import Link from "../components/Link.astro";
@@ -10,7 +11,7 @@ import Tag from "../components/Tag.astro";
 interface Props {
     title: string;
     description: string;
-    page: Page<CollectionEntry<'blog'>[]>;
+    page: Page<CollectionEntry<'blog'>>;
     robots?: string;
 }
 
@@ -48,13 +49,8 @@ const hasDefaultSlot = Astro.slots.has('default');
                                     </Link>
                                 </h3>
                                 <div class="flex flex-wrap mt-3">
-                                    {tags.map(({slug}, i) =>
-                                        {
-                                            if (i < tags.length - 1) {
-                                                return <Tag slug={slug}/> <span class="pr-2">,</span>
-                                            }
-                                            return <Tag slug={slug}/> 
-                                        }   
+                                    {tags.map(({slug}) =>
+                                            <Tag slug={slug}/>
                                     )}
                                 </div>
                             </div>
