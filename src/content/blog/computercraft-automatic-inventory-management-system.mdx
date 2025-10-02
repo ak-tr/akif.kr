@@ -1,0 +1,352 @@
+---
+title: "ComputerCraft: How to Automate Inventory Management by Automatically Routing Items to Chests"
+date: "2025-10-02"
+tags: ["programming", "lua"]
+draft: false
+summary: "If you've got ComputerCraft installed as a mod and you haven't at least automated your inventory management, what are you even doing?"
+hero: {
+    src: "/static/images/computercraft-auomatic-inventory-management.png",
+    alt: "Image of Minecraft room full of chests"
+}
+---
+
+## Introduction
+
+When I first started my modded Minecraft world, the only thing I could think about was inventory management. There are a multitude of ways to do this depending on the mods you have installed, but without ComputerCraft, you're limited to the capabilities of whichever mod you're using. This often also means manually filtering items using filters and so and so forth.
+
+As ComputerCraft allows you to write Lua code, the possibilities are endless. This blog post will cover a simple way to very quickly set up an inventory management system, and for fairly cheap. 
+
+For reference, I am using Minecraft 1.19.2 and CC: Restitched which is the Fabric version of CC: Tweaked which is then a fork of the original ComputerCraft.
+
+Before we start, just to mention briefly before we get into the setup and the code: the logic that I have gone for is very basic and I think is the easiest way to get started without having to write lots of cumbersome repetitive code. The way it works is like so:
+
+1. User places items into a parent sorting chest.
+2. The computer notices when items are placed in this chest, and will loop through each item.
+3. Search every chest in the base (i.e. connected to the network) for that item.
+4. If the item is found, it will place it into the chest it was found in.
+5. If the chest is full, it will remain in the sorting chest.
+6. If the item does not exist in any chest, it will be moved into a predetermined "fallback" chest.
+7. The user can then periodically check the fallback chest for items the computer couldn't find a place for and manually place them into the appropriate chest.
+8. Any future appearances of that specific item will be handled automatically going forward.
+
+## The Setup
+
+I have around 120+ chests darted around my base. There are 4 rooms dedicated to storage. General storage, ore/mining/armoury/machinery, food and magic. Once the chests are in place the rest of the setup is very simple.
+
+Each chest needs its own wired modem. These can be crafted for very cheap. The modems should be in their block form, not the small half block form that they can also be in. Once each chest is connected to a modem (different chests can also share the same modem if they are able to) we need to link them all using networking cables. These networking cables should then lead to one final modem which will be the one we connect to our computer.
+
+The computer will then carry the code that will be responsible for the inventory management. In the next section I will explain the code in detail. If you would like to jump straight to the code, you can find it [here](https://github.com/ak-tr/cc-scripts/blob/main/scripts/chest_auto_route.lua).
+
+## The Code
+
+The code may look quite daunting at first, but I have split things out into modules and tried to write it as cleanly as possible. Follow through if you'd like to gain an understanding of the code, otherwise jump straight to the [main loop](#the-main-loop-routing-logic).
+
+### Config and Peripherals Variables
+
+But firstly, let's tackle a bunch of config variables. This is so we can make any changes to core parts of the system without having to dig deep into the code. This will hold things like chest counts, parent chest names, fallback chest name, and other important variables.
+
+```lua
+-- === Config ===
+local PARENT_NAME    = "minecraft:chest_3"
+local FIRST_IDX      = 4
+local LAST_IDX       = 140
+local LOOP_DELAY     = 0
+local FALLBACK_NAME  = "charm:variant_chest_2"
+local BATCH_SIZE     = 200                   -- stay under ~255 events
+```
+
+Then we can create some variables to hold the chests we will be using. For this we will be using the `wrap` function exposed by the `peripheral` module. I have also added a monitor and speaker for logging and audible feedback. We would also like to error if a parent chest is not found; this is the foundation of how this system works, so without it, it's pretty useless.
+
+```lua
+-- === Peripherals ===
+local parentChest    = peripheral.wrap(PARENT_NAME)
+if not parentChest then error(("Parent chest '%s' not found."):format(PARENT_NAME)) end
+
+local fallbackChest  = peripheral.wrap(FALLBACK_NAME)
+local monitor        = peripheral.wrap("monitor_0")
+local speaker        = peripheral.wrap("left")
+```
+
+### Setup and Helper Functions
+
+Next, we're going to build a list of destination chests, this is so we can loop through them later. This will automatically loop from `FIRST_IDX` to `LAST_IDX` and add that chest to the `destChests` table. 
+
+For context, when you add a modem to a chest, CC will automatically give it a name like `minecraft:chest_4`, `minecraft:chest_5`, etc. As you add more modems to more chests, this number will simply increment by 1. So by using `FIRST_IDX` and `LAST_IDX` we can loop through all the chests in between and any chests that don't exist or have been removed will simply be ignored.
+
+This is helpful because, let's say you create a new room with 20 more chests, you simply need to update the `LAST_IDX` variable and the code will automatically include the new chests.
+
+```lua
+-- Build fixed list of destination chests
+local destChests = {}
+for i = FIRST_IDX, LAST_IDX do
+    local name = ("minecraft:chest_%d"):format(i)
+    local wrapped = peripheral.wrap(name)
+    if wrapped then table.insert(destChests, wrapped) end
+end
+```
+
+Now that we have our list of destination chests, we can move on to setting up our logging and feedback mechanisms. We wrapped a monitor to provide on screen logs and a speaker for audible feedback.
+
+The setup for the monitor is straightforward. We use a `pcall` (protected call) to set the text scale and, if available, set the text and background colors. We then clear the monitor and set the cursor to the top left. The `pcall` is useful here because some ComputerCraft systems or monitors might not support all these functions, and we don't want the program to crash if they fail.
+
+```lua
+-- === Monitor setup ===
+if monitor then
+    pcall(function()
+        monitor.setTextScale(0.5)
+        if monitor.setTextColor then
+            monitor.setTextColor(colors.white)
+            monitor.setBackgroundColor(colors.black)
+        end
+        monitor.clear()
+        monitor.setCursorPos(1, 1)
+    end)
+end
+```
+
+Next, we define our custom logging and sound functions. This helps keep the main logic clean and makes it easy to change how we log or what sounds we play.
+
+This next function handles writing to our monitor, ensuring that long messages are wrapped correctly to fit the screen size. If a message is too long, it splits it across multiple lines, and if the monitor is full, it scrolls the content up to make room for the new line.
+
+```lua
+-- === Logging + Sounds ===
+local function monitorWriteLine(msg)
+    if not monitor then return end
+    local ok, w, h = pcall(monitor.getSize); if not ok then return end
+    local _, y = monitor.getCursorPos()
+    local i, len = 1, #msg
+    while i <= len do
+        local line = string.sub(msg, i, i + w - 1)
+        if y > h then monitor.scroll(1); y = h end
+        monitor.setCursorPos(1, y); monitor.write(line); y = y + 1
+        i = i + w
+    end
+    monitor.setCursorPos(1, y)
+end
+```
+
+Then we have our main logging function. It prints the message to the ComputerCraft terminal using `print()` and also calls `monitorWriteLine()` to display it on the monitor. It accepts standard Lua string formatting arguments (`fmt`, `...`).
+
+```lua
+local function log(fmt, ...)
+    local msg = (select('#', ...) > 0) and string.format(fmt, ...) or fmt
+    print(msg); monitorWriteLine(msg)
+end
+```
+
+Then we have our success and failure tone functions. These use the `speaker` peripheral to play a distinct tone for success and failure events. This provides an audible cue for the system's operation, which is useful if you aren't constantly looking at the monitor or if the monitor is somewhere easily accessible. Again, we use `pcall` to ensure the program doesn't crash if the speaker peripheral is somehow removed or inaccessible.
+
+`successTone()` is actually unused in this version of the code. I removed it as I was having a lot of items coming from different sources and it kept spamming the success tone.
+
+```lua
+local function successTone() if speaker then pcall(function() speaker.playNote("bell", 2, 21) end) end end
+local function failTone()    if speaker then pcall(function() speaker.playNote("basedrum", 2, 6) end) end end
+```
+
+We then have a few functions to assist with the core logic.
+
+The first is a simple wrapper around the `peripheral.call` function, specifically using the inventory peripheral's `pushItems` method. It handles moving items from a specific slot in the source inventory (`srcPeriph`) to the destination inventory (`dstPeriph`). This is the atomic action of our routing system.
+
+```lua
+local function moveToChest(srcPeriph, fromSlot, dstPeriph)
+    return peripheral.call(peripheral.getName(srcPeriph), "pushItems", peripheral.getName(dstPeriph), fromSlot)
+end
+```
+
+Then we have a helper for generating a human readable name for an item for logging purposes. It first tries to get the item's details using `inv.getItemDetail(slot)`, which usually provides the full `displayName` (like "Wooden Plank"). If that fails, it falls back to the item's internal `name` (like "minecraft:planks"). This makes the logs much easier to read.
+
+```lua
+-- Pretty display name for logs
+local function prettyName(inv, slot, listed)
+    local id = listed and listed.name or nil
+    local detail = inv.getItemDetail and inv.getItemDetail(slot) or nil
+    local disp = detail and (detail.displayName or detail.name) or id
+    return disp or "Unknown item"
+end
+```
+
+Finally, we have the most critical helper, as it leverages parallel processing to gather data quickly. The goal is to build an index that tells us exactly which item IDs are contained in which destination chest.
+
+1.  It iterates through all the destination chests.
+2.  For each chest, it creates an anonymous function that:
+    * Gets the chest's list of contents using `chestLocal.list()`.
+    * Builds a set (a table where keys are item names and values are `true`) of all unique item IDs in that chest.
+    * Stores this set in the main `index` table, keyed by the chest's peripheral name.
+3.  The crucial part is the use of `parallel.waitForAll` and `BATCH_SIZE`. We group the reading functions into batches and execute each batch in parallel. This dramatically speeds up the process of checking a large number of chests, avoiding the long delays that would occur if we checked them one by one.
+
+This index is key for the main loop, as we can quickly check if an item ID already exists in *any* destination chest without iterating through all the slots of all the chests every single time.
+
+Without using parallel processing, this sorting function is _literally_ seconds longer.
+
+The performance of this function was improved a lot thanks to this and it wouldn't have been possible if I didn't stumble across this [reddit comment](https://www.reddit.com/r/ComputerCraft/comments/1bwzgv3/comment/kydh3gf/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button).
+
+```lua
+-- === Helpers ===
+local function moveToChest(srcPeriph, fromSlot, dstPeriph)
+    return peripheral.call(peripheral.getName(srcPeriph), "pushItems", peripheral.getName(dstPeriph), fromSlot)
+end
+
+-- Pretty display name for logs
+local function prettyName(inv, slot, listed)
+    local id = listed and listed.name or nil
+    local detail = inv.getItemDetail and inv.getItemDetail(slot) or nil
+    local disp = detail and (detail.displayName or detail.name) or id
+    return disp or "Unknown item"
+end
+
+-- Build an index of which item IDs exist in which chest, in parallel once per tick
+-- Returns: index[chestName] = { [itemId] = true, ... }
+local function buildChestIndex(chests)
+    local index = {}
+    local funcs = {}
+
+    for _, chest in ipairs(chests) do
+        local chestLocal = chest
+        table.insert(funcs, function()
+            local name = peripheral.getName(chestLocal)
+            local list = chestLocal.list() or {}
+            local set = {}
+            for _, it in pairs(list) do
+                if it.name then set[it.name] = true end
+            end
+            index[name] = set
+        end)
+    end
+
+    for i = 1, #funcs, BATCH_SIZE do
+        parallel.waitForAll(table.unpack(funcs, i, math.min(i + BATCH_SIZE - 1, #funcs)))
+    end
+    return index
+end
+```
+
+Before we enter the main loop, we log the results of our setup: how many destination chests were found and the status of the fallback chest. This gives immediate feedback on whether the config variables are pointing to the correct peripherals.
+
+```lua
+-- === Init logs ===
+if #destChests == 0 then
+    log("[INIT] No destination chests found between indices.")
+else
+    log("[INIT] Dest chests: %d", #destChests)
+end
+if fallbackChest then
+    log("[INIT] Fallback chest available: %s", FALLBACK_NAME)
+else
+    log("[WARN] Fallback chest not found: %s", FALLBACK_NAME)
+end
+```
+
+### The Main Loop: Routing Logic
+
+This is the continuous heart of the program. The system enters an infinite `while true do` loop, constantly checking and routing items, then waiting for the configured delay before the next cycle.
+
+```lua
+-- === Main loop ===
+while true do
+
+end
+```
+
+### 1. Snapshot and List Parent Items
+
+Every cycle starts by calling the parallelized `buildChestIndex(destChests)`. This creates a fresh, fast snapshot of all the item IDs in the destination chests. Then, we fetch the current contents of the `parentChest`.
+
+```lua
+while true do
+    -- Snapshot all destination chests in parallel -- [!code focus]
+    local chestIndex = buildChestIndex(destChests) -- [!code focus]
+
+    -- Route items from parent -- [!code focus]
+    local listed = parentChest.list() -- [!code focus]
+end
+```
+
+### 2. Iterate and Route
+
+We loop through every slot and item currently listed in the `parentChest`.
+
+* Item Identification: We extract the item's `idName`. If we can't read it, we log a warning and skip the slot. We then generate the user-friendly `display` name for logging.
+* Find a Match: We iterate over the `destChests` list. Instead of checking the chest contents directly, we check our newly created `chestIndex`. This lookup is extremely fast. The moment a match is found (the item ID already exists in the destination chest), that chest becomes the `target`, and we use `break` to stop checking other destination chests, prioritizing the chest that was found first.
+
+#### Success Path
+
+If a `target` chest is found:
+
+* We attempt to move the entire stack from the parent chest's slot using `moveToChest`.
+* If `moved > 0`, it was a success. We log the details with an `[OK]` status, including the number of items and the destination peripheral name, and play the `successTone()`.
+* If `moved` is not greater than 0, the destination chest is full, and we log a `[FULL]` warning.
+
+#### Fallback Path
+
+If no `target` chest is found (the item is new to the system):
+
+* We log a `[SKIP]` message.
+* We check if the `fallbackChest` is available.
+* If it is, we attempt to move the item to the fallback. A successful move to the fallback is logged as `[FALLBACK]`, but we play the `failTone()` because the item didn't go into a specialized destination, meaning a new chest may be needed OR the item needs to be manually placed into a chest for the first time.
+* If the fallback is full, we log a `[FULL]` warning and still play the `failTone()` as the item remains unrouted.
+* If the fallback chest is unavailable, we log a final `[WARN]` that the item is being left in the parent, again playing the `failTone()`.
+
+```lua
+while true do
+    -- Snapshot all destination chests in parallel
+    local chestIndex = buildChestIndex(destChests)
+
+    -- Route items from parent
+    local listed = parentChest.list()
+    if listed then -- [!code focus]
+        for slot, item in pairs(listed) do -- [!code focus]
+            local idName = item and item.name or nil -- [!code focus]
+            if not idName then -- [!code focus]
+                log("[WARN] Could not read name for slot %d", slot) -- [!code focus]
+            else -- [!code focus]
+                local display = prettyName(parentChest, slot, item) -- [!code focus]
+                -- [!code focus]
+                -- Find first chest containing this item ID -- [!code focus]
+                local target = nil -- [!code focus]
+                for _, chest in ipairs(destChests) do -- [!code focus]
+                    local cname = peripheral.getName(chest) -- [!code focus]
+                    local set = chestIndex[cname] -- [!code focus]
+                    if set and set[idName] then target = chest; break end -- [!code focus]
+                end -- [!code focus]
+                -- [!code focus]
+                if target then -- [!code focus]
+                    local moved = moveToChest(parentChest, slot, target) -- [!code focus]
+                    if moved and moved > 0 then -- [!code focus]
+                        log("[OK] Moved %d x %s (slot %d) -> %s", moved, display, slot, peripheral.getName(target)) -- [!code focus]
+                    else -- [!code focus]
+                        log("[FULL] No room in %s for %s (slot %d).", peripheral.getName(target), display, slot) -- [!code focus]
+                    end -- [!code focus]
+                else -- [!code focus]
+                    log("[SKIP] No match for %s (slot %d).", display, slot) -- [!code focus]
+                    if fallbackChest then -- [!code focus]
+                        local moved = moveToChest(parentChest, slot, fallbackChest) -- [!code focus]
+                        if moved and moved > 0 then -- [!code focus]
+                            log("[FALLBACK] Moved %d x %s (slot %d) -> %s", moved, display, slot, FALLBACK_NAME) -- [!code focus]
+                            failTone() -- [!code focus]
+                        else -- [!code focus]
+                            log("[FULL] No room in fallback %s for %s (slot %d).", FALLBACK_NAME, display, slot) -- [!code focus]
+                            failTone() -- [!code focus]
+                        end -- [!code focus]
+                    else -- [!code focus]
+                        log("[WARN] Fallback chest '%s' unavailable; leaving %s in parent.", FALLBACK_NAME, display) -- [!code focus]
+                        failTone() -- [!code focus]
+                    end -- [!code focus]
+                end -- [!code focus]
+            end -- [!code focus]
+        end -- [!code focus]
+    end -- [!code focus]
+end
+```
+
+### 3. Loop Delay
+
+Finally, the code ensures the system takes a break based on the `LOOP_DELAY` config.
+
+```lua
+    if LOOP_DELAY > 0 then sleep(LOOP_DELAY) end
+end
+```
+
+This completes the entire auto routing program. By using parallel processing for indexing the chests, we ensure the system is highly efficient and scalable even with hundreds of destination chests.
+
+If you guys like my solution and would like to know more, or ask any questions, feel free to contact me on any of the socials listed in the footer.
