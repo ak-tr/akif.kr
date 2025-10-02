@@ -5,6 +5,7 @@ import {type CollectionEntry, getEntry} from "astro:content";
 interface Props {
     tag?: CollectionEntry<'tags'>;
     slug?: CollectionEntry<'tags'>['slug'];
+    chip?: boolean;
 }
 
 let tag = Astro.props.tag;
@@ -12,12 +13,13 @@ let tag = Astro.props.tag;
 if (!tag && Astro.props.slug) {
     tag = await getEntry('tags', Astro.props.slug);
 }
+
 const slug = tag?.slug;
 const data = tag?.data;
-
+const chip = Astro.props.chip ?? false;
 ---
 {slug && data ? (
-  <Link href={`/tags/${slug}`}
+  <Link href={`/tags/${slug}`} chip={chip}
         class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 pt-3">
       {data.name}
   </Link>
