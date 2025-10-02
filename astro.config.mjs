@@ -36,7 +36,6 @@ export default defineConfig({
         syntaxHighlight: 'shiki',
         shikiConfig: {
             theme: 'houston',
-            wrap: true,
             transformers: [
                 transformerNotationFocus(),
                 transformerRenderIndentGuides({ position: 'trailing' })
