@@ -1,5 +1,3 @@
-import getReadingTime from 'reading-time';
-
 const extractText = (root) => {
     const acc = [];
 
@@ -19,13 +17,24 @@ const extractText = (root) => {
     return acc.join(" ").replace(/\s+/g, " ").trim();
 }
 
+export const getWordCount = (text) => {
+    return text.split(/\s+/).filter(Boolean).length;
+}
+
+const getReadingTime = (text) => {
+    const words = getWordCount(text);
+    const minutes = words / 200;
+    return `${Math.ceil(minutes)} min read`;
+}
+
 export default () => {
     return function (tree, { data }) {
         const textOnPage = extractText(tree)
-        
-        const readingTime = getReadingTime(textOnPage);
 
-        data.astro.frontmatter.minutesRead = readingTime.text;
-        data.astro.frontmatter.wordCount = readingTime.words;
+        const readingTime = getReadingTime(textOnPage);
+        const wordCount = getWordCount(textOnPage);
+    
+        data.astro.frontmatter.minutesRead = readingTime;
+        data.astro.frontmatter.wordCount = wordCount;
     };
 }
