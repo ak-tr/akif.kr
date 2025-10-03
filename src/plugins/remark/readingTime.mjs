@@ -17,7 +17,7 @@ const extractText = (root) => {
     return acc.join(" ").replace(/\s+/g, " ").trim();
 }
 
-export const getWordCount = (text) => {
+const getWordCount = (text) => {
     return text.split(/\s+/).filter(Boolean).length;
 }
 

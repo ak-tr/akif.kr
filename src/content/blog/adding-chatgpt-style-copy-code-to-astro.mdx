@@ -1,5 +1,5 @@
 ---
-title: "Adding a ChatGPT style copy code button to Markdown Code Blocks in Astro"
+title: "Adding a ChatGPT Style Copy Code Button to Markdown Code Blocks in Astro"
 date: "2025-09-28"
 tags: ["programming", "javascript", "astro"]
 draft: false
@@ -22,7 +22,7 @@ See the example in the image below. See how even though I'm at the bottom of a l
 
 <PostImage src="/static/images/chatgpt-copy-code-button.png" alt="ChatGPT style copy code button" />
 
-## Things to note
+## Things to Note
 
 Before we continue, if you'd like to use this solution, you will need the following (unless you're comfortable adapting the code to your own needs):
 
@@ -30,7 +30,7 @@ Before we continue, if you'd like to use this solution, you will need the follow
 - Tailwind
 - An Astro project (of course)
 
-## The script
+## The Script
 
 In order to make this work, we need to create a script. This is what will add copy code buttons to our code blocks. When Astro renders your .mdx files into HTML, any code blocks will be wrapped in a `pre` tag. So our script will need to simply find all `pre` tags and add a copy code button to them.
 
@@ -180,7 +180,7 @@ I have a `PostLayout.astro` file which is used to render my blog posts. I have s
 
 And now you should have a copy code button on each code block.
 
-## The full code
+## The Full Code
 
 As promised, here is the full code for the script:
 

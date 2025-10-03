@@ -1,0 +1,206 @@
+---
+title: "Add Reading Time and Word Count in Astro (No Dependencies Needed)"
+date: "2025-10-03"
+tags: ["programming", "javascript", "astro"]
+draft: false
+summary: "How to add reading time in minutes and a word count to your Astro blog posts."
+---
+
+## Introduction
+
+I'm always looking for ways to improve my blog posts, and one thing you've probably noticed shared across many other blogs is a reading time and word count at the top of the post or article somewhere.
+
+These two metrics are useful for readers to know how long a post will take to read and supposedly comes with SEO benefits too.
+
+## Existing Solution
+
+Now, when I decided I wanted to implement this feature, as with any feature, the first thing I did was to Google it. Why reinvent the wheel, right? Thankfully, Astro docs have a write-up in their "How-to recipes" section in a post called ["Add reading time"](https://docs.astro.build/en/recipes/reading-time) that offers a pretty good solution.
+
+This was a solid implementation, but one thing I realised was the overuse of libraries. I like that it is a remark plugin, but seems there was no need to import libraries to calculate reading time and word count. I also found that the library they recommend `mdast-util-to-string` was not as accurate at calculating word count as I expected. For example, it would return headings and main content as one word i.e. "IntroductionI'm always looking..." so it was far from being spot on.
+
+## My Solution
+
+I have taken the solution from the Astro docs and adapted it to my own needs. As usual, I will explain my solution step by step and for those who just want the code, you can find it at the end of the post or since this blogs source is publicly available, you can find it [here](https://github.com/ak-tr/akif.kr/blob/main/src/plugins/remark/readingTime.mjs).
+
+### The Remark Plugin
+
+As shown in the original Astro docs, we'll be creating a remark plugin. For structure, I have created a new file in the `src/plugins/remark` directory called `readingTime.mjs`.
+
+Before we even export a function that we'll use as the remark plugin, let's define some helper functions.
+
+The first of our functions is the `extractText` function. This is the function that we'll be creating that replaces the `mdast-util-to-string` library.
+
+This function traverses the tree, checks each of the children and if they exist and its an array it will simply add the value to an array named `acc`. It will check if the node has any children and if true, it will recursively call the function again.
+
+At the end we return the array joined by trimmed spaces followed by a `trim` for good measure.
+
+```js
+const extractText = (root) => {
+    const acc = [];
+
+    const visit = (node) => {
+        if (!node) return;
+
+        if (typeof node.value === "string") {
+            acc.push(node.value);
+        }
+
+        if (node.children && Array.isArray(node.children)) {
+            for (const child of node.children) visit(child);
+        }
+    }
+
+    visit(root);
+    return acc.join(" ").replace(/\s+/g, " ").trim();
+}
+```
+
+And finally, we have two very simple functions that will calculate word count and reading time.
+
+The `getWordCount` function simply splits the text by spaces and filters out any empty strings and returns the length of the array.
+
+```js
+const getWordCount = (text) => {
+    return text.split(/\s+/).filter(Boolean).length;
+}
+```
+
+The `getReadingTime` function simply divides the word count by 200 and rounds up to the nearest minute. 
+
+I used my friend ChatGPT to give me the average reading speed of 200 words per minute. If we divide the word count by 200, we get the number of minutes it will take to read the post. Simple.
+
+We also use the `Math.ceil` function to round up to the nearest minute to make it look a bit more presentable.
+
+```js
+const getReadingTime = (text) => {
+    const words = getWordCount(text);
+    const minutes = words / 200;
+    return `${Math.ceil(minutes)} min read`;
+}
+```
+
+Finally, we can export our remark plugin. We should return a function that takes the tree, and a destructured object with the data.
+
+We use our `extractText` function to get the text on the page, which we can then pass onto our `getReadingTime` and `getWordCount` functions.
+
+Then we simply set the `minutesRead` and `wordCount` properties on the `data.astro.frontmatter` object.
+
+```js
+export default () => {
+    return function (tree, { data }) {
+        const textOnPage = extractText(tree)
+
+        const readingTime = getReadingTime(textOnPage);
+        const wordCount = getWordCount(textOnPage);
+    
+        data.astro.frontmatter.minutesRead = readingTime;
+        data.astro.frontmatter.wordCount = wordCount;
+    };
+}
+```
+
+### Usage
+
+Now that we've added our remark plugin, we still need to "activate" it you could say. Let's go to our `astro.config.mjs` file and add our plugin to the remark plugins array.
+
+```js {3-4,18-22}
+// Other imports and code here...
+
+// Remark plugins // [!code focus]
+import remarkReadingTime from "./src/plugins/remark/readingTime.mjs"; // Import here [!code focus]
+
+// Shiki plugins
+import { 
+    transformerNotationFocus, 
+    transformerRenderIndentGuides,
+    transformerMetaHighlight,
+} from '@shikijs/transformers'
+
+import robotsTxt from "astro-robots-txt";
+
+export default defineConfig({
+    integrations: [
+        // Rest of your plugins and integrations here...
+        mdx({ // [!code focus]
+            remarkPlugins: [ // [!code focus]
+                remarkReadingTime, // Add to array here [!code focus]
+            ], // [!code focus]
+        }), // [!code focus]
+    ],
+})
+
+// Remainder of your config here...
+```
+
+Now, wherever we render our post (using Content collections), we can access the `minutesRead` and `wordCount` properties on the `remarkPluginFrontmatter` object.
+
+Why are they in the `remarkPluginFrontmatter` object? Simply because that's where Astro puts the custom properties we add to the frontmatter for remark plugins.
+
+```ts
+const { Content, headings, remarkPluginFrontmatter } = await post.render();
+
+// remarkPluginFormatter now returns:
+//
+// {
+//     minutesRead: string;
+//     wordCount: number;
+// }
+//
+```
+
+## The Full Code
+
+The full code for all your copying and pasting pleasure.
+
+<Collapsible title="View Full Code" useMonoFont>
+
+```js
+// src/plugins/remark/readingTime.mjs
+
+const extractText = (root) => {
+    const acc = [];
+
+    const visit = (node) => {
+        if (!node) return;
+
+        if (typeof node.value === "string") {
+            acc.push(node.value);
+        }
+
+        if (node.children && Array.isArray(node.children)) {
+            for (const child of node.children) visit(child);
+        }
+    }
+
+    visit(root);
+    return acc.join(" ").replace(/\s+/g, " ").trim();
+}
+
+const getWordCount = (text) => {
+    return text.split(/\s+/).filter(Boolean).length;
+}
+
+const getReadingTime = (text) => {
+    const words = getWordCount(text);
+    const minutes = words / 200;
+    return `${Math.ceil(minutes)} min read`;
+}
+
+export default () => {
+    return function (tree, { data }) {
+        const textOnPage = extractText(tree)
+
+        const readingTime = getReadingTime(textOnPage);
+        const wordCount = getWordCount(textOnPage);
+    
+        data.astro.frontmatter.minutesRead = readingTime;
+        data.astro.frontmatter.wordCount = wordCount;
+    };
+}
+```
+
+</Collapsible>
+
+## Conclusion
+
+It's simple, easy to use, clean and most importantly, it doesn't require any dependencies - which I would say is definitely unnecessarily imported in the original solution.
