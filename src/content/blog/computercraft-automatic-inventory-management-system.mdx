@@ -57,13 +57,13 @@ I have around 120+ chests darted around my base. There are 4 rooms dedicated to 
     subtitle="Basement storage room for magic (mainly Amethyst Imbuement) items with 24 double chests."
 />
 
-Each chest needs its own wired modem. These can be crafted for very cheap. The modems should be in their block form, not the small half block form that they can also be in. Once each chest is connected to a modem (different chests can also share the same modem if they are able to) we need to link them all using networking cables. These networking cables should then lead to one final modem which will be the one we connect to our computer.
+Each chest needs its own wired modem. These can be crafted very cheaply. The modems should be in their block form, not the small half block form that they can also be in. Once each chest is connected to a modem (different chests can also share the same modem if they are able to) we need to link them all using networking cables. These networking cables should then lead to one final modem which will be the one we connect to our computer.
 
 The computer will then carry the code that will be responsible for the inventory management. In the next section I will explain the code in detail. If you would like to jump straight to the code, you can find it [here](https://github.com/ak-tr/cc-scripts/blob/main/scripts/chest_auto_route.lua).
 
 ## The Code
 
-The code may look quite daunting at first, but I have split things out into modules and tried to write it as cleanly as possible. Follow through if you'd like to gain an understanding of the code, otherwise jump straight to the [main loop](#the-main-loop-routing-logic).
+The code may look quite daunting at first, but I have split things out into functions and tried to write it as cleanly as possible. Follow through if you'd like to gain an understanding of the code, otherwise jump straight to the [main loop](#the-main-loop-routing-logic).
 
 ### Config and Peripherals Variables
 
