@@ -3,30 +3,36 @@ const { title, useMonoFont = false } = Astro.props;
 ---
 
 <script>
-  document.querySelectorAll('[data-collapsible]').forEach((el) => {
-    const toggle = el.querySelector('[data-toggle]') as HTMLElement;
-    const content = el.querySelector('[data-content]') as HTMLElement;
-    const icon = el.querySelector('svg') as SVGElement;
-
-    if (!toggle || !content) return;
-
-    let open = false;
-
-    toggle.addEventListener('click', () => {
-      open = !open;
-      if (open) {
-        content.style.height = content.scrollHeight + 'px';
-        icon?.classList.add('rotate-90');
-        setTimeout(() => (content.style.height = 'auto'), 300);
-      } else {
-        content.style.height = content.scrollHeight + 'px';
-        requestAnimationFrame(() => {
-          content.style.height = '0px';
+    const init = () => {
+        document.querySelectorAll('[data-collapsible]').forEach((el) => {
+            const toggle = el.querySelector('[data-toggle]') as HTMLElement;
+            const content = el.querySelector('[data-content]') as HTMLElement;
+            const icon = el.querySelector('svg') as SVGElement;
+        
+            if (!toggle || !content) return;
+        
+            let open = false;
+        
+            toggle.addEventListener('click', () => {
+                open = !open;
+                if (open) {
+                    content.style.height = content.scrollHeight + 'px';
+                    icon?.classList.add('rotate-90');
+                    setTimeout(() => (content.style.height = 'auto'), 300);
+                } else {
+                    content.style.height = content.scrollHeight + 'px';
+                    requestAnimationFrame(() => {
+                        content.style.height = '0px';
+                    });
+                    icon?.classList.remove('rotate-90');
+                }
+            });
         });
-        icon?.classList.remove('rotate-90');
-      }
+    }
+
+    document.addEventListener("astro:page-load", () => {
+        init();
     });
-  });
 </script>
 
 <div
