@@ -8,6 +8,7 @@ import { SITE_METADATA } from "./src/consts.ts";
 
 // Rehype plugins
 import rehypeSlugAnchorSectionize from "rehype-slug-anchor-sectionize";
+import rehypeNotProseCodeBlock from "./src/plugins/rehype/notProseCodeBlock.mjs";
 
 // Remark plugins
 import { remarkReadingTime } from "./src/plugins/remark/reading-time.mjs";
@@ -16,6 +17,7 @@ import { remarkReadingTime } from "./src/plugins/remark/reading-time.mjs";
 import { 
     transformerNotationFocus, 
     transformerRenderIndentGuides,
+    transformerMetaHighlight,
 } from '@shikijs/transformers'
 
 import robotsTxt from "astro-robots-txt";
@@ -26,6 +28,7 @@ export default defineConfig({
         mdx({
             rehypePlugins: [
                 rehypeSlugAnchorSectionize,
+                rehypeNotProseCodeBlock,
             ],
             remarkPlugins: [
                 remarkReadingTime,
@@ -44,7 +47,8 @@ export default defineConfig({
             theme: 'houston',
             transformers: [
                 transformerNotationFocus(),
-                transformerRenderIndentGuides({ position: 'trailing' })
+                transformerRenderIndentGuides({ position: 'trailing' }),
+                transformerMetaHighlight(),
             ],
         },
     },

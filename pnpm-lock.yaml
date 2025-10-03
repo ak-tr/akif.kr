@@ -47,6 +47,9 @@ importers:
       tailwindcss:
         specifier: ^3.3.5
         version: 3.4.17
+      unist-util-visit:
+        specifier: ^5.0.0
+        version: 5.0.0
     devDependencies:
       '@shikijs/transformers':
         specifier: ^3.13.0
