@@ -17,7 +17,6 @@
     "@astrojs/tailwind": "^5.1.0",
     "@fontsource/onest": "^5.0.2",
     "astro": "^4.3.5",
-    "astro-robots-txt": "^1.0.0",
     "rehype-slug-anchor-sectionize": "^0.2.0",
     "solid-js": "^1.8.14",
     "tailwindcss": "^3.3.5",
