@@ -1,10 +1,16 @@
 ---
 import Image from "astro/components/Image.astro";
 
-const { src, alt } = Astro.props
+interface Props {
+  src: string;
+  alt: string;
+  subtitle?: string;
+}
+
+const { src, alt, subtitle } = Astro.props
 ---
 
-<div id="hero" class="not-prose w-full flex justify-center items-start my-8 h-auto">
+<div id="hero" class="not-prose w-full flex flex-col gap-2 justify-center items-start my-4 h-auto">
   <Image
     src={src}
     alt={alt}
@@ -13,4 +19,5 @@ const { src, alt } = Astro.props
     loading="eager"
     class="w-full rounded-md block"
   />
+  {subtitle && <p class="text-xs text-gray-400 px-2">{subtitle}</p>}
 </div>
