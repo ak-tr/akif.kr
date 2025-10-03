@@ -5,8 +5,8 @@ tags: ["programming", "lua"]
 draft: false
 summary: "If you've got ComputerCraft installed as a mod and you haven't at least automated your inventory management, what are you even doing?"
 hero: {
-    src: "/static/images/computercraft-auomatic-inventory-management.png",
-    alt: "Image of Minecraft room full of chests"
+    src: "/static/images/modded-minecraft/monitor-output-sorter.png",
+    alt: "Hero image of monitor displaying the sorting computers output"
 }
 ---
 
@@ -32,6 +32,30 @@ Before we start, just to mention briefly before we get into the setup and the co
 ## The Setup
 
 I have around 120+ chests darted around my base. There are 4 rooms dedicated to storage. General storage, ore/mining/armoury/machinery, food and magic. Once the chests are in place the rest of the setup is very simple.
+
+<PostImage 
+    src="/static/images/modded-minecraft/general-storage.png" 
+    alt="Image of general storage Minecraft room full of chests"
+    subtitle="General storage room with 48 double chests. The parent sorting chest can be seen in the ground (bottom right)."
+/>
+
+<PostImage 
+    src="/static/images/modded-minecraft/ore-mining-armory-storage.png" 
+    alt="Image of general storage Minecraft room full of chests"
+    subtitle="Ore/mining/armoury/machinery storage room with 24 double chests."
+/>
+
+<PostImage 
+    src="/static/images/modded-minecraft/kitchen-storage.png" 
+    alt="Image of kitchen storage Minecraft room full of chests"
+    subtitle="Kitchen storage room for food and farming items with 24 double chests."
+/>
+
+<PostImage 
+    src="/static/images/modded-minecraft/lower-basement-storage.png" 
+    alt="Image of basement storage Minecraft room full of chests"
+    subtitle="Basement storage room for magic (mainly Amethyst Imbuement) items with 24 double chests."
+/>
 
 Each chest needs its own wired modem. These can be crafted for very cheap. The modems should be in their block form, not the small half block form that they can also be in. Once each chest is connected to a modem (different chests can also share the same modem if they are able to) we need to link them all using networking cables. These networking cables should then lead to one final modem which will be the one we connect to our computer.
 
@@ -349,4 +373,38 @@ end
 
 This completes the entire auto routing program. By using parallel processing for indexing the chests, we ensure the system is highly efficient and scalable even with hundreds of destination chests.
 
-If you guys like my solution and would like to know more, or ask any questions, feel free to contact me on any of the socials listed in the footer.
+Now all we have to do is just throw items into the chest and let the magic happen.
+
+## Showcase Images
+
+Here I have some images showcasing the setup in action.
+
+This is the monitor I have hooked up in the middle basement, which houses the sorting computer. The monitor is in a 2x3 configuration, lightly mimicking 16:9 ratio. The output can be seen clearly.
+
+<PostImage 
+    src="/static/images/modded-minecraft/monitor-output-sorter.png" 
+    alt="Image of monitor displaying the sorting computers output"
+    subtitle="Monitor displaying the sorting computers output."
+/>
+
+In this same basement is where all the wiring (networking cables) converge and lead to the sorting computer.
+
+<PostImage 
+    src="/static/images/modded-minecraft/middle-basement-room.png" 
+    alt="Image of middle basement room with networking cables"
+    subtitle="Middle basement room with networking cables all converging to the advanced (gold) computer in the centre of the room next to the monitor. A small auto crafter can be seen in the left side of the image."
+/>
+
+## Extras
+
+If you also have Kibe Utilities mod installed, you can create an entangled chest that feeds directly into the sorting chest. I have simply used Industrial Revolution's item pipe and an output servo to feed it in. You can then create an entangled bag and keep that in your inventory and whenever you want and from _wherever_ you want, you can just throw it in the bag and it will be automatically routed to the sorting chest - regardless of dimension.
+
+You can also use this to feed items into the sorting chest from other sources. For example, I have an automated farmer that feeds crops and harvestables into the sorting chest. There is also a quarry that is thousands of blocks away that feeds straight into the sorting chest. There's literally no limits.
+
+<PostImage 
+    src="/static/images/modded-minecraft/quarry-to-entangled-chest.png" 
+    alt="Image of quarry to entangled chest"
+    subtitle="Quarry to entangled chest. The output of the quarry is fed straight into the entangled chest which automatically routes it to the sorting chest."
+/>
+
+If you like my solution and would like to know more, or ask any questions, feel free to contact me on any of the socials listed in the footer.
