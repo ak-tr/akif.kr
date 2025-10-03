@@ -10,7 +10,7 @@ interface Props {
 const { date, frontmatter } = Astro.props;
 ---
 
-<div class="flex flex-col justify-center w-full gap-2 text-sm md:text-base">
+<div class="flex justify-center w-full gap-2 text-sm md:text-base">
 	<time datetime={date.toISOString()}>
 		{
 			date.toLocaleDateString('en-us', {
@@ -21,7 +21,8 @@ const { date, frontmatter } = Astro.props;
 		}
 	</time>
 	{frontmatter &&
-		<div class="flex justify-center w-full gap-2">
+		<>
+			•
 			<span>
 				{frontmatter.minutesRead}
 			</span>
