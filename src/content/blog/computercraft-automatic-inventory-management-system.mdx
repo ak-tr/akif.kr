@@ -275,13 +275,15 @@ end
 
 Every cycle starts by calling the parallelized `buildChestIndex(destChests)`. This creates a fresh, fast snapshot of all the item IDs in the destination chests. Then, we fetch the current contents of the `parentChest`.
 
-```lua
+```lua {3-8}
+-- === Main loop ===
 while true do
-    -- Snapshot all destination chests in parallel -- [!code focus]
-    local chestIndex = buildChestIndex(destChests) -- [!code focus]
-
-    -- Route items from parent -- [!code focus]
-    local listed = parentChest.list() -- [!code focus]
+    -- [!code focus:5]
+    -- Snapshot all destination chests in parallel
+    local chestIndex = buildChestIndex(destChests)
+    
+    -- Route items from parent
+    local listed = parentChest.list()
 end
 ```
 
@@ -310,55 +312,56 @@ If no `target` chest is found (the item is new to the system):
 * If the fallback is full, we log a `[FULL]` warning and still play the `failTone()` as the item remains unrouted.
 * If the fallback chest is unavailable, we log a final `[WARN]` that the item is being left in the parent, again playing the `failTone()`.
 
-```lua
+```lua {8-49}
 while true do
     -- Snapshot all destination chests in parallel
     local chestIndex = buildChestIndex(destChests)
 
     -- Route items from parent
     local listed = parentChest.list()
-    if listed then -- [!code focus]
-        for slot, item in pairs(listed) do -- [!code focus]
-            local idName = item and item.name or nil -- [!code focus]
-            if not idName then -- [!code focus]
-                log("[WARN] Could not read name for slot %d", slot) -- [!code focus]
-            else -- [!code focus]
-                local display = prettyName(parentChest, slot, item) -- [!code focus]
-                -- [!code focus]
-                -- Find first chest containing this item ID -- [!code focus]
-                local target = nil -- [!code focus]
-                for _, chest in ipairs(destChests) do -- [!code focus]
-                    local cname = peripheral.getName(chest) -- [!code focus]
-                    local set = chestIndex[cname] -- [!code focus]
-                    if set and set[idName] then target = chest; break end -- [!code focus]
-                end -- [!code focus]
-                -- [!code focus]
-                if target then -- [!code focus]
-                    local moved = moveToChest(parentChest, slot, target) -- [!code focus]
-                    if moved and moved > 0 then -- [!code focus]
-                        log("[OK] Moved %d x %s (slot %d) -> %s", moved, display, slot, peripheral.getName(target)) -- [!code focus]
-                    else -- [!code focus]
-                        log("[FULL] No room in %s for %s (slot %d).", peripheral.getName(target), display, slot) -- [!code focus]
-                    end -- [!code focus]
-                else -- [!code focus]
-                    log("[SKIP] No match for %s (slot %d).", display, slot) -- [!code focus]
-                    if fallbackChest then -- [!code focus]
-                        local moved = moveToChest(parentChest, slot, fallbackChest) -- [!code focus]
-                        if moved and moved > 0 then -- [!code focus]
-                            log("[FALLBACK] Moved %d x %s (slot %d) -> %s", moved, display, slot, FALLBACK_NAME) -- [!code focus]
-                            failTone() -- [!code focus]
-                        else -- [!code focus]
-                            log("[FULL] No room in fallback %s for %s (slot %d).", FALLBACK_NAME, display, slot) -- [!code focus]
-                            failTone() -- [!code focus]
-                        end -- [!code focus]
-                    else -- [!code focus]
-                        log("[WARN] Fallback chest '%s' unavailable; leaving %s in parent.", FALLBACK_NAME, display) -- [!code focus]
-                        failTone() -- [!code focus]
-                    end -- [!code focus]
-                end -- [!code focus]
-            end -- [!code focus]
-        end -- [!code focus]
-    end -- [!code focus]
+    -- [!code focus:42]
+    if listed then 
+        for slot, item in pairs(listed) do 
+            local idName = item and item.name or nil 
+            if not idName then 
+                log("[WARN] Could not read name for slot %d", slot) 
+            else 
+                local display = prettyName(parentChest, slot, item) 
+                
+                -- Find first chest containing this item ID 
+                local target = nil 
+                for _, chest in ipairs(destChests) do 
+                    local cname = peripheral.getName(chest) 
+                    local set = chestIndex[cname] 
+                    if set and set[idName] then target = chest; break end 
+                end 
+                
+                if target then 
+                    local moved = moveToChest(parentChest, slot, target) 
+                    if moved and moved > 0 then 
+                        log("[OK] Moved %d x %s (slot %d) -> %s", moved, display, slot, peripheral.getName(target)) 
+                    else 
+                        log("[FULL] No room in %s for %s (slot %d).", peripheral.getName(target), display, slot) 
+                    end 
+                else 
+                    log("[SKIP] No match for %s (slot %d).", display, slot) 
+                    if fallbackChest then 
+                        local moved = moveToChest(parentChest, slot, fallbackChest) 
+                        if moved and moved > 0 then 
+                            log("[FALLBACK] Moved %d x %s (slot %d) -> %s", moved, display, slot, FALLBACK_NAME) 
+                            failTone() 
+                        else 
+                            log("[FULL] No room in fallback %s for %s (slot %d).", FALLBACK_NAME, display, slot) 
+                            failTone() 
+                        end 
+                    else 
+                        log("[WARN] Fallback chest '%s' unavailable; leaving %s in parent.", FALLBACK_NAME, display) 
+                        failTone() 
+                    end 
+                end 
+            end 
+        end 
+    end 
 end
 ```
 

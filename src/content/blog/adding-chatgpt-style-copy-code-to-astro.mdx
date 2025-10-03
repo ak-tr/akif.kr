@@ -73,7 +73,7 @@ for (const codeBlock of codeBlocks) {
 
 Now we need to create a container for the copy button and position it absolute:
 
-```ts
+```ts {5,6}
 for (const codeBlock of codeBlocks) {
     const wrapper = document.createElement("div");
     wrapper.style.position = "relative";
@@ -85,7 +85,7 @@ for (const codeBlock of codeBlocks) {
 
 Now we need to create the copy button itself, and position it using sticky. We can also set the `innerHTML` value to our copy button label. The sticky attribute is what will give us the ChatGPT style effect.
 
-```ts
+```ts {8-10}
 for (const codeBlock of codeBlocks) {
     const wrapper = document.createElement("div");
     wrapper.style.position = "relative";
@@ -101,7 +101,7 @@ for (const codeBlock of codeBlocks) {
 
 Now let's simply append/insert the wrapper, the code block, the copy button container, and the copy button itself:
 
-```ts
+```ts {12-15}
 for (const codeBlock of codeBlocks) {
     const wrapper = document.createElement("div");
     wrapper.style.position = "relative";
@@ -122,7 +122,7 @@ for (const codeBlock of codeBlocks) {
 
 When we click the button, we want it to copy the code block to the keyboard so let's add an event listener to the copy button. The function needs to be asynchronous as the clipboards `writeText` method which we use in `copyCode`is asynchronous:
 
-```ts
+```ts {17-19}
 for (const codeBlock of codeBlocks) {
     const wrapper = document.createElement("div");
     wrapper.style.position = "relative";
