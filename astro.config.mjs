@@ -9,6 +9,9 @@ import { SITE_METADATA } from "./src/consts.ts";
 // Rehype plugins
 import rehypeSlugAnchorSectionize from "rehype-slug-anchor-sectionize";
 
+// Remark plugins
+import { remarkReadingTime } from "./src/plugins/remark/reading-time.mjs";
+
 // Shiki plugins
 import { 
     transformerNotationFocus, 
@@ -23,6 +26,9 @@ export default defineConfig({
         mdx({
             rehypePlugins: [
                 rehypeSlugAnchorSectionize,
+            ],
+            remarkPlugins: [
+                remarkReadingTime,
             ],
         }),
         sitemap(),
