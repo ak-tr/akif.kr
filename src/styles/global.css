@@ -127,8 +127,39 @@ pre .indent:nth-child(odd)::before {
     display: none;
 }
 
-/* Firefox scrollbar styling */
 .astro-code {
     scrollbar-width: thin;
     scrollbar-color: #4a5568 transparent;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 0;
+    padding-right: 0;
+    line-height: normal;
+    font-size: 0.875em;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.astro-code code span.line {
+    display: inline-block;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    line-height: 1.7142857;
+    width: 100%;
+    min-width: 100%;
+}
+
+.astro-code code span.line:last-of-type {
+    display: none;
+}
+
+.astro-code code {
+    display: block;
+    width: 100%;
+    min-width: max-content;
+}
+
+.astro-code code span.line.highlighted {
+    background-color: #2d323c;
 }
