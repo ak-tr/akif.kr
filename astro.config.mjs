@@ -11,7 +11,7 @@ import rehypeSlugAnchorSectionize from "rehype-slug-anchor-sectionize";
 import rehypeNotProseCodeBlock from "./src/plugins/rehype/notProseCodeBlock.mjs";
 
 // Remark plugins
-import { remarkReadingTime } from "./src/plugins/remark/reading-time.mjs";
+import remarkReadingTime from "./src/plugins/remark/readingTime.mjs";
 
 // Shiki plugins
 import { 
