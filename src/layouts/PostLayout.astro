@@ -19,7 +19,12 @@ interface Props {
 
 const { post } = Astro.props;
 
-const { Content, headings } = await post.render();
+const { Content, headings, remarkPluginFrontmatter } = await post.render();
+
+const frontmatter = remarkPluginFrontmatter as {
+	minutesRead: string;
+	wordCount: number;
+};
 ---
 <RootLayout title={post.data.title} description={post.data.summary} hero={post.data.hero}>
     <SectionContainer>
@@ -27,14 +32,14 @@ const { Content, headings } = await post.render();
         <article>
             <div class="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700">
                 <header class="pt-6 xl:pb-6">
-                    <div class="space-y-1 text-center">
+                    <div class="flex flex-col gap-4 space-y-1 text-center">
                         <dl class="space-y-10">
                             <div>
                                 <dt class="sr-only">Published on</dt>
                                 <dd
                                     class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400"
                                 >
-                                    <FormattedDate date={post.data.date} />
+                                    <FormattedDate date={post.data.date} {frontmatter} />
                                 </dd>
                             </div>
                         </dl>
