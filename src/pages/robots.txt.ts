@@ -36,7 +36,6 @@ ${blockedAIAgents.map(agent => {
     return `User-agent: ${agent}
 Disallow: /`
 }).join('\n')}
-})}
 
 Sitemap: ${sitemapURL.href}
 `;
