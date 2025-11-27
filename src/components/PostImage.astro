@@ -5,9 +5,11 @@ interface Props {
   src: string;
   alt: string;
   subtitle?: string;
+  backlink?: string;
+  backlinkText?: string;
 }
 
-const { src, alt, subtitle } = Astro.props
+const { src, alt, subtitle, backlink, backlinkText } = Astro.props
 ---
 
 <div id="hero" class="not-prose w-full flex flex-col gap-2 justify-center items-start my-4 h-auto">
@@ -20,4 +22,5 @@ const { src, alt, subtitle } = Astro.props
     class="w-full rounded-md block"
   />
   {subtitle && <p class="text-xs text-gray-400 px-2">{subtitle}</p>}
+  {backlink && <a href={backlink} target="_blank" class="text-xs text-gray-400 px-2">Credit: {backlinkText}</a>}
 </div>
