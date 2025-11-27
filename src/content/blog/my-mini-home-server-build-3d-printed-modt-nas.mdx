@@ -1,0 +1,135 @@
+---
+title: "My Mini Home Server Build: 3D Printed, MoDT & NAS"
+date: "2025-10-31"
+tags: ["homelab"]
+draft: false
+summary: "My first home server build, utilizing 3D printing for custom case components, a Minisforum MoDT platform, and SAS drives for the NAS storage."
+hero: {
+    src: "/static/images/my-home-server-build-hero.jpeg",
+    alt: "My home server build"
+}
+---
+
+## Introduction
+
+For quite a while now I have wanted to build a home server. Not just for the sake of having one but I wanted to actually put some use to it.
+
+My reasons:
+
+- Somewhere to store my data (NAS)
+- Somewhere to run services i.e. Home Assitant
+- Somewhere to run a Minecraft server
+
+You get the gist.
+
+## The Setup
+
+Now I didn't really have a specific plan. It actually all started when I came across MoDT motherboards while exploring AliExpress. For those who don't know, MoDT motherboards are pretty much just standard motherboards with mobile CPU chips soldered on. Now this hurts upgradability in the future, but it makes for some really low-power, high-performance motherboards.
+
+### The Motherboard & CPU
+
+<PostImage src="https://www.minisforum.com/cdn/shop/files/BD795iSE_3_1120x.png?v=1736412453" alt="Minisforum BD795i SE motherboard" subtitle="Minisforum BD795i SE motherboard on Minisforum's website" backlink="https://www.minisforum.com/products/minisforum-bd795i-se" backlinkText="Minisforum BD795i SE motherboard on Minisforum's website" />
+
+This is when I came across the Minisforum MoDT platform and shortly after stumbled upon their [BD795i SE motherboard](https://www.minisforum.com/products/minisforum-bd795i-se).
+
+This motherboard boasts a Ryzen 9 7945HX CPU (16C/32T), DDR5 memory support and plenty of expansion slots for my needs. It also comes with a built-in heatsink for the CPU, which is a nice touch.
+
+There are a few downsides to this motherboard:
+
+1. No future upgradability (mobile CPU)
+2. Only 1 PCIe x16 slot
+3. No ECC memory support
+4. Potential support issues as it is not a mainstream motherboard
+5. No SATA ports (technically not a problem, we will dive into why later)
+
+There are probably couple more that I've missed, but from the light research that I have done, this setup didn't have any less issues than I have heard from such much bigger brands.
+
+## The Case
+
+I never though I'd 3D print a whole computer case, but I'm glad I did. 3D printing the case has been the best decision I've made due to the flexibility and customisability it offers. If I had gone for a mainstream case, I would have been very limited in the design and customisability it offers. This will become very apparent later on in the build.
+
+The base I used for the case is a paid model from Beamcase. I specifically used their SFF model (SW was too small, and I didn't need the size of the larger mATX/ATX model).
+
+<PostImage src="https://media.printables.com/media/prints/740517/images/5784048_6bf08ab9-3c41-4915-9162-2bfb3cbccaf8_8d4da91e-b55a-4139-95f5-9a2b28692047/thumbs/inside/1600x1200/jpg/two-slot-itx-version.webp" alt="Beamcase SFF case" subtitle="Main image from the Beamcase SFF case model on Printables" backlink="https://www.printables.com/model/740517-beamcase-sff-modular-itx-case" backlinkText="BeamCase SFF - modular ITX case (Printables)" />
+
+Thanks to the design, the case is extremely modular, and with a bit of 3D modelling experience and creativity, you can adapt things in many ways to your liking.
+
+### My Modifications
+
+As mentioned, the versatility of the case is what allowed me to complete this build exactly how I liked it.
+
+Thankfully, another creator had already modelled a hard drive bay for the case, and I was able to use that as a base for my own.
+
+<PostImage src="https://media.printables.com/media/prints/880954/images/6753971_5f580cbe-9765-47f1-a51f-9e0d2ea63c8f_77d11ded-e017-4acc-a256-0b6f66eb6010/thumbs/inside/1600x1200/jpg/web_dscf3163_2024_05_15.webp" alt="Hard drive bay" subtitle="Main image from the hard drive bay model on Printables" backlink="https://www.printables.com/model/880954-beamcase-sff-hdd-bracket" backlinkText="BeamCase SFF HDD Bracket (Printables)" />
+
+This model was a very well designed and so printed very easily. The model supports up to 5 3.5" drives (which isn't a lot by the standards of some users on [/r/homelab](https://www.reddit.com/r/homelab/)) but I only planned to run 4 for my NAS, so this was perfect.
+
+Although the author of Beamcase provides plenty of options for mounting PSUs, unfortunately there wasn't any for the options for mounting Flex ATX PSUs. I originally wanted to use a standard SFX PSU, but thought it would've been quite tight due to the space constraints.
+
+Thankfully, he was able to provide the .step files for the rear lower IO panel (which thanks to his design is seperate meaning it can be swapped out or printed separately) which allowed me to 3D print a custom bracket for the PSU.
+
+<PostImage src="/static/images/my-home-server-build/lower-rear-io-3d-model.png" alt="PSU bracket" subtitle="3D modelled lower bracket in OnShape" />
+
+This was the solution I came up with. This will lay the PSU flat and against the rear of the case. This also eliminates the need for an male to female C13 power cable extension.
+
+Another part I modelled myself - which isn't necessarily as a result of the case I used - was a CPU fan duct. The provided heatsink for the CPU is designed in such a way that it partially exhausts the air out the backplate. This is great for cooling, but for the air that wasn't exhausted back out the back and instead lingered around in the case, I didn't want to recycled it back into the CPU.
+
+<PostImage src="/static/images/my-home-server-build/cpu-fan-duct-3d-model.png" alt="CPU fan duct" subtitle="3D modelled CPU fan duct in OnShape" />
+
+<PostImage src="/static/images/my-home-server-build/cpu-fan-duct-printed.jpeg" alt="CPU fan duct" subtitle="Fan duct printed in PETG and installed on the fan" />
+
+This was the solution I came up with. This duct will ensure that the fan on the heatsink only gets fresh cold air from the outside. Think of it like a cold air feed on a cars intake system. The angle is to give space on the left side (back of the case) for an exhaust fan if needed.
+
+This probably will only make a couple degrees difference, if any, but it was fun to design and looks cool.
+
+## Memory
+
+Most MoDT motherboards support standard DIMM memory modules, but this one specifically from Minisforum only supports SODIMM. This made the options a bit more limited, but I ended up going for an opened but never used 32GB kit of DDR5-4800MHz memory from Crucial.
+
+<PostImage src="/static/images/my-home-server-build/memory.jpeg" alt="Memory" subtitle="32GB (2x16GB) DDR5-4800MHz memory from Crucial" />
+
+This motherboard only supports up to 5200MHz so I didn't see the need to go any higher, and it's not like I will be playing any games so won't massively benefit from higher frequencies.
+
+As mentioned previously, due to the limitations from the CPU and motherboard, there is no ECC support so unfortunately I will be running non-ECC memory for my NAS setup. From what I've read, this isn't ideal, but for non-critical applications it should be fine due to the rarity of the issues caused by having non-ECC memory.
+
+## Storage
+
+For storage, I didn't want to go too crazy with the actual capacity itself. I just needed enough to hold things long-term and away from my main PC.
+
+As the motherboard doesn't have any SATA ports, I opted for an HBA in IT Mode as recommended by most people, specifically the LSI 9211-4i. I went for this card mainly due to its small form factor - I will definitely need the space.
+
+The board only has 1 SFF-8087 port, which means I can only plug 4 drives in total. This would usually be a problem if I was looking to scale up in the future, but I only plan to run 4 drives for my NAS and no more.
+
+For the drives, I went for 4x 2TB Dell Constellaton ES.3 drives. These are SAS drives which should work perfectly fine with a SFF-8087 to 4x SAS breakout cable. I can then power them through normal SATA power cables from my power supply.
+
+<PostImage src="/static/images/my-home-server-build/drives.jpeg" alt="Drives" subtitle="4x 2TB Dell Constellaton ES.3 drives in the 3D printed hard drive bay" />
+
+The drives were picked up used as a job lot which made them fairly cheap. As I won't be using the caddies that came with it either, I was able to sell them to recoup some of the costs. As a result of this, the total cost of 8TB of storage was just under £30.
+
+The reason I went for SAS drives over SATA drives is because they are much easier to find used and at a very reasonable price as business tend to sell them off at cheaper rates to simply get rid of them.
+
+## Power Supply
+
+As this will be running 24/7 and I don't want any issues with power or reliability, I opted for the best of the best - an Enhance ENP-7660B. This was an original unit purchased from Overtek. Unfortunately, I thought I bought a modular unit, but turns out it wasn't. Again, thanks to the modularity of the case, I was able to tuck the extra wires away and use a 3D printed bracket to tidy things up.
+
+<PostImage src="/static/images/my-home-server-build/case-under-psu.jpeg" alt="Power supply" subtitle="Bottom of case showcasing the power supply, 3D printed cable management bracket and excess cables" />
+
+## Fan Setup
+
+Cooling is important, and for this reason I have tried to optimise the flow of air as much as possible.
+
+The entire setup has a total of 4 fans.
+
+- 1x Arctic P12 Pro on the CPU heatsink (side intake)
+- 1x Artic P12 Pro directly under the hard drive bay (bottom intake)
+- 2x Noctua NF-A12x15 on the top of the case (top exhaust)
+
+<PostImage src="/static/images/my-home-server-build/side-view.jpeg" alt="Side view of case" subtitle="Side view showcasing the fan layout" />
+
+This setup allows the core components that need cooling (CPU and Hard Drives) to get the most fresh air possible while the two slim fans up top focus on exhausting the hot air straight out of the case. This also gives the air a nice and easy unrestrictive path in and out of the case.
+
+## Next Steps
+
+As of writing this exact section, I have actually been running this setup for a couple of weeks now. I have used around 400GB of my measly 5.05TB usable and so far have had no issues. I have about 7 containers (Pi-Hole, Caddy, MC Server, Cloudflared, Homebridge, ntfy and Pulse) and 2 VMs (HomeAssistant and TrueNAS) running with plenty more resources left over.
+
+However, I have already decided that I want to move out of this 3D printed case, and into a 10 inch rack. I will create another post about this when I have finalised the setup.
