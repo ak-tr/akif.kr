@@ -1,6 +1,6 @@
 ---
 import { sortForMasonryLayout } from '@/functions';
-import { Image } from 'astro:assets';
+import { checkModernFormats, getAvifPath, getWebpPath } from '@/utils/imageHelpers';
 
 interface Props {
   images: {
@@ -10,6 +10,18 @@ interface Props {
 }
 
 const { images } = Astro.props;
+
+// Pre-process images to check for modern formats
+const processedImages = images.map(img => {
+  const { avifExists, webpExists } = checkModernFormats(img.url);
+  const shouldUsePicture = avifExists && webpExists && (img.url.startsWith('/static/images/') || img.url.startsWith('static/images/'));
+  return {
+    ...img,
+    shouldUsePicture,
+    avifPath: shouldUsePicture ? getAvifPath(img.url) : null,
+    webpPath: shouldUsePicture ? getWebpPath(img.url) : null,
+  };
+});
 ---
 
 <section class="relative z-10 w-full overflow-visible">
@@ -23,20 +35,32 @@ const { images } = Astro.props;
         gap-2 space-y-2"
       id="gallery"
     >
-      {sortForMasonryLayout(images, 1).map((img, i) => (
+      {sortForMasonryLayout(processedImages, 1).map((img, i) => (
         <div
           id={`overlay-${i}`}
           class="break-inside-avoid relative group cursor-pointer"
         >
-          <Image
-            src={img.url}
-            alt={img.alt}
-            width={1}
-            height={1}
-            inferSize
-            loading="lazy"
-            class="w-full h-auto rounded-md"
-          />
+          {img.shouldUsePicture ? (
+            <picture>
+              <source type="image/avif" srcset={img.avifPath} />
+              <source type="image/webp" srcset={img.webpPath} />
+              <img
+                src={img.url}
+                alt={img.alt}
+                loading="lazy"
+                class="w-full h-auto rounded-md"
+                data-original-src={img.url}
+              />
+            </picture>
+          ) : (
+            <img
+              src={img.url}
+              alt={img.alt}
+              loading="lazy"
+              class="w-full h-auto rounded-md"
+              data-original-src={img.url}
+            />
+          )}
           <div
             class="
               absolute bottom-0 left-0 right-0 px-3 py-2 text-xs
@@ -61,15 +85,27 @@ const { images } = Astro.props;
     class="relative shadow-black shadow-2xl opacity-0 scale-95 transition-all duration-300 ease-out data-[visible=true]:opacity-100 data-[visible=true]:scale-100"
     data-zoom-target
   >
-    <Image
-      src={images[0].url}
-      alt={images[0].alt}
-      width={1}
-      height={1}
-      inferSize
-      loading="lazy"
-      class="relative w-full h-auto max-w-full max-h-full sm:max-w-[70vw] sm:max-h-[70vh] rounded-md shadow-lg"
-    />
+    {processedImages[0]?.shouldUsePicture ? (
+      <picture>
+        <source type="image/avif" srcset={processedImages[0].avifPath} />
+        <source type="image/webp" srcset={processedImages[0].webpPath} />
+        <img
+          src={processedImages[0].url}
+          alt={processedImages[0].alt}
+          loading="lazy"
+          class="relative w-full h-auto max-w-full max-h-full sm:max-w-[70vw] sm:max-h-[70vh] rounded-md shadow-lg"
+          data-original-src={processedImages[0].url}
+        />
+      </picture>
+    ) : (
+      <img
+        src={processedImages[0]?.url || images[0].url}
+        alt={processedImages[0]?.alt || images[0].alt}
+        loading="lazy"
+        class="relative w-full h-auto max-w-full max-h-full sm:max-w-[70vw] sm:max-h-[70vh] rounded-md shadow-lg"
+        data-original-src={processedImages[0]?.url || images[0].url}
+      />
+    )}
     <div
       class="absolute bottom-0 left-0 right-0 px-3 py-2 text-sm sm:text-md text-white bg-black/60 rounded-b-md pointer-events-none z-20"
     >
@@ -87,15 +123,39 @@ imageElements.forEach((img) => {
   img.addEventListener('click', () => {
     if (!overlay || !zoomTarget) return;
 
-    const image = img.children[0] as HTMLImageElement;
-    const alt = img.children[1];
+    // Handle both picture and img elements
+    const imageElement = img.querySelector('img') as HTMLImageElement;
+    const alt = img.children[img.children.length - 1] as HTMLElement; // Alt div is last child
 
-    const overlayImage = zoomTarget.children[0] as HTMLImageElement;
-    const overlayAlt = zoomTarget.children[1] as HTMLDivElement;
+    const overlayPicture = zoomTarget.querySelector('picture');
+    const overlayImage = overlayPicture 
+      ? overlayPicture.querySelector('img') as HTMLImageElement
+      : zoomTarget.querySelector('img') as HTMLImageElement;
+    const overlayAlt = zoomTarget.children[zoomTarget.children.length - 1] as HTMLDivElement;
 
-    overlayImage.src = image.src;
-    overlayImage.alt = alt.textContent || '';
-    overlayAlt.textContent = alt.textContent || '';
+    if (imageElement && overlayImage) {
+      // Use data-original-src if available, otherwise use current src
+      const originalSrc = imageElement.getAttribute('data-original-src') || imageElement.src;
+      
+      // Update overlay picture sources if it exists
+      if (overlayPicture) {
+        const avifSource = overlayPicture.querySelector('source[type="image/avif"]') as HTMLSourceElement;
+        const webpSource = overlayPicture.querySelector('source[type="image/webp"]') as HTMLSourceElement;
+        
+        if (avifSource) {
+          const avifPath = originalSrc.replace(/\.(png|jpg|jpeg)$/i, '.avif');
+          avifSource.srcset = avifPath;
+        }
+        if (webpSource) {
+          const webpPath = originalSrc.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+          webpSource.srcset = webpPath;
+        }
+      }
+      
+      overlayImage.src = originalSrc;
+      overlayImage.alt = alt.textContent || '';
+      overlayAlt.textContent = alt.textContent || '';
+    }
 
     overlay.dataset.visible = 'true';
     zoomTarget.dataset.visible = 'true'; // needed to trigger zoom

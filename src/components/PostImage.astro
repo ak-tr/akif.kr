@@ -1,5 +1,5 @@
 ---
-import Image from "astro/components/Image.astro";
+import { checkModernFormats, getAvifPath, getWebpPath } from '@/utils/imageHelpers';
 
 interface Props {
   src: string;
@@ -9,18 +9,33 @@ interface Props {
   backlinkText?: string;
 }
 
-const { src, alt, subtitle, backlink, backlinkText } = Astro.props
+const { src, alt, subtitle, backlink, backlinkText } = Astro.props;
+
+// Check if modern formats exist (only for local static images)
+const { avifExists, webpExists } = checkModernFormats(src);
+const shouldUsePicture = avifExists && webpExists && (src.startsWith('/static/images/') || src.startsWith('static/images/'));
 ---
 
 <div id="hero" class="not-prose w-full flex flex-col gap-2 justify-center items-start my-4 h-auto">
-  <Image
-    src={src}
-    alt={alt}
-    width={1}
-    height={1}
-    loading="eager"
-    class="w-full rounded-md block"
-  />
+  {shouldUsePicture ? (
+    <picture>
+      <source type="image/avif" srcset={getAvifPath(src)} />
+      <source type="image/webp" srcset={getWebpPath(src)} />
+      <img
+        src={src}
+        alt={alt}
+        loading="eager"
+        class="w-full rounded-md block"
+      />
+    </picture>
+  ) : (
+    <img
+      src={src}
+      alt={alt}
+      loading="eager"
+      class="w-full rounded-md block"
+    />
+  )}
   {subtitle && <p class="text-xs text-gray-400 px-2">{subtitle}</p>}
   {backlink && <a href={backlink} target="_blank" class="text-xs text-gray-400 px-2">Credit: {backlinkText}</a>}
 </div>

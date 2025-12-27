@@ -1,16 +1,31 @@
 ---
-import Image from "astro/components/Image.astro";
+import { checkModernFormats, getAvifPath, getWebpPath } from '@/utils/imageHelpers';
 
-const { src, alt } = Astro.props
+const { src, alt } = Astro.props;
+
+// Check if modern formats exist (only for local static images)
+const { avifExists, webpExists } = checkModernFormats(src);
+const shouldUsePicture = avifExists && webpExists && (src.startsWith('/static/images/') || src.startsWith('static/images/'));
 ---
 
 <div id="hero" class="not-prose w-full flex justify-center items-start my-8 h-auto">
-  <Image
-    src={src}
-    alt={alt}
-    width={1}
-    height={1}
-    loading="eager"
-    class="w-[90vw] max-w-[800px] rounded-lg block"
-  />
+  {shouldUsePicture ? (
+    <picture>
+      <source type="image/avif" srcset={getAvifPath(src)} />
+      <source type="image/webp" srcset={getWebpPath(src)} />
+      <img
+        src={src}
+        alt={alt}
+        loading="eager"
+        class="w-[90vw] max-w-[800px] rounded-lg block"
+      />
+    </picture>
+  ) : (
+    <img
+      src={src}
+      alt={alt}
+      loading="eager"
+      class="w-[90vw] max-w-[800px] rounded-lg block"
+    />
+  )}
 </div>
