@@ -30,6 +30,22 @@ const optimizeOne = async (inputPath) => {
             ? { width: MAX_WIDTH }
             : undefined;
 
+    const statOrNull = async (p) => {
+        try { return await fs.stat(p); } catch { return null; }
+    };
+
+    const inputStat = await fs.stat(inputPath);
+    const webpStat = await statOrNull(webpOut);
+    const avifStat = await statOrNull(avifOut);
+
+    const webpUpToDate = webpStat && webpStat.mtimeMs >= inputStat.mtimeMs;
+    const avifUpToDate = avifStat && avifStat.mtimeMs >= inputStat.mtimeMs;
+
+    if (webpUpToDate && avifUpToDate) {
+        console.log(`↷ up-to-date: ${path.relative(process.cwd(), inputPath)}`);
+        return;
+    }
+
     await sharp(inputPath, { failOn: "none" })
         .resize(resize)
         .webp({ quality: 75 })
