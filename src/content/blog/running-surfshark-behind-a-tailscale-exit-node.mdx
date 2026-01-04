@@ -1,0 +1,249 @@
+---
+title: "Running Surfshark Behind a Tailscale Exit Node"
+date: "2026-01-04"
+tags: ["homelab", "networking"]
+draft: false
+summary: "A practical guide to chaining Surfshark behind a Tailscale exit node on Proxmox, with all the DNS, firewall, and performance caveats I hit along the way."
+hero: {
+    src: "/static/images/running-surfshark-behind-a-tailscale-exit-node.png",
+    alt: "Surfshark logo and Tailscale logo"
+}
+---
+
+## Introduction
+
+I wanted a way to route selected devices through Surfshark without installing the VPN client on every device, while still keeping Tailscale as my secure overlay network. In short, the flow looks like this:
+
+<StepFlow steps={["Client", "Tailscale", "Exit Node (VM)", "Surfshark", "Internet"]} />
+
+This setup lets you use Surfshark from devices that can't run VPN clients (Apple TV, consoles, etc.), toggle VPN egress per-device via Tailscale, and centralise VPN config in one place.
+
+It works well but only once you get the details right. This post covers the baseline setup, plus all the gotchas that caused slow speeds, broken DNS, and head-scratching.
+
+## High-level Architecture
+
+The setup consists of:
+
+- Proxmox host
+- Debian 12 VM
+- Tailscale installed on the VM
+- Surfshark running via WireGuard inside the VM
+- VM advertises itself as a Tailscale exit node
+- Clients optionally route all traffic via that exit node
+
+## Why I Used a VM (Not LXC)
+
+This can be done in an LXC, but a VM is simpler and safer:
+
+- Clean kernel isolation
+- No `/dev/net/tun` or capability headaches
+- No risk of breaking host networking
+- Easier debugging when things go wrong
+
+For a routing / VPN box, boring and predictable beats clever.
+
+## Debian 12 VM Baseline
+
+The VM setup is straightforward:
+
+- Debian 12 (netinst ISO)
+- No desktop
+- SSH server + standard utilities only
+- 1 vCPU
+- 1GB RAM
+- VirtIO NIC
+- Single interface on my Servers VLAN
+
+## Installing Tailscale (Server-style)
+
+Once Debian is up and DNS works:
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+```
+
+Bring it up as an exit node:
+
+```bash
+tailscale up --advertise-exit-node --accept-routes --accept-dns=false
+```
+
+Later, I switched this to an auth key (recommended):
+
+```bash
+tailscale up --authkey tskey-xxxxxxxxxxxxxxxx --advertise-exit-node --accept-routes --accept-dns=false --hostname surfshark-exit
+```
+
+This avoids any browser login on the VM.
+
+## Installing Surfshark (WireGuard)
+
+Surfshark provides WireGuard configs per location. The steps are:
+
+1. Go to https://my.surfshark.com/vpn/manual-setup/main/wireguard
+2. Select "I don't have a key pair"
+3. Give the new key pair a name and click "Next"
+4. Click "Generate a new key pair"
+5. Click "Choose a location"
+6. Select the location you want to use
+7. Click the "Download" button to download the config
+8. Place it at `/etc/wireguard/wg0.conf`
+9. Remove any `DNS =` line from the config
+10. Bring it up with the following commands:
+
+```bash
+wg-quick up wg0
+systemctl enable wg-quick@wg0
+```
+
+At this point, the VM itself should egress via Surfshark.
+
+## Critical: IP Forwarding (Exit Nodes Need This)
+
+Tailscale exit nodes must forward traffic between interfaces. Enable it properly and persistently:
+
+```bash
+nano /etc/sysctl.d/99-ip-forward.conf
+```
+
+Add the following:
+
+```
+net.ipv4.ip_forward=1
+net.ipv6.conf.all.forwarding=1
+```
+
+Apply:
+
+```bash
+sysctl --system
+```
+
+If this is wrong, Tailscale silently falls back to DERP relay and speeds will be awful. The Tailscale admin UI will explicitly warn you if forwarding is disabled.
+
+## NAT: Tailscale to Surfshark
+
+You must NAT traffic from `tailscale0` out via `wg0`:
+
+```bash
+iptables -t nat -A POSTROUTING -o wg0 -j MASQUERADE
+iptables -A FORWARD -i tailscale0 -o wg0 -j ACCEPT
+iptables -A FORWARD -i wg0 -o tailscale0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+netfilter-persistent save
+```
+
+Without this, traffic won't flow correctly.
+
+## DNS: The First Big Gotcha
+
+This setup breaks DNS in multiple ways if you're not careful.
+
+### What went wrong
+
+- My VM got DNS via DHCP: `10.0.X.1` (my router)
+- WireGuard tried to change DNS
+- Tailscale clients using the exit node sent DNS queries that my firewall blocked
+- Result: `ERR_NAME_NOT_RESOLVED` everywhere
+
+### The fix (recommended)
+
+For exit nodes, use public DNS. On the VM, edit the dhclient.conf file:
+
+```bash
+nano /etc/dhcp/dhclient.conf
+```
+
+And add the following line at the bottom:
+
+```
+supersede domain-name-servers 1.1.1.1, 8.8.8.8;
+```
+
+This avoids VLAN-to-router DNS rules, RFC1918 blocks, and AdGuard / Unbound policy surprises. Internal DNS should stay internal. Exit nodes should be boring.
+
+## Firewall Rules: The Performance Killer
+
+This was the biggest issue by far.
+
+### The symptom
+
+- Exit node "worked"
+- Internet was reachable
+- Speeds were stuck around 10 Mbps
+- Tailscale dashboard complained about relaying
+- Even after fixing forwarding, speeds stayed low
+
+### The real cause
+
+My OPNsense firewall rules on my Servers VLAN were blocking high-port UDP. Tailscale uses dynamic UDP ports, needs bidirectional UDP NAT, and falls back to DERP (TCP relay) if blocked. DERP speeds are around 5-20 Mbps, which is exactly what I was seeing.
+
+## The Exact Firewall Rule That Fixed It
+
+On Firewall → Rules → Servers_VLAN, above any RFC1918 or block rules:
+
+- Action: Pass
+- Protocol: UDP
+- Source: exit node VM IP
+- Destination: any
+- Ports: any
+
+Description: Allow Tailscale UDP from exit node
+
+After applying this, the client to exit node became direct, DERP was no longer used, and speeds jumped from ~10 Mbps to ~100 Mbps+.
+
+## How to Tell If You're Still Relayed
+
+On a client:
+
+```bash
+tailscale status
+```
+
+or:
+
+```bash
+tailscale ping {exit node IP address}
+```
+
+If you see `via {local VM IP address}` then you're good. If you see `via DERP(...)`, you're being relayed and likely have a firewall/NAT issue.
+
+## Performance Reality Check
+
+As shown before, this stack looks like:
+
+<StepFlow steps={["Client", "Tailscale", "Exit Node (VM)", "Surfshark", "Internet"]} />
+
+That's two VPN layers and a VM hop. In practice:
+
+- 80-150 Mbps is normal
+- Depends heavily on Surfshark location
+- DERP caps you at ~10 Mbps
+- CPU is rarely the bottleneck
+
+Always test speed on the VM itself first to rule out Surfshark endpoints.
+
+## Final Notes & Lessons Learned
+
+- Exit nodes are extremely sensitive to firewall rules
+- "It works" does not mean "it's direct"
+- DNS should be simple and boring on exit nodes
+- Public DNS avoids VLAN policy traps
+- If you see ~10 Mbps, you are almost certainly relayed
+
+Once dialled in, this setup is rock solid and incredibly useful.
+
+## When This Setup Makes Sense
+
+Use this if you want:
+
+- Centralised VPN egress
+- Per-device control
+- VPN for devices without VPN clients
+
+Don't use it if:
+
+- You want maximum raw throughput
+- You're always on mobile / hostile networks
+- You want zero infra maintenance
+
+For me, it's absolutely worth it, obviously now that it's finally configured correctly.
