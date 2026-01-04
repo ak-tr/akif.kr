@@ -1,6 +1,6 @@
 ---
 import { sortForMasonryLayout } from '@/functions';
-import { checkModernFormats, getAvifPath, getWebpPath } from '@/utils/imageHelpers';
+import { checkModernFormats, getAvifPath, getWebpPath, getOptimizedSrc } from '@/utils/imageHelpers';
 
 interface Props {
   images: {
@@ -12,7 +12,16 @@ interface Props {
 const { images } = Astro.props;
 
 // Pre-process images to check for modern formats
-const processedImages = images.map(img => {
+type ProcessedImage = {
+  url: string;
+  alt: string;
+  shouldUsePicture: boolean;
+  avifPath: string | null;
+  webpPath: string | null;
+  optimizedSrc: string;
+};
+
+const processedImages: ProcessedImage[] = images.map(img => {
   const { avifExists, webpExists } = checkModernFormats(img.url);
   const shouldUsePicture = avifExists && webpExists && (img.url.startsWith('/static/images/') || img.url.startsWith('static/images/'));
   return {
@@ -20,6 +29,7 @@ const processedImages = images.map(img => {
     shouldUsePicture,
     avifPath: shouldUsePicture ? getAvifPath(img.url) : null,
     webpPath: shouldUsePicture ? getWebpPath(img.url) : null,
+    optimizedSrc: getOptimizedSrc(img.url),
   };
 });
 ---
@@ -45,7 +55,7 @@ const processedImages = images.map(img => {
               <source type="image/avif" srcset={img.avifPath} />
               <source type="image/webp" srcset={img.webpPath} />
               <img
-                src={img.url}
+                src={img.optimizedSrc}
                 alt={img.alt}
                 loading="lazy"
                 class="w-full h-auto rounded-md"
@@ -54,7 +64,7 @@ const processedImages = images.map(img => {
             </picture>
           ) : (
             <img
-              src={img.url}
+              src={img.optimizedSrc}
               alt={img.alt}
               loading="lazy"
               class="w-full h-auto rounded-md"
@@ -90,7 +100,7 @@ const processedImages = images.map(img => {
         <source type="image/avif" srcset={processedImages[0].avifPath} />
         <source type="image/webp" srcset={processedImages[0].webpPath} />
         <img
-          src={processedImages[0].url}
+          src={processedImages[0].optimizedSrc}
           alt={processedImages[0].alt}
           loading="lazy"
           class="relative w-full h-auto max-w-full max-h-full sm:max-w-[70vw] sm:max-h-[70vh] rounded-md shadow-lg"
@@ -99,7 +109,7 @@ const processedImages = images.map(img => {
       </picture>
     ) : (
       <img
-        src={processedImages[0]?.url || images[0].url}
+        src={processedImages[0]?.optimizedSrc || getOptimizedSrc(images[0].url)}
         alt={processedImages[0]?.alt || images[0].alt}
         loading="lazy"
         class="relative w-full h-auto max-w-full max-h-full sm:max-w-[70vw] sm:max-h-[70vh] rounded-md shadow-lg"

@@ -52,3 +52,16 @@ export function getWebpPath(imagePath: string): string {
   return imagePath.replace(/\.(png|jpg|jpeg)$/i, '.webp');
 }
 
+/**
+ * Gets the best optimized src path for an image
+ * Returns WebP if available, otherwise returns the original path
+ * This ensures analytics tools see optimized formats in the src attribute
+ */
+export function getOptimizedSrc(imagePath: string): string {
+  const { webpExists } = checkModernFormats(imagePath);
+  if (webpExists) {
+    return getWebpPath(imagePath);
+  }
+  return imagePath;
+}
+
