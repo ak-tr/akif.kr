@@ -150,10 +150,6 @@ pre .indent:nth-child(odd)::before {
     min-width: 100%;
 }
 
-.astro-code code span.line:last-of-type {
-    display: none;
-}
-
 .astro-code code {
     display: block;
     width: 100%;
