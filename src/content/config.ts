@@ -54,6 +54,20 @@ const blog = defineCollection({
     }),
 });
 
+const guide = defineCollection({
+    type: 'content',
+    schema: z.object({
+        title: z.string(),
+        date: z.coerce.date().optional(),
+        draft: z.boolean().default(false),
+        summary: z.string().optional(),
+        hero: z.object({
+            src: z.string().optional(),
+            alt: z.string().optional(),
+        }).optional(),
+    }),
+});
+
 const tags = defineCollection({
     type: 'content',
     schema: z.object({
@@ -65,4 +79,4 @@ const tags = defineCollection({
     }),
 });
 
-export const collections = { blog, authors, tags, gallery };
+export const collections = { blog, authors, tags, gallery, guide };

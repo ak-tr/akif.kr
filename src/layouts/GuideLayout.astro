@@ -1,0 +1,79 @@
+---
+import SectionContainer from "../components/SectionContainer.astro";
+import PageTitle from "../components/PageTitle.astro";
+import RootLayout from "./RootLayout.astro";
+import { type CollectionEntry } from "astro:content";
+import ScrollTopAndComments from "@/solid/ScrollTopAndComments.tsx";
+
+import Hero from "@/components/Hero.astro";
+import Collapsible from "@/components/Collapsible.astro";
+import StepFlow from "@/components/StepFlow.astro";
+import PostImage from "@/components/PostImage.astro";
+
+export const components = { Hero, Collapsible, StepFlow, PostImage };
+
+interface Props {
+    guide: CollectionEntry<"guide">;
+}
+
+const { guide } = Astro.props;
+
+const { Content, headings } = await guide.render();
+---
+<RootLayout title={guide.data.title} description={guide.data.summary} hero={guide.data.hero}>
+    <SectionContainer>
+        <ScrollTopAndComments client:only="solid-js" />
+        <article>
+            <div class="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700">
+                <header class="pt-6 xl:pb-6">
+                    <div class="flex flex-col gap-4 space-y-1 text-center">
+                        {guide.data.date && (
+                            <dl class="space-y-10">
+                                <div>
+                                    <dt class="sr-only">Published on</dt>
+                                    <dd
+                                        class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400"
+                                    >
+                                        <time datetime={guide.data.date.toISOString()}>
+                                            {guide.data.date.toLocaleDateString('en-us', {
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric',
+                                            })}
+                                        </time>
+                                    </dd>
+                                </div>
+                            </dl>
+                        )}
+                        <div>
+                            <PageTitle>{guide.data.title}</PageTitle>
+                        </div>
+                    </div>
+                </header>
+                <div class="divide-y divide-gray-200 pb-8 dark:divide-gray-700">
+                    <div class="xl:row-span-2 xl:pb-0">
+                        {
+                            guide.data.draft && (
+                                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-10 rounded-md dark:bg-yellow-900/20 dark:border-yellow-500">
+                                    <p class="leading-5 text-yellow-700 dark:text-yellow-200">
+                                        This is a draft. It might be incomplete
+                                        or have errors.
+                                    </p>
+                                </div>
+                            )
+                        }
+                        <div
+                            id="content"
+                            class="prose max-w-none pb-8 dark:prose-invert"
+                        >
+                            {guide.data.hero?.src && guide.data.hero?.alt && <Hero src={guide.data.hero.src} alt={guide.data.hero.alt} />}
+                            <Content components={{ ...components }} {headings} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </SectionContainer>
+</RootLayout>
+
+<script src="/src/scripts/copyCode.ts"></script>
