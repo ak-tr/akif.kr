@@ -2,52 +2,15 @@
 const { title, useMonoFont = false } = Astro.props;
 ---
 
-<script>
-    const init = () => {
-        document.querySelectorAll('[data-collapsible]').forEach((el) => {
-            const toggle = el.querySelector('[data-toggle]') as HTMLElement;
-            const content = el.querySelector('[data-content]') as HTMLElement;
-            const icon = el.querySelector('svg') as SVGElement;
-        
-            if (!toggle || !content) return;
-        
-            let open = false;
-        
-            toggle.addEventListener('click', () => {
-                open = !open;
-                if (open) {
-                    content.style.height = content.scrollHeight + 'px';
-                    icon?.classList.add('rotate-90');
-                    setTimeout(() => (content.style.height = 'auto'), 300);
-                } else {
-                    content.style.height = content.scrollHeight + 'px';
-                    requestAnimationFrame(() => {
-                        content.style.height = '0px';
-                    });
-                    icon?.classList.remove('rotate-90');
-                }
-            });
-        });
-    }
-
-    document.addEventListener("astro:page-load", () => {
-        init();
-    });
-</script>
-
-<div
-  data-collapsible
-  class="border border-gray-400 dark:border-gray-200 bg-gray-100 dark:bg-gray-800 px-5 py-3 rounded-md"
+<details
+  class="border border-gray-400 dark:border-gray-200 bg-gray-100 dark:bg-gray-800 px-5 py-3 rounded-md group"
 >
-  <div
-    data-toggle
-    role="button"
-    tabindex="0"
-    class={`flex items-center justify-between gap-2 cursor-pointer select-none ${useMonoFont ? 'font-mono' : ''}`}
+  <summary
+    class={`flex items-center justify-between gap-2 cursor-pointer select-none list-none py-1 ${useMonoFont ? 'font-mono' : ''}`}
   >
-    <span class="py-1">{title}</span>
+    <span>{title}</span>
     <svg
-      class="transition-transform duration-300"
+      class="transition-transform duration-300 shrink-0 group-open:rotate-90"
       xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"
@@ -60,12 +23,9 @@ const { title, useMonoFont = false } = Astro.props;
     >
       <path d="M9 18l6-6-6-6" />
     </svg>
-  </div>
+  </summary>
 
-  <div
-    data-content
-    style="height: 0; overflow: hidden; transition: height 300ms ease;"
-  >
+  <div class="pt-3 prose prose-sm max-w-none dark:prose-invert [&>ul]:my-2 [&>ul]:list-disc [&>ul]:pl-6">
     <slot />
   </div>
-</div>
+</details>
