@@ -10,7 +10,7 @@ const posts = await getCollection('blog');
 
 function tagCount(slug: CollectionEntry<'tags'>['slug']) {
     if (!posts) return 0;
-    return posts.filter((post) => post.data.tags.some(tag => tag.slug === slug)).length;
+    return posts.filter((post) => post.data.tags.some((tag) => tag.id === slug)).length;
 }
 ---
 <RootLayout title="Tags">

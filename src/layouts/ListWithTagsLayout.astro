@@ -21,7 +21,7 @@ const posts = await getCollection('blog');
 
 function tagCount(slug: CollectionEntry<'tags'>['slug']) {
     if (!posts) return 0;
-    return posts.filter((post) => post.data.tags.some(tag => tag.slug === slug)).length;
+    return posts.filter((post) => post.data.tags.some((tag) => tag.id === slug)).length;
 }
 
 function isSamePath(path: string) {
@@ -96,8 +96,8 @@ const isBlogPage = Astro.url.pathname.startsWith('/blog');
                                                 </Link>
                                             </h3>
                                             <div class="flex flex-wrap">
-                                                {tags.map(({slug}) =>
-                                                        <Tag slug={slug}/>
+                                                {tags.map((tag) =>
+                                                        <Tag slug={tag.id}/>
                                                 )}
                                             </div>
                                         </div>
