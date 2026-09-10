@@ -1,7 +1,8 @@
-import {defineCollection, reference, z} from 'astro:content';
+import { defineCollection, reference, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 const authors = defineCollection({
-    type: 'content',
+    loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/authors' }),
     schema: z.object({
         name: z.string(),
         avatar: z.string().optional(),
@@ -17,7 +18,7 @@ const authors = defineCollection({
 });
 
 const gallery = defineCollection({
-    type: "data",
+    loader: glob({ pattern: '**/*.json', base: './src/content/gallery' }),
     schema: z.object({
         id: z.string(),
         title: z.string(),
@@ -31,7 +32,7 @@ const gallery = defineCollection({
 });
 
 const blog = defineCollection({
-    type: 'content',
+    loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
     schema: z.object({
         title: z.string(),
         date: z.coerce.date(),
@@ -55,7 +56,7 @@ const blog = defineCollection({
 });
 
 const guide = defineCollection({
-    type: 'content',
+    loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/guide' }),
     schema: z.object({
         title: z.string(),
         date: z.coerce.date().optional(),
@@ -69,7 +70,7 @@ const guide = defineCollection({
 });
 
 const tags = defineCollection({
-    type: 'content',
+    loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/tags' }),
     schema: z.object({
         name: z.string(),
         description: z.string().optional(),

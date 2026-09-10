@@ -8,7 +8,7 @@ import Link from "@/components/Link.astro";
 const tags = await getCollection('tags');
 const posts = await getCollection('blog');
 
-function tagCount(slug: CollectionEntry<'tags'>['slug']) {
+function tagCount(slug: CollectionEntry<'tags'>['id']) {
     if (!posts) return 0;
     return posts.filter((post) => post.data.tags.some((tag) => tag.id === slug)).length;
 }
@@ -26,10 +26,10 @@ function tagCount(slug: CollectionEntry<'tags'>['slug']) {
                 return (
                         <div class="mb-2 mr-5 mt-2">
                             <Tag tag={tag}/>
-                            <Link href={`/tags/${tag.slug}`}
+                            <Link href={`/tags/${tag.id}`}
                                   class="-ml-2 text-sm font-semibold uppercase text-gray-600 dark:text-gray-300"
                                   aria-label={`View posts tagged ${tag.data.name}`}>
-                                {` (${tagCount(tag.slug)})`}
+                                {` (${tagCount(tag.id)})`}
                             </Link>
                         </div>
                 )

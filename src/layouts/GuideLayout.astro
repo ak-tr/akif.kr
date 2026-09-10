@@ -2,7 +2,7 @@
 import SectionContainer from "../components/SectionContainer.astro";
 import PageTitle from "../components/PageTitle.astro";
 import RootLayout from "./RootLayout.astro";
-import { type CollectionEntry } from "astro:content";
+import { type CollectionEntry, render } from "astro:content";
 import ScrollTopAndComments from "@/solid/ScrollTopAndComments.tsx";
 
 import Hero from "@/components/Hero.astro";
@@ -18,7 +18,7 @@ interface Props {
 
 const { guide } = Astro.props;
 
-const { Content, headings } = await guide.render();
+const { Content, headings } = await render(guide);
 ---
 <RootLayout title={guide.data.title} description={guide.data.summary} hero={guide.data.hero}>
     <SectionContainer>

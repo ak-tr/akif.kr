@@ -7,7 +7,7 @@ export async function getStaticPaths() {
     const guides = await getCollection('guide', excludeGuideDrafts);
     if (!guides) return { paths: [] };
     return guides.map((guide) => ({
-        params: { slug: guide.slug },
+        params: { slug: guide.id },
         props: { guide },
     }));
 }

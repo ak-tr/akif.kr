@@ -19,7 +19,7 @@ interface Props {
 const tags = await getCollection('tags');
 const posts = await getCollection('blog');
 
-function tagCount(slug: CollectionEntry<'tags'>['slug']) {
+function tagCount(slug: CollectionEntry<'tags'>['id']) {
     if (!posts) return 0;
     return posts.filter((post) => post.data.tags.some((tag) => tag.id === slug)).length;
 }
@@ -57,19 +57,19 @@ const isBlogPage = Astro.url.pathname.startsWith('/blog');
                             </Link>
                     )}
                     <ul>
-                        {tags.map(({slug, data}) => (
+                        {tags.map(({id, data}) => (
                                 <li class="my-3">
-                                    {isSamePath(`/tag/${slug}`) ? (
+                                    {isSamePath(`/tag/${id}`) ? (
                                             <h3 class="inline py-2 px-3 uppercase text-sm font-bold text-primary-500">
-                                                {`${data.name} (${tagCount(slug)})`}
+                                                {`${data.name} (${tagCount(id)})`}
                                             </h3>
                                     ) : (
                                             <Link
-                                                    href={`/tags/${slug}`}
+                                                    href={`/tags/${id}`}
                                                     class="py-2 px-3 uppercase text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-500"
                                                     aria-label={`View posts tagged ${data.name}`}
                                             >
-                                                {`${data.name} (${tagCount(slug)})`}
+                                                {`${data.name} (${tagCount(id)})`}
                                             </Link>
                                     )}
                                 </li>
@@ -79,7 +79,7 @@ const isBlogPage = Astro.url.pathname.startsWith('/blog');
             </div>
             <div>
                 <ul>
-                    {page.data.map(({slug, data: {date, title, summary, tags}}: CollectionEntry<'blog'>) => (
+                    {page.data.map(({id, data: {date, title, summary, tags}}: CollectionEntry<'blog'>) => (
                             <li class="py-5">
                                 <article class="space-y-2 flex flex-col xl:space-y-0">
                                     <dl>
@@ -91,7 +91,7 @@ const isBlogPage = Astro.url.pathname.startsWith('/blog');
                                     <div class="space-y-3">
                                         <div>
                                             <h3 class="text-2xl font-bold leading-8 tracking-tight">
-                                                <Link href={`/blog/${slug}`} class="text-gray-900 dark:text-gray-100">
+                                                <Link href={`/blog/${id}`} class="text-gray-900 dark:text-gray-100">
                                                     {title}
                                                 </Link>
                                             </h3>

@@ -23,14 +23,14 @@ const authorPosts = await getCollection(
     "blog",
     ({ data: { authors, draft } }) => {
         return (
-            !draft && authors.some((author) => author.slug === Astro.props.slug)
+            !draft && authors.some((author) => author.id === Astro.props.slug)
         );
     }
 )
     .then(sortBlogPosts)
     .then((posts) => {
         return posts.slice(0, ITEMS_PER_PAGE).map((post) => {
-            return { title: post.data.title, slug: post.slug };
+            return { title: post.data.title, slug: post.id };
         });
     });
 ---

@@ -1,5 +1,5 @@
 ---
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import type { Page } from "astro";
 
 import { ITEMS_PER_PAGE } from "@/consts";
@@ -16,13 +16,13 @@ export async function getStaticPaths({ paginate }: { paginate: Function }) {
     const posts = await getCollection('blog', excludeDrafts).then(sortBlogPosts);
 
     return tags.flatMap(entry => {
-        const tagPosts = posts.filter(post => post.data.tags.some((tag) => tag.id === entry.slug));
-        return paginate(tagPosts, {pageSize: ITEMS_PER_PAGE, params: {slug: entry.slug}, props: {entry}});
+        const tagPosts = posts.filter(post => post.data.tags.some((tag) => tag.id === entry.id));
+        return paginate(tagPosts, {pageSize: ITEMS_PER_PAGE, params: {slug: entry.id}, props: {entry}});
     });
 }
 
 const {page, entry} = Astro.props;
-const {Content} = await entry.render()
+const {Content} = await render(entry)
 
 let robots = null;
 if (page.currentPage > 1) {
@@ -33,4 +33,4 @@ if (page.currentPage > 1) {
 
 <ListLayout title={entry.data.name} description={entry.data.description ?? ""} page={page} robots={robots ?? undefined}>
     <Content/>
-</ListWithTagsLayout>
+</ListLayout>
