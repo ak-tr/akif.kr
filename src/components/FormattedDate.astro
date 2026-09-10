@@ -22,14 +22,14 @@ const { date, frontmatter } = Astro.props;
 	</time>
 	{frontmatter &&
 		<>
-			•
+			&bull;
 			<span>
 				{frontmatter.minutesRead}
 			</span>
-			•
+			&bull;
 			<span>
 				{frontmatter.wordCount} words
 			</span>
-		</div>
+		</>
 	}
 </div>

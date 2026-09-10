@@ -1,8 +1,8 @@
 import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
-import tailwind from "@astrojs/tailwind";
 import solidJs from "@astrojs/solid-js";
+import { unified } from "@astrojs/markdown-remark";
 
 import { SITE_METADATA } from "./src/consts.ts";
 
@@ -14,8 +14,8 @@ import rehypeNotProseCodeBlock from "./src/plugins/rehype/notProseCodeBlock.mjs"
 import remarkReadingTime from "./src/plugins/remark/readingTime.mjs";
 
 // Shiki plugins
-import { 
-    transformerNotationFocus, 
+import {
+    transformerNotationFocus,
     transformerRenderIndentGuides,
     transformerMetaHighlight,
 } from '@shikijs/transformers'
@@ -23,17 +23,8 @@ import {
 // https://astro.build/config
 export default defineConfig({
     integrations: [
-        mdx({
-            rehypePlugins: [
-                rehypeSlugAnchorSectionize,
-                rehypeNotProseCodeBlock,
-            ],
-            remarkPlugins: [
-                remarkReadingTime,
-            ],
-        }),
+        mdx(),
         sitemap(),
-        tailwind(),
         solidJs(),
     ],
     prefetch: true,
@@ -48,5 +39,11 @@ export default defineConfig({
                 transformerMetaHighlight(),
             ],
         },
+        // Astro 7's default "satteri" processor does not run remark/rehype
+        // plugins, so opt back into the unified pipeline for these.
+        processor: unified({
+            remarkPlugins: [remarkReadingTime],
+            rehypePlugins: [rehypeSlugAnchorSectionize, rehypeNotProseCodeBlock],
+        }),
     },
 });

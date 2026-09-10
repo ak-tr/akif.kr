@@ -3,7 +3,7 @@
 // all pages through the use of the <BaseHead /> component.
 import '@/styles/global.css';
 import { SITE_METADATA } from "@/consts";
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 import '@fontsource/onest';
 
 interface Props {
@@ -81,5 +81,5 @@ const {title, description, hero, robots = SITE_METADATA.robots} = Astro.props;
       document.addEventListener('astro:after-swap', applyTheme);
     </script>
 
-    <ViewTransitions />
+    <ClientRouter />
 </head>

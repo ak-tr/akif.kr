@@ -2,7 +2,7 @@
 import SectionContainer from "../components/SectionContainer.astro";
 import PageTitle from "../components/PageTitle.astro";
 import RootLayout from "./RootLayout.astro";
-import { type CollectionEntry } from "astro:content";
+import { type CollectionEntry, render } from "astro:content";
 import FormattedDate from "../components/FormattedDate.astro";
 import ScrollTopAndComments from "@/solid/ScrollTopAndComments.tsx";
 
@@ -19,7 +19,7 @@ interface Props {
 
 const { post } = Astro.props;
 
-const { Content, headings, remarkPluginFrontmatter } = await post.render();
+const { Content, headings, remarkPluginFrontmatter } = await render(post);
 
 const frontmatter = remarkPluginFrontmatter as {
 	minutesRead: string;

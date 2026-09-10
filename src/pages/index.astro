@@ -1,11 +1,11 @@
 ---
-import {getEntry} from "astro:content"
+import {getEntry, render} from "astro:content"
 import AuthorLayout from "@/layouts/AuthorLayout.astro";
 
 const author = await getEntry('authors', 'default')
-const {Content} = await author.render();
+const {Content} = await render(author);
 ---
 
-<AuthorLayout content={author.data} slug={author.slug}>
+<AuthorLayout content={author.data} slug={author.id}>
 	<Content />
 </AuthorLayout>
