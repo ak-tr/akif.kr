@@ -1,0 +1,493 @@
+---
+title: "Fixing BMW E91 Adaptive Headlights: 9CBD, 9CBE and SMC Communication Errors"
+date: "2026-10-18"
+tags: ["e9x"]
+summary: "My E91 335i developed adaptive headlight faults that eventually stopped both headlights swivelling. After replacing modules, chasing communication errors and fighting with NCS Expert, I finally got everything working again."
+---
+
+*Jump straight to the [fix.](#the-fix)*
+
+## Introduction
+
+I've been working through a few electrical issues on my 2007 BMW E91 335i Touring (N54), and one of the more annoying ones has been the adaptive headlights.
+
+For anyone unfamiliar with BMW's terminology, adaptive headlights are xenon headlights that physically swivel left and right depending on steering input and driving conditions.
+
+Each headlight has an SMC (stepper motor controller), which controls the motors responsible for moving the headlight.
+
+The SMCs communicate with the FRM (footwell module), which handles various lighting and electrical functions.
+
+In my case, the headlights gradually stopped working properly, and what initially looked like a straightforward module replacement turned into a fairly interesting diagnostic problem.
+
+I ended up using NCS Expert and INPA to work out what was going on.
+
+## The Problem
+
+The first fault I noticed was:
+
+```text
+9CBE - Right SMC communication fault
+```
+
+Initially, it was intermittent. I could clear the fault, and things would work again for a while.
+
+Eventually, it became permanent, and another fault appeared:
+
+```text
+9CBD - Left SMC communication fault
+```
+
+At this point, neither headlight was swivelling correctly.
+
+The problems started around the time I'd been pressure washing the car, so water ingress was an obvious suspect.
+
+Because 9CBE was the first fault to appear, and 9CBD only showed up later, I originally replaced just the right SMC and jumped straight into VO coding it. At that point, I had no idea the left side was even worse.
+
+Both 9CBD and 9CBE were still present afterwards, so I decided to check the left SMC too.
+
+### Inspecting the original modules
+
+The left SMC was in a terrible state.
+
+There was significant corrosion across the PCB and connector pins. Some of the corrosion had turned into white powder, which was literally flaking off the board.
+
+<div class="not-prose grid grid-cols-1 gap-2 sm:grid-cols-2">
+  <PostImage
+    src="/static/images/e91-adaptive-headlight-smc-diagnosis/01-left-smc-corrosion.jpeg"
+    alt="Original left SMC with corrosion across the PCB and connector pins"
+  />
+  <PostImage
+    src="/static/images/e91-adaptive-headlight-smc-diagnosis/02-left-smc-corrosion-close-up.jpeg"
+    alt="Underside of the original left SMC PCB and casing covered in white and green corrosion"
+  />
+</div>
+
+The right SMC, on the other hand, looked considerably better. In fact, the left one made it look brand new.
+
+There was only a very small amount of corrosion around the bottom of the top two connector pins.
+
+Given the difference in condition, I initially expected the left module to be completely dead and the right one to be recoverable.
+
+## What I Tried
+
+### Replacing both SMCs with aftermarket modules
+
+I'd already fitted an inexpensive Chinese aftermarket replacement on the right, so I fitted another one on the left.
+
+The original modules were BMW/Lear units with the following identifiers:
+
+```text
+BMW: 7189312
+BMW full part number: 63 11 7 189 312
+Lear: 532294803
+HW: 05
+SW: 2.23
+```
+
+The aftermarket replacements advertised the same BMW part number, so I assumed they would be compatible.
+
+Physically, they looked similar enough, but there were some obvious differences.
+
+Firstly, the aftermarket modules were missing the BMW and LEAR markings.
+
+More importantly, the PCB layout was visibly different from the original modules. You could actually see this through the casing without needing to dismantle anything.
+
+At the time, I didn't think much of it.
+
+That turned out to be a mistake.
+
+### The fault codes disappeared, but the headlights still didn't work
+
+After fitting the aftermarket modules, both communication fault codes disappeared.
+
+That initially looked promising.
+
+Unfortunately, the adaptive headlights still weren't working properly.
+
+The left headlight would perform some movements, including vertical and horizontal movement, but the right headlight would only move vertically.
+
+I decided to investigate using BMW Standard Tools.
+
+### Trying to communicate with the SMCs using NCS Expert
+
+For anyone unfamiliar with it, NCS Expert is BMW's factory coding software for older vehicles.
+
+It allows you to read and write configuration data to individual electronic modules.
+
+I was using:
+
+- NCS Expert
+- INPA
+- BMW Standard Tools
+- E89 SP-DATEN v74
+- K+DCAN diagnostic cable
+
+My car is an E91, but the chassis selection in NCS Expert is E89.
+
+The first thing I wanted to establish was whether I could actually communicate with the SMCs.
+
+I could successfully read the vehicle order from CAS and access the FRM, but reading the SMCs was another story.
+
+Every attempt resulted in communication errors.
+
+```text
+COAPI-2020
+IFH-0009
+```
+
+These appeared when attempting to read either LSMC (left SMC) or RSMC (right SMC).
+
+<div class="not-prose grid grid-cols-1 gap-2 sm:grid-cols-2">
+  <PostImage
+    src="/static/images/e91-adaptive-headlight-smc-diagnosis/08-ncs-error-dialog.jpeg"
+    alt="Additional NCS Expert error dialog during SMC diagnostics"
+  />
+  <PostImage
+    src="/static/images/e91-adaptive-headlight-smc-diagnosis/09-ncs-error-details.jpeg"
+    alt="NCS Expert diagnostic error details"
+  />
+</div>
+
+I also noticed something strange.
+
+Sometimes, attempting to read one of the modules would cause both headlights to move vertically before NCS Expert reported an error.
+
+That suggested the modules weren't completely unresponsive, but something was going wrong during communication.
+
+### INPA wasn't much better
+
+INPA is BMW's diagnostic software, used for reading faults, viewing live data and activating components.
+
+I tried accessing the adaptive headlight functions through the FRM.
+
+Unfortunately, that also resulted in communication errors.
+
+```text
+IFH-0009
+```
+
+I couldn't access the full AHL (adaptive headlight) diagnostic functions.
+
+This was particularly frustrating because the FRM itself was accessible.
+
+The problem seemed to be specific to communication involving the SMCs.
+
+### Reinstalling the original right SMC
+
+At this point, I started questioning whether the aftermarket modules were actually compatible.
+
+The original right SMC had very little corrosion, so I decided to reinstall it.
+
+The result was interesting.
+
+The right headlight now performed a small additional movement during initialization, suggesting the original module was doing something the aftermarket replacement wasn't.
+
+However, NCS Expert still couldn't communicate with either SMC.
+
+I continued getting the same errors.
+
+This was when I started suspecting that the left module might somehow be interfering with communication to both sides.
+
+### Could one faulty SMC affect both modules?
+
+Initially, I assumed each SMC could be diagnosed independently.
+
+If the right module was working, surely I should be able to communicate with it regardless of what was installed on the left?
+
+Apparently, not necessarily.
+
+Both modules communicate through the vehicle's lighting electronics, and I suspected that the aftermarket left SMC was interfering with the diagnostic process.
+
+I couldn't establish the exact communication mechanism, but the behaviour was consistent:
+
+- Chinese aftermarket left SMC installed: neither module could be read.
+- Original genuine right SMC installed: still couldn't read either module.
+- FRM and CAS remained accessible.
+
+I decided to replace the left SMC with a genuine unit before investigating anything else.
+
+## The Fix
+
+### Replacing the left SMC with a genuine BMW/Lear module
+
+I found a genuine BMW/Lear SMC on eBay for approximately £60.
+
+It had the same BMW and Lear part numbers as my original module.
+
+<div class="not-prose grid grid-cols-1 gap-2 sm:grid-cols-2">
+  <PostImage
+    src="/static/images/e91-adaptive-headlight-smc-diagnosis/04-genuine-bmw-lear-smc.jpeg"
+    alt="Original corroded BMW Lear SMC removed from the car, showing the BMW and Lear markings"
+    subtitle="The corroded unit removed from the vehicle."
+  />
+  <PostImage
+    src="/static/images/e91-adaptive-headlight-smc-diagnosis/05-replacement-smc-listing.jpeg"
+    alt="Replacement BMW Lear SMC advertised with matching part numbers"
+    subtitle="The eBay listing for the replacement unit."
+  />
+</div>
+
+There were some differences in the smaller identification markings between the original and replacement, but the hardware and software identifiers matched.
+
+Unlike the Chinese modules, the PCB layout also appeared identical to my original BMW/Lear unit.
+
+I installed it on the left side, leaving the original genuine SMC installed on the right.
+
+Then I connected NCS Expert again.
+
+### NCS Expert could suddenly read both modules
+
+This was the breakthrough.
+
+I selected LSMC and ran:
+
+```text
+ECU: LSMC
+JOBNAME: CODIERDATEN_LESEN
+```
+
+For the first time, the operation completed successfully.
+
+```text
+Coding ended
+```
+
+No errors.
+
+I then tried the right SMC.
+
+```text
+ECU: RSMC
+JOBNAME: CODIERDATEN_LESEN
+```
+
+That also completed successfully.
+
+Both modules were now readable.
+
+Nothing else had changed.
+
+The only difference was replacing the aftermarket left SMC with a genuine BMW/Lear unit.
+
+That strongly suggested the aftermarket left module had been responsible for the communication problems affecting both sides.
+
+I still can't say exactly what was happening electrically, but the result was pretty convincing.
+
+### Backing up the original coding
+
+Before making any changes, I saved the coding data from both modules.
+
+NCS Expert writes the result of a coding read to:
+
+```text
+C:\NCSEXPER\WORK\FSW_PSW.TRC
+```
+
+The important thing to remember is that this file gets overwritten every time you read another module.
+
+I copied the files to separate backups:
+
+```text
+LSMC_backup.TRC
+RSMC_backup.TRC
+```
+
+This meant I had a copy of the original configuration before writing anything.
+
+### Coding the replacement left SMC
+
+The replacement module was genuine, but it still needed to be coded to the car.
+
+BMW uses a vehicle order, usually called the FA or VO, to describe the vehicle's factory configuration.
+
+NCS Expert can use this information to apply the appropriate default coding to a module.
+
+I wasn't trying to change any individual parameters. I just wanted the replacement SMC configured correctly for my car.
+
+First, I checked the NCS Expert working directory:
+
+```text
+C:\NCSEXPER\WORK\
+```
+
+There was no `FSW_PSW.MAN` file present.
+
+This was important because a MAN file can be used to apply custom coding values when using a manipulation-enabled profile.
+
+I wanted standard vehicle-order coding, not custom parameter changes.
+
+The process was:
+
+1. Load the **Expert Mode** profile in NCS Expert.
+2. Read the vehicle order from CAS.
+3. Select `LSMC` using Process ECU.
+4. Change the job to `SG_CODIEREN`.
+5. Execute the job.
+
+The actual coding operation was:
+
+```text
+MODULE: LSMC
+JOB: SG_CODIEREN
+SOURCE: Vehicle order (FA/VO)
+RESULT: Coding ended
+ERRORS: None
+```
+
+There were no individual FSW/PSW parameter changes.
+
+The right SMC was still the original module from my car, so I left its existing coding alone.
+
+The coding operation completed successfully.
+
+### A note about power
+
+I had a 20A battery charger connected while doing this.
+
+With the ignition on, I measured approximately 12.5V.
+
+With the ignition off, the voltage was approximately 13.3V.
+
+I considered whether I needed a higher-voltage regulated power supply, but this was a relatively short coding operation rather than a full firmware flash.
+
+I proceeded with the charger connected and the voltage stable.
+
+The coding completed without any voltage-related errors.
+
+This isn't a recommendation to ignore BMW's power supply requirements, particularly when flashing modules. It's simply what I used for this particular coding operation.
+
+## Results
+
+### The adaptive headlights started working again
+
+After coding the replacement left SMC, both headlights started responding to steering input again.
+
+That was already a massive improvement.
+
+However, I noticed that the left headlight appeared to move considerably more than the right.
+
+Given the previous problems, I wanted to establish whether the right headlight was actually capable of moving through its full range.
+
+### Testing the actuators using INPA
+
+I connected INPA again.
+
+This time, the full adaptive headlight diagnostic functions were available.
+
+Previously, with the aftermarket left SMC installed, I couldn't even access these options.
+
+The actuator test presented four positions:
+
+```text
+Left bottom
+Right bottom
+Left top
+Right top
+```
+
+Selecting each position commanded both headlights to move together.
+
+Both headlights responded to every command and reached their final positions.
+
+The only difference was that the right headlight consistently moved more slowly.
+
+It finished approximately half a second after the left.
+
+This happened during every actuator test.
+
+The right SMC was the original BMW/Lear module, and it had only suffered very minor corrosion compared with the left.
+
+It's possible there's some additional mechanical resistance in the right headlight, or that the motor or controller has aged.
+
+I also considered whether the difference was related to the way the headlights are controlled for left-hand traffic, but that wouldn't necessarily explain slower movement during a diagnostic actuator test.
+
+For now, both headlights can complete their commanded movements, so I'm not planning to replace anything else based purely on that half-second difference.
+
+### Road test
+
+The final test was a drive at night.
+
+Both headlights swivelled correctly with steering input, and the adaptive headlight functionality is now fully restored.
+
+No fault codes have returned since, including 9CBD and 9CBE.
+
+## Gotchas / Things I'd Do Differently
+
+### 1. Don't assume matching part numbers mean matching hardware
+
+This was probably the biggest lesson.
+
+The Chinese aftermarket modules had the same advertised BMW part number as the originals.
+
+However, they were missing the BMW and LEAR markings, and their PCB layouts were visibly different.
+
+Even without opening the casing, I could tell they weren't using the same electronics.
+
+They cleared the original fault codes, but that didn't mean they were working correctly.
+
+If I were doing this again, I'd go straight for a genuine BMW/Lear replacement.
+
+### 2. One faulty module can make diagnosing another much harder
+
+The most interesting part of this repair was that I couldn't communicate with either SMC while the aftermarket left module was installed.
+
+Even reinstalling the original genuine right module didn't help.
+
+As soon as I fitted the genuine replacement on the left, both modules became readable.
+
+That doesn't prove the left SMC is some kind of master module, and I haven't confirmed the exact underlying communication failure.
+
+But it does show that a problem involving one SMC can coincide with diagnostic failures affecting both sides.
+
+If you're getting communication errors on both modules, don't immediately assume both are faulty.
+
+### 3. Being able to clear fault codes doesn't prove a module is compatible
+
+The aftermarket replacements cleared 9CBD and 9CBE.
+
+Initially, I thought that meant the problem was fixed.
+
+In reality, the headlights still weren't operating correctly, and the diagnostic software couldn't communicate with the modules.
+
+The successful fault-code clearing was misleading.
+
+### 4. Back up your coding before changing anything
+
+NCS Expert overwrites `FSW_PSW.TRC` whenever you read another module.
+
+If you're working through several ECUs, make sure you copy the trace file somewhere safe after each read.
+
+Also, pay attention to the job selected in NCS Expert.
+
+```text
+CODIERDATEN_LESEN = Read coding data
+SG_CODIEREN       = Write coding data
+```
+
+They're very different operations.
+
+### 5. Don't immediately replace everything
+
+The original right SMC had some minor corrosion, but it turned out to be readable and functional once the left module was replaced.
+
+I could easily have spent more money replacing it unnecessarily.
+
+Testing the individual components and changing one thing at a time was far more useful.
+
+## Final Thoughts
+
+What started as an intermittent adaptive headlight warning turned into a fairly interesting communication problem.
+
+The original left SMC was heavily corroded, the aftermarket replacements weren't behaving correctly, and NCS Expert couldn't communicate with either side.
+
+The fix ended up being straightforward: replace the left SMC with a genuine BMW/Lear unit and code it to the car.
+
+After that, both SMCs became readable, INPA could access the full adaptive headlight functions, both headlights responded to actuator tests, and a night-time road test confirmed everything was working again.
+
+The right headlight is still slightly slower during testing, but it reaches every commanded position.
+
+The main takeaway is that **a faulty or incompatible aftermarket SMC can make both sides appear to have communication problems**.
+
+If you're troubleshooting BMW E90/E91 adaptive xenons with 9CBD, 9CBE, COAPI-2020 or IFH-0009 errors, hopefully this saves you some time.
+
+And if your replacement SMC has a completely different PCB from the original BMW/Lear unit, I'd be very suspicious of it.

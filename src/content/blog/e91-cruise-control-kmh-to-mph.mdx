@@ -1,0 +1,663 @@
+---
+title: "Coding Cruise Control from km/h to mph on my BMW E91 335i"
+date: "2026-10-18"
+tags: ["e9x"]
+summary: "My Japanese-import BMW E91 335i had an mph speedometer, but cruise control still displayed km/h. I used NCS Expert and NCS Dummy to track down the DSC coding parameter responsible and change it."
+---
+
+*Jump straight to the [fix.](#the-fix)*
+
+## Introduction
+
+My car is a 2007 BMW 335i E91 Touring with the N54 engine and a 6-speed automatic gearbox.
+
+It's a Japanese import, which means it originally came with a speedometer configured for kilometres per hour rather than miles per hour.
+
+At some point before I bought it, the instrument cluster had been converted to display mph. That was fine for normal driving, but one thing had been overlooked: cruise control.
+
+Whenever I activated cruise control, the set speed would still appear in km/h.
+
+It's a minor annoyance, but since I've already been getting into BMW diagnostics and coding, I wanted to see whether I could fix it myself.
+
+As it turns out, the solution was a single coding parameter in the DSC module. Getting there involved a bit more digging than I expected.
+
+## The Problem
+
+The car had three different ways of displaying speed:
+
+- **Analogue speedometer:** Already converted to mph.
+- **Instantaneous speed:** The digital speed display in the BC (Board Computer), which I'd enabled previously, correctly showed mph.
+- **Cruise control:** Still displayed its set speed in km/h.
+
+For example, when travelling at approximately 30 mph, engaging cruise control would show something like 54 km/h.
+
+The exact numbers weren't particularly important. What mattered was that cruise control was clearly using a different unit configuration from the other speed displays.
+
+Initially, I assumed there would be a setting somewhere in the KOMBI (instrument cluster) to change this.
+
+After all, that's where the speed gets displayed.
+
+However, after researching how the E9x platform handles cruise control, I found that the speed units could actually be configured through the DSC.
+
+DSC stands for Dynamic Stability Control. It's BMW's electronic stability and traction-control system, and it also participates in the vehicle's braking and cruise-control functionality.
+
+That made this slightly more interesting, because DSC isn't a module I particularly wanted to experiment with blindly.
+
+## Finding the Relevant Coding Parameters
+
+I came across discussions from other E9x owners who had changed their cruise-control speed units.
+
+Some reported success with parameters beginning with `C0C`, while others, particularly owners of earlier cars, had parameters beginning with `C0A`.
+
+The two parameters that kept appearing were:
+
+- `C0A_V_EINHEIT` — Speed unit.
+- `C0A_SETZ_V_MAX` — Cruise-control maximum target speed.
+
+I also found reports of owners having trouble with cruise control after changing the wrong combination of values.
+
+One example involved a 2007 E90 328i, which made me particularly interested in the `C0A` parameters given the age of my E91.
+
+Rather than copying somebody else's coding, I decided to read the configuration from my own DSC and inspect the available values.
+
+## Tools and Setup
+
+For this job, I used:
+
+- A Windows laptop.
+- A K+DCAN USB diagnostic cable.
+- BMW Standard Tools, specifically NCS Expert.
+- NCS Dummy.
+- A battery charger.
+
+NCS Expert is BMW diagnostic and coding software used to read and write configuration data to vehicle modules.
+
+NCS Dummy is a separate utility that makes working with NCS Expert's coding files considerably easier.
+
+Without NCS Dummy, you're generally looking at a text file full of parameter names and values such as `wert_01`, without much context about what they actually do.
+
+NCS Dummy uses BMW's coding data files to show available options, descriptions and underlying hexadecimal values.
+
+That's particularly useful because the numbered `wert` values don't necessarily correspond directly to the actual data written to the module.
+
+### Understanding the Files
+
+There are two files worth knowing about.
+
+**FSW_PSW.TRC**
+
+This is the trace file produced when NCS Expert reads a module's coding configuration.
+
+It's effectively a snapshot of the module's current settings.
+
+**FSW_PSW.MAN**
+
+This is the manipulation file that NCS Expert can use to write modified coding back to a module.
+
+The basic workflow is:
+
+1. Read the module using NCS Expert.
+2. Back up the trace file.
+3. Edit the configuration using NCS Dummy.
+4. Export a modified manipulation file.
+5. Write it back using NCS Expert.
+6. Read the module again to verify the change.
+
+One important distinction: NCS Expert can also perform VO-based coding.
+
+The VO (Vehicle Order), sometimes called FA (Fahrzeugauftrag), describes the vehicle's factory configuration and optional equipment.
+
+When coding a module, NCS Expert can either apply defaults derived from that configuration or use custom values from a manipulation file.
+
+For this job, I specifically wanted the latter.
+
+I didn't want to recode the DSC to factory defaults and potentially overwrite existing configuration on a Japanese-import car.
+
+## Reading the DSC Coding
+
+I connected the K+DCAN cable to the car and laptop, switched the ignition on without starting the engine, and opened NCS Expert.
+
+The software came with several profiles.
+
+<PostImage
+    src="/static/images/e91-cruise-control-kmh-to-mph/01-ncs-expert-profile-selection.png"
+    alt="NCS Expert profile selection showing Default, Car Key Memory, Expert Mode, Factory Coding and FSW_PSW profiles"
+/>
+
+For the initial read, I selected **Expert Mode**.
+
+I then followed this process:
+
+1. Selected `VIN/ZCS/FA`.
+2. Selected `ZCS/FA f. ECU`.
+3. Selected chassis `E89`, which is the coding family used for my E91.
+4. Read the vehicle order from the CAS (Car Access System).
+5. Returned to the main menu.
+6. Selected `Process ECU`.
+7. Selected `DSC`.
+8. Changed the job to `CODIERDATEN_LESEN`.
+9. Executed the job.
+
+The CAS is the module responsible for functions including vehicle access and immobiliser authorisation. It also stores the vehicle order.
+
+`CODIERDATEN_LESEN` is the NCS Expert job for reading coding data.
+
+Once the operation finished, NCS Expert reported:
+
+```text
+Get coded:
+DSC
+
+Coding ended
+
+JOBNAME = CODIERDATEN_LESEN
+
+MK60_87.C0A, A_E65.IPO, DSC_87.PRG
+```
+
+<PostImage
+    src="/static/images/e91-cruise-control-kmh-to-mph/02-dsc-read-mk60-c0a.png"
+    alt="NCS Expert successfully reading the DSC module using CODIERDATEN_LESEN and identifying MK60_87.C0A"
+/>
+
+The important part was:
+
+```text
+MK60_87.C0A
+```
+
+This identified the coding-data revision used by my DSC.
+
+The resulting trace file was located at:
+
+```text
+C:\NCSEXPER\WORK\FSW_PSW.TRC
+```
+
+I immediately copied it elsewhere as a backup.
+
+NCS Expert overwrites the trace file when reading another module, so it's worth saving a copy before continuing.
+
+## Inspecting the Coding in NCS Dummy
+
+I opened NCS Dummy, selected chassis `E89`, and looked for the appropriate DSC module.
+
+One minor gotcha was that NCS Expert displayed the ECU as `DSC`, but the corresponding coding file in NCS Dummy was listed under `MK60_87`.
+
+Initially, I was looking for something beginning with `DSC_87`, which wasn't there.
+
+<PostImage
+    src="/static/images/e91-cruise-control-kmh-to-mph/03-ncs-dummy-module-dropdown.png"
+    alt="NCS Dummy module dropdown showing DSC-related coding files while locating the correct MK60_87 module"
+/>
+
+After finding `MK60_87.C0A`, I loaded my original `FSW_PSW.TRC`.
+
+NCS Dummy parsed the file without errors.
+
+I then searched for the two cruise-control parameters I'd found during my research.
+
+### C0A_V_EINHEIT
+
+This was the interesting one.
+
+NCS Dummy described it as:
+
+```text
+C0A_V_EINHEIT
+SPEED UNIT
+DATA=0: KILOMETERS PER HOUR
+DATA=1: MILES PER HOUR
+```
+
+My existing configuration was:
+
+```text
+DSC > C0A_V_EINHEIT: wert_01
+```
+
+At first glance, that looked correct.
+
+I'd seen examples where `wert_01` was associated with mph, so initially I thought this parameter might already be configured properly.
+
+But that assumption turned out to be wrong.
+
+<PostImage
+    src="/static/images/e91-cruise-control-kmh-to-mph/04-cruise-speed-unit-original.png"
+    alt="NCS Dummy showing C0A_V_EINHEIT with wert_01 selected and wert_02 available"
+/>
+
+Clicking each value in NCS Dummy revealed its actual underlying data.
+
+For my specific DSC coding revision:
+
+| NCS Dummy option | Hex data | Description | Unit |
+|---|---|---|---|
+| `wert_01` | `00` | `KM_TACHO` | km/h |
+| `wert_02` | `01` | `!KM_TACHO` | mph |
+
+That explained everything.
+
+Despite the naming, `wert_01` represented the hexadecimal value `00`, not `01`.
+
+And because the parameter's description explicitly stated that data value `0` meant km/h, my car was still configured for kilometres per hour.
+
+The correct option was `wert_02`.
+
+### C0A_SETZ_V_MAX
+
+I also inspected the second parameter.
+
+Its description was:
+
+```text
+C0A_SETZ_V_MAX
+CRUISE CONTROL MAXIMUM TARGET SPEED
+[SPEED_KM/H_MPH=DATA]
+(LINKED TO [C0A_V_EINHEIT])
+```
+
+My existing configuration was:
+
+```text
+DSC > C0A_SETZ_V_MAX: wert_02
+```
+
+<PostImage
+    src="/static/images/e91-cruise-control-kmh-to-mph/05-cruise-maximum-speed-setting.png"
+    alt="NCS Dummy showing C0A_SETZ_V_MAX with wert_02 selected and other available values"
+/>
+
+I'd originally considered changing this parameter too, because other E9x owners had reported changing both settings.
+
+But after reading its description, I realised it controlled the maximum target speed rather than directly selecting the speed unit.
+
+To better understand the available options, I inspected `wert_03`.
+
+NCS Dummy showed:
+
+```text
+Function: C0A_SETZ_V_MAX
+Address: 00300017
+Length: 01
+Mask: FF (00 .. FF)
+
+Parameter: wert_03
+Data: 9B
+Value: 155 km/h or mph
+Options: D_GESCHW_REG+!KM_TACHO
+```
+
+<PostImage
+    src="/static/images/e91-cruise-control-kmh-to-mph/06-maximum-speed-value-details.png"
+    alt="NCS Dummy hexadecimal data for C0A_SETZ_V_MAX wert_03, showing a maximum target speed value of 155"
+/>
+
+This reinforced that the two parameters were related, but served different purposes.
+
+Since my only objective was to change the displayed units, I decided to leave the maximum-speed parameter alone.
+
+That turned out to be the right decision.
+
+## The Fix
+
+The solution was to change one parameter in the DSC module.
+
+For my 2007 BMW 335i E91 using `MK60_87.C0A`, the required coding change was:
+
+```text
+DSC > C0A_V_EINHEIT: wert_01 → wert_02
+```
+
+Nothing else needed changing.
+
+### Editing the Trace
+
+In NCS Dummy, with my original DSC trace loaded, I found `C0A_V_EINHEIT`.
+
+I unchecked `wert_01` and selected `wert_02`.
+
+I left every other parameter unchanged, including `C0A_SETZ_V_MAX`.
+
+Then I exported the configuration using:
+
+**Export FSW/PSW → Export FSW_PSW.MAN**
+
+The file was saved to:
+
+```text
+C:\NCSEXPER\WORK\FSW_PSW.MAN
+```
+
+Before writing anything to the car, I compared the original trace against the modified manipulation file.
+
+Both contained 174 lines, with exactly one difference:
+
+```diff
+ C0A_V_EINHEIT
+-    wert_01
++    wert_02
+```
+
+That gave me some confidence that I wasn't about to write a completely different configuration to the DSC.
+
+### Preparing NCS Expert to Write
+
+To apply the modification, I used the NCS Expert profile provided with NCS Dummy.
+
+The profile file was:
+
+```text
+NCSDUMMY4.PFL
+```
+
+I placed it in:
+
+```text
+C:\NCSEXPER\PFL\
+```
+
+The important profile setting was:
+
+```ini
+[FSWPSW]
+FswPswLesenModus=1
+FswPswTrace=1
+FswPswManipulieren=1
+```
+
+Specifically:
+
+```ini
+FswPswManipulieren=1
+```
+
+This enables manipulation using `FSW_PSW.MAN`.
+
+Without the appropriate manipulation settings, `SG_CODIEREN` can instead apply coding defaults derived from the vehicle order.
+
+That's not what I wanted.
+
+### An Unexpected Coding Revision
+
+After switching to the NCS Dummy profile, I went through the process of reading the vehicle order again and selecting DSC.
+
+However, something looked different.
+
+Previously, NCS Expert had identified the coding file as:
+
+```text
+MK60_87.C0A
+```
+
+Now it displayed:
+
+```text
+MK60_87.C03
+```
+
+<PostImage
+    src="/static/images/e91-cruise-control-kmh-to-mph/07-ncs-expert-c03-discrepancy.png"
+    alt="NCS Expert showing DSC selected for SG_CODIEREN with MK60_87.C03 rather than the previously detected C0A revision"
+/>
+
+That was concerning because I'd prepared the manipulation file using `MK60_87.C0A`.
+
+I didn't want to assume two different coding-data revisions were interchangeable, especially when writing to a module responsible for stability control.
+
+So I stopped before executing the coding job.
+
+I changed the job back to `CODIERDATEN_LESEN` and read the DSC again.
+
+Interestingly, after the read completed, NCS Expert displayed:
+
+```text
+MK60_87.C0A
+```
+
+I then switched back to `SG_CODIEREN`.
+
+This time, it continued to display `C0A`.
+
+I didn't establish exactly why NCS Expert initially selected `C03`, but the read operation consistently identified my DSC as `C0A`.
+
+The important thing was that I hadn't written anything while the coding revision was unclear.
+
+### Writing the Coding
+
+With the correct module and manipulation file selected, I was ready to write.
+
+My setup was:
+
+| Setting | Value |
+|---|---|
+| Chassis | E91 (E89) |
+| ECU | DSC |
+| Coding data | MK60_87.C0A |
+| Profile | NCS Dummy |
+| Job | SG_CODIEREN |
+| Manipulation file | FSW_PSW.MAN |
+| Battery voltage | 12.9V |
+| Battery charger | Connected |
+
+I had the ignition on and the engine off.
+
+Ideally, coding should be done with a suitable regulated power supply capable of supporting the car's electrical load. I was using a charger and monitoring the voltage, which was approximately 12.9V before writing.
+
+I then executed:
+
+```text
+SG_CODIEREN
+```
+
+NCS Expert completed successfully:
+
+```text
+Coding ended
+JOBNAME = SG_CODIEREN
+```
+
+There were no errors in NCS Expert.
+
+However, the car immediately displayed several dashboard warnings.
+
+## The Dashboard Warnings
+
+During the coding operation, I got a bunch of warning lights on the instrument cluster.
+
+That's not necessarily surprising when coding the DSC, because the module can temporarily stop communicating with other systems during the process.
+
+Still, I wanted to make sure everything returned to normal before driving.
+
+I switched the ignition off, waited approximately 30 seconds, then switched it back on.
+
+The warnings had disappeared.
+
+The only remaining lights were the usual engine-off warnings, including the engine light, parking brake and seatbelt indicators.
+
+There were no remaining ABS, DSC or DTC warnings.
+
+That was a good sign, but it didn't yet prove that the coding had actually been saved.
+
+## Verifying the Change
+
+Rather than immediately going for a drive, I read the DSC coding again.
+
+I switched back to the Expert Mode profile in NCS Expert and ran:
+
+```text
+CODIERDATEN_LESEN
+```
+
+I then opened the newly generated trace file and searched for `C0A_V_EINHEIT`.
+
+The result was:
+
+```text
+DSC > C0A_V_EINHEIT: wert_02
+```
+
+Exactly what I wanted.
+
+This confirmed that the DSC had accepted and retained the new coding.
+
+I backed up the new trace file alongside my original one.
+
+At this point, I had:
+
+- The original DSC coding.
+- The modified manipulation file.
+- A fresh trace showing the coding had been saved.
+
+The only thing left was to test it on the road.
+
+## Results
+
+It worked.
+
+After starting the car and confirming there were no remaining DSC-related dashboard warnings, I took it for a drive.
+
+Cruise control engaged normally, and the set speed was finally displayed in **mph instead of km/h**.
+
+No further coding changes were necessary.
+
+The final confirmed configuration was:
+
+```text
+DSC > C0A_V_EINHEIT: wert_01 → wert_02
+```
+
+For reference, these are the values on my `MK60_87.C0A` module:
+
+| Value | Actual data | Unit |
+|---|---|---|
+| `wert_01` | `00` | km/h |
+| `wert_02` | `01` | mph |
+
+I left the maximum cruise-control target speed parameter unchanged:
+
+```text
+DSC > C0A_SETZ_V_MAX: wert_02 → wert_02
+```
+
+### One Remaining Quirk
+
+There is still a discrepancy between the cruise-control set speed and the digital instantaneous speed displayed by the BC.
+
+For example, cruise control might show 32 mph while the instantaneous speed display shows 30 mph.
+
+This was already happening before the coding change, so it's a separate issue.
+
+It may relate to how different parts of the car calculate or correct the displayed vehicle speed, but I haven't investigated it yet.
+
+For now, the important thing is that cruise control is finally using the correct units.
+
+{/* TODO: Link to a future post investigating the 32 mph versus 30 mph speed discrepancy. */}
+
+## Gotchas / Things I'd Do Differently
+
+A few things worth remembering if you're attempting something similar.
+
+### 1. Don't Assume wert_01 Means Data 01
+
+This was probably the most important lesson from the whole process.
+
+The `wert` labels are identifiers for available coding options. They don't necessarily represent the underlying data value.
+
+In my case:
+
+```text
+wert_01 = 00
+wert_02 = 01
+```
+
+Had I assumed `wert_01` meant mph, I would have concluded that the DSC was already configured correctly.
+
+NCS Dummy's description and underlying hexadecimal data made the difference.
+
+### 2. Read Your Own Module Before Copying Forum Settings
+
+Different E9x models and coding revisions can expose different parameters.
+
+Some owners reported `C0C` parameters, while my DSC used `C0A`.
+
+My module was:
+
+```text
+MK60_87.C0A
+```
+
+I wouldn't assume the exact same `wert` selection applies to every DSC revision.
+
+Read the existing coding and inspect the options before making changes.
+
+### 3. Don't Change Related Settings Without Understanding Them
+
+I initially thought I might need to change both:
+
+```text
+C0A_V_EINHEIT
+C0A_SETZ_V_MAX
+```
+
+But the second parameter controls the maximum cruise-control target speed.
+
+I left it untouched, and the unit conversion worked.
+
+Changing fewer things also makes troubleshooting and rollback much easier.
+
+### 4. Be Careful With NCS Expert Profiles
+
+`SG_CODIEREN` is used for coding modules, but what gets written depends on the active profile and configuration.
+
+For custom coding, I needed a profile with FSW/PSW manipulation enabled.
+
+I also made sure the manipulation file contained my original DSC settings with only the intended modification.
+
+On an imported car, I particularly wanted to avoid accidentally restoring factory-market defaults.
+
+### 5. Pay Attention to Coding-Data Revisions
+
+The temporary discrepancy between `MK60_87.C03` and `MK60_87.C0A` was enough to make me stop.
+
+Reading the DSC again identified `C0A`, and the subsequent coding job retained that revision.
+
+I still don't know why NCS Expert initially displayed `C03`.
+
+But stopping to investigate was preferable to writing using an unexpected coding-data revision.
+
+### 6. Back Up Everything
+
+I saved my original trace before changing anything.
+
+After coding, I read the module again and saved another copy.
+
+That gives me a record of what changed and a starting point if I ever need to restore the original configuration.
+
+Also worth remembering: NCS Expert overwrites `FSW_PSW.TRC` when reading another module.
+
+### 7. Expect Temporary Warnings
+
+Coding the DSC caused several dashboard warnings to appear.
+
+In my case, they disappeared after cycling the ignition, and the car behaved normally afterwards.
+
+That doesn't mean warnings should always be ignored.
+
+If DSC, ABS or brake-system warnings remain, I'd investigate those before driving.
+
+## Final Thoughts
+
+This ended up being a straightforward fix once I'd identified the correct parameter.
+
+The actual coding change was one line.
+
+Most of the work involved understanding which module controlled the setting, finding the correct coding-data revision, and verifying what the available values actually meant.
+
+It's also a good example of why I enjoy working on these older BMWs.
+
+There's quite a lot of functionality buried in the various control modules, and with the right tools, you can inspect and change behaviour that would otherwise seem fixed.
+
+For my Japanese-import E91, cruise control now displays mph correctly, without needing to replace the instrument cluster or change the vehicle order.
+
+One less little annoyance every time I drive the car.
