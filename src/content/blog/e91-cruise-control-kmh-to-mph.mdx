@@ -14,7 +14,13 @@ keywords:
   - Japanese import BMW mph conversion
 ---
 
-> **TL;DR:** On BMW E90, E91, E92 and E93 cars, the cruise control set-speed units come from the DSC module, not the instrument cluster. To switch them from km/h to mph, change `C0A_V_EINHEIT` from `wert_01` to `wert_02` using NCS Expert and NCS Dummy. On my `MK60_87.C0A` module, `wert_01` = km/h and `wert_02` = mph, so check the hex data on your own revision first. Leave `C0A_SETZ_V_MAX` alone. [Jump straight to the fix.](#the-fix)
+<TLDR>
+  <TLDRRow label="Applies to">BMW E90, E91, E92 and E93 converted from km/h to mph, where cruise control still shows km/h</TLDRRow>
+  <TLDRRow label="Module">DSC (`MK60_87.C0A` on mine), not the instrument cluster</TLDRRow>
+  <TLDRRow label="Fix">`C0A_V_EINHEIT`: `wert_01` → `wert_02` with NCS Expert and NCS Dummy</TLDRRow>
+  <TLDRRow label="Check first">On my revision `wert_01` = km/h and `wert_02` = mph. Confirm the hex data on yours.</TLDRRow>
+  <TLDRRow label="Leave alone">`C0A_SETZ_V_MAX`</TLDRRow>
+</TLDR>
 
 ## Introduction
 

@@ -16,7 +16,13 @@ keywords:
   - BMW 3 Series headlights not swivelling
 ---
 
-> **TL;DR:** On BMW E90, E91, E92 and E93 cars with adaptive xenon headlights (AHL), fault 9CBD means the left SMC (stepper motor controller) has lost communication with the FRM, and 9CBE means the right one has. On my car, water had corroded the left SMC. A cheap aftermarket replacement then stopped NCS Expert reading *either* side (COAPI-2020 / IFH-0009). Fitting a genuine BMW/Lear SMC (63 11 7 189 312) and VO coding it with `SG_CODIEREN` fixed it. [Jump straight to the fix.](#the-fix)
+<TLDR>
+  <TLDRRow label="Applies to">BMW E90, E91, E92 and E93 with adaptive xenon headlights (AHL)</TLDRRow>
+  <TLDRRow label="Codes" chips={["9CBD", "9CBE", "COAPI-2020", "IFH-0009"]} />
+  <TLDRRow label="Meaning">9CBD: the left SMC (stepper motor controller) has lost communication with the FRM. 9CBE: the right one has.</TLDRRow>
+  <TLDRRow label="Cause">Water corroded the left SMC, then a cheap aftermarket replacement stopped NCS Expert reading *either* side</TLDRRow>
+  <TLDRRow label="Fix">Genuine BMW/Lear SMC (63 11 7 189 312), VO coded with `SG_CODIEREN`</TLDRRow>
+</TLDR>
 
 ## Introduction
 

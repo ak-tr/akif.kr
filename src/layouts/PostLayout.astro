@@ -10,8 +10,10 @@ import Hero from "@/components/Hero.astro"
 import Collapsible from "@/components/Collapsible.astro";
 import StepFlow from "@/components/StepFlow.astro";
 import PostImage from "@/components/PostImage.astro";
+import TLDR from "@/components/TLDR.astro";
+import TLDRRow from "@/components/TLDRRow.astro";
 
-export const components = { Hero, Collapsible, StepFlow, PostImage }
+export const components = { Hero, Collapsible, StepFlow, PostImage, TLDR, TLDRRow }
 
 interface Props {
     post: CollectionEntry<"blog">;
