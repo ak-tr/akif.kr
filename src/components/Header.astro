@@ -5,8 +5,11 @@ import MobileNav from "@/solid/MobileNav.tsx";
 ---
 
 <header class="flex items-center gap-7 py-7 text-sm sm:py-10">
-    <a href="/" class="mr-auto text-lg font-bold text-white" aria-label={SITE_METADATA.headerTitle}>
-        {SITE_METADATA.headerTitle}
+    <a href="/" class="group relative mr-auto text-lg font-bold text-white" aria-label={SITE_METADATA.headerTitle}>
+        <span class="transition-opacity duration-200 group-hover:opacity-0 group-focus-visible:opacity-0">{SITE_METADATA.headerTitle}</span>
+        <!-- Wordmark swaps to the Mosaic logo on hover; the text keeps its space so nothing shifts -->
+        <img src="/static/brand/logo-mosaic.svg" alt="" width="28" height="28"
+             class="pointer-events-none absolute left-0 top-1/2 h-7 w-7 -translate-y-1/2 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"/>
     </a>
     {NAVIGATION
         .filter((link) => link.href !== '/')

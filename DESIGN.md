@@ -105,7 +105,7 @@ A lowercase **a** built from square tiles on a 7x7 grid: white (`#f2f2f2`) lette
 | File | Use |
 |---|---|
 | `public/static/brand/logo.svg` | Primary mark. Source for the favicon |
-| `public/static/brand/logo-mosaic.svg` | Alternate: empty tiles rotate through the three tile greys (`#111` / `#161616` / `#0c0c0c`). For larger, decorative uses on the site |
+| `public/static/brand/logo-mosaic.svg` | Alternate: empty tiles rotate through the three tile greys (`#111` / `#161616` / `#0c0c0c`). Shown in place of the `akif.kr` wordmark when the header logo is hovered or focused. Also for larger, decorative uses |
 | `public/favicon.svg` | Browser favicon (copy of `logo.svg`) |
 | `public/favicon.ico` | Fallback favicon, 16/32/48px |
 | `public/apple-touch-icon.png` | iOS home screen, 180px |
