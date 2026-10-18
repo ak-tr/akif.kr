@@ -2,10 +2,25 @@
 title: "Coding Cruise Control from km/h to mph on my BMW E91 335i"
 date: "2026-10-18"
 tags: ["e9x"]
-summary: "My Japanese-import BMW E91 335i had an mph speedometer, but cruise control still displayed km/h. I used NCS Expert and NCS Dummy to track down the DSC coding parameter responsible and change it."
+summary: "My Japanese-import BMW E91 335i had an mph speedometer, but cruise control still displayed km/h. The fix was a single DSC coding parameter, C0A_V_EINHEIT, changed with NCS Expert and NCS Dummy. Applies to the E90, E91, E92 and E93."
+images: "/static/images/e91-cruise-control-kmh-to-mph/04-cruise-speed-unit-original.png"
+keywords:
+  - BMW E90 cruise control km/h to mph
+  - E91 E92 E93 cruise control speed units
+  - C0A_V_EINHEIT
+  - DSC coding MK60
+  - NCS Dummy
+  - NCS Expert
+  - Japanese import BMW mph conversion
 ---
 
-*Jump straight to the [fix.](#the-fix)*
+<TLDR>
+  <TLDRRow label="Applies to">BMW E90, E91, E92 and E93 converted from km/h to mph, where cruise control still shows km/h</TLDRRow>
+  <TLDRRow label="Module">DSC (`MK60_87.C0A` on mine), not the instrument cluster</TLDRRow>
+  <TLDRRow label="Fix">`C0A_V_EINHEIT`: `wert_01` → `wert_02` with NCS Expert and NCS Dummy</TLDRRow>
+  <TLDRRow label="Check first">On my revision `wert_01` = km/h and `wert_02` = mph. Confirm the hex data on yours.</TLDRRow>
+  <TLDRRow label="Leave alone">`C0A_SETZ_V_MAX`</TLDRRow>
+</TLDR>
 
 ## Introduction
 
@@ -224,7 +239,7 @@ But that assumption turned out to be wrong.
 
 <PostImage
     src="/static/images/e91-cruise-control-kmh-to-mph/04-cruise-speed-unit-original.png"
-    alt="NCS Dummy showing C0A_V_EINHEIT with wert_01 selected and wert_02 available"
+    alt="NCS Dummy showing the BMW E91 DSC cruise control speed unit parameter C0A_V_EINHEIT with wert_01 selected and wert_02 available"
 />
 
 Clicking each value in NCS Dummy revealed its actual underlying data.

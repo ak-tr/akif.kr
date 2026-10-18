@@ -1,0 +1,19 @@
+---
+interface Props {
+  label: string;
+  chips?: string[]; // rendered as tags instead of the slot, e.g. fault codes
+}
+
+const { label, chips } = Astro.props;
+---
+
+<div class="contents">
+  <dt class="mt-2 font-mono text-xs uppercase tracking-wide text-neutral-500 first:mt-0 sm:mt-0 sm:pt-1">{label}</dt>
+  <dd>
+    {chips ? (
+      <span class="flex flex-wrap gap-1.5">
+        {chips.map((chip) => <span class="rounded bg-neutral-800 px-1.5 py-0.5 font-mono text-xs text-neutral-200">{chip}</span>)}
+      </span>
+    ) : <slot />}
+  </dd>
+</div>

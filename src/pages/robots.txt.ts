@@ -7,23 +7,25 @@ const easterEgg = `░█▀▄░█▀█░▀█▀░░░░░░░░
 ░█▀▀░█░░░▀▀█░░░█▀▄░█▀▀░░░█░█░░█░░█░░░█▀▀
 ░▀░░░▀▀▀░▀▀▀░░░▀▀░░▀▀▀░░░▀░▀░▀▀▀░▀▀▀░▀▀▀`
 
+// Training crawlers only. Search/retrieval bots (OAI-SearchBot, ChatGPT-User,
+// PerplexityBot, Claude-SearchBot, Claude-User, Applebot) are allowed so posts
+// can be cited in AI answers.
 const blockedAIAgents = [
     "GPTBot",
-    "ChatGPT-User",
-    "Google-Extended",
-    "PerplexityBot",
-    "Amazonbot",
     "ClaudeBot",
-    "Omgilibot",
-    "FacebookBot",
-    "Applebot",
     "anthropic-ai",
-    "Bytespider",
     "Claude-Web",
+    "Google-Extended",
+    "Applebot-Extended",
+    "CCBot",
+    "Bytespider",
+    "Amazonbot",
+    "FacebookBot",
+    "meta-externalagent",
     "Diffbot",
     "ImagesiftBot",
     "Omgili",
-    "YouBot"
+    "Omgilibot",
 ]
 
 const getRobotsTxt = (sitemapURL: URL) => `\
