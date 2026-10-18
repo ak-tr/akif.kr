@@ -50,64 +50,37 @@ const content: Record<string, Content[]> = {
 ---
 
 <RootLayout title="Uses">
-        <div class="space-y-2 pb-8 pt-6 md:space-y-5 divide-y divide-gray-200 dark:divide-gray-700">
-          <h1 class="text-4xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:leading-10 md:text-6xl md:leading-14">
-              Uses
-          </h1>
-          <div class="pb-8 pt-6">
-              This page is to showcase a list of what's on my desk, in my dock, and in my stack (and more).
-          </div>
-      </div>
-      <div>
-        <section>
+  <div class="grid gap-6 pb-12 pt-4 sm:grid-cols-[1fr_auto] sm:items-end">
+    <h1 class="font-sans text-6xl font-light leading-[.9] tracking-[-.06em] sm:text-8xl md:text-9xl">Uses</h1>
+    <p class="max-w-xs text-sm text-neutral-500 sm:text-right">What's on my desk, in my dock, and in my stack (and more).</p>
+  </div>
+  {
+    Object.entries(content).map(([category, items]) => (
+      <section class="grid gap-4 border-t border-neutral-900 py-8 md:grid-cols-[200px_1fr] md:gap-8">
+        <h2 class="font-mono text-xs uppercase tracking-wide text-neutral-500">{category} <span class="text-neutral-700">/ {String(items.length).padStart(2, '0')}</span></h2>
+        <ul class="grid gap-[2px] sm:grid-cols-2">
           {
-            Object.entries(content).map(([category, items]) => (
-              <div class="mb-12">
-                <h2 class="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100">{category}</h2>
-                <ul class="divide-y divide-gray-200 dark:divide-gray-600">
-                  {
-                    items.map((details) => {
-                      const Wrapper = details.url ? 'a' : 'div';
-
-                      return (
-                        <li class="pl-4 border-l-4 py-4 relative">
-                          <Wrapper
-                            href={details.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class={details.url ? "block rounded-md px-2 -mx-2 py-2" : ""}
-                            aria-label={details.url ? `Visit ${details.name} website` : undefined}
-                          >
-                            <div class="flex justify-between items-start gap-4">
-                              <div class="font-medium text-gray-900 dark:text-white">{details.name}</div>
-                              <div class="flex items-center gap-1 text-xs font-mono font-semibold uppercase text-gray-400 dark:text-gray-500 text-right">
-                                <span>{details.type}</span>
-                                {
-                                  details.url && (
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      width="16"
-                                      height="16"
-                                      viewBox="0 0 24 24"
-                                      fill="currentColor"
-                                      class="text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300"
-                                    >
-                                      <path d="m16 8.4l-8.9 8.9q-.275.275-.7.275t-.7-.275t-.275-.7t.275-.7L14.6 7H7q-.425 0-.712-.288T6 6t.288-.712T7 5h10q.425 0 .713.288T18 6v10q0 .425-.288.713T17 17t-.712-.288T16 16z"/>
-                                    </svg>
-                                  )
-                                }
-                              </div>
-                            </div>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">{details.description}</p>
-                          </Wrapper>
-                        </li>
-                      );
-                    })
-                  }
-                </ul>
-              </div>
-            ))
+            items.map((details) => {
+              const Wrapper = details.url ? 'a' : 'div';
+              return (
+                <li>
+                  <Wrapper
+                    href={details.url}
+                    class:list={["flex h-full flex-col gap-2 bg-[#111] p-5", {"transition-colors hover:bg-[#f2f2f2] hover:text-black group": details.url}]}
+                  >
+                    <div class="flex items-start justify-between gap-4">
+                      <span class="font-medium">{details.name}</span>
+                      {details.type && <span class="font-mono shrink-0 text-[10px] uppercase tracking-wide text-neutral-500">{details.type}</span>}
+                    </div>
+                    <p class="text-sm text-neutral-400 group-hover:text-neutral-600">{details.description}</p>
+                    {details.url && <span class="font-mono mt-auto pt-2 text-[10px] uppercase tracking-wide">Read more →</span>}
+                  </Wrapper>
+                </li>
+              );
+            })
           }
-        </section>
-      </div>
+        </ul>
+      </section>
+    ))
+  }
 </RootLayout>

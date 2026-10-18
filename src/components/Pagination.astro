@@ -1,8 +1,6 @@
 ---
 import type { Page } from "astro";
 
-import Link from "./Link.astro";
-
 type Props = {
     page: Page,
 };
@@ -10,30 +8,17 @@ type Props = {
 const {
     page: {
         currentPage,
-        lastPage, 
+        lastPage,
         url: {
-            prev, 
+            prev,
             next
         }
     }
 } = Astro.props;
 ---
 
-<div class="space-y-2 pb-8 pt-6 md:space-y-5">
-    <nav class="flex justify-between">
-        {!prev && (
-                <button class="cursor-auto disabled:opacity-50" disabled>Previous</button>)}
-        {prev && (
-                <Link href={prev} rel="prev">Previous</Link>
-        )}
-        <span>
-          {currentPage} of {lastPage}
-        </span>
-        {!next && (
-                <button class="cursor-auto disabled:opacity-50" disabled>Next</button>
-        )}
-        {next && (
-                <Link href={next} rel="next">Next</Link>
-        )}
-    </nav>
-</div>
+<nav class="font-mono flex justify-between border-t border-neutral-900 pt-6 mt-10 text-xs uppercase tracking-wide text-neutral-500">
+    {prev ? <a href={prev} rel="prev" class="hover:text-white">← Newer</a> : <span class="opacity-40">← Newer</span>}
+    <span>{currentPage} / {lastPage}</span>
+    {next ? <a href={next} rel="next" class="hover:text-white">Older →</a> : <span class="opacity-40">Older →</span>}
+</nav>

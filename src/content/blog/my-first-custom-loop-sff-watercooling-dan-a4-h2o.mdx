@@ -16,13 +16,13 @@ hero: {
 
 ## Introduction
 
-I built my first custom watercooling loop inside the Dan A4-H2O case, cooling a Ryzen 7 5800X3D and RTX 3080. This write-up covers my full experience—from part selection and layout planning to flushing, leak testing, and switching from PVC to EPDM tubing mid-way. I ran into a few challenges typical of SFF builds but came away with a quiet, efficient, and clean setup. If you're considering custom watercooling for a small form factor build, this post should give you a realistic look at what to expect and what I'd do differently next time.
+I built my first custom watercooling loop inside the Dan A4-H2O case, cooling a Ryzen 7 5800X3D and RTX 3080. This write-up covers my full experience, from part selection and layout planning to flushing, leak testing, and switching from PVC to EPDM tubing mid-way. I ran into a few challenges typical of SFF builds but came away with a quiet, efficient, and clean setup. If you're considering custom watercooling for a small form factor build, this post should give you a realistic look at what to expect and what I'd do differently next time.
 
 ### Why I Built This Custom Loop?
 
 The main motivations for this loop were thermals, noise, aesthetics, and the itch to tinker.
 
-Originally, I had the CPU running into an NZXT Kraken X53 AIO, but there were thermal issues. The CPU would often run quite hot—even after setting custom fan and pump curves based on liquid temperature. This was partly due to a lack of radiator cleaning but also because the GPU dumped a lot of heat into the system, which would then be pulled into the radiator.
+Originally, I had the CPU running into an NZXT Kraken X53 AIO, but there were thermal issues. The CPU would often run quite hot, even after setting custom fan and pump curves based on liquid temperature. This was partly due to a lack of radiator cleaning but also because the GPU dumped a lot of heat into the system, which would then be pulled into the radiator.
 
 The GPU was also modified (deshroud mod) to remove the original shroud, and I added 3x Noctua NF-A9x14 fans on top of a custom 3D printed bracket. The GPU was further modded with extra thermal paste and pads between the cooler and VRAM. Despite these efforts, thermals were still on the hotter side, especially for the GPU memory.
 
@@ -101,13 +101,13 @@ This was one area I didn't realise would be problematic. The A4-H2O has a bracke
 
 ### Radiator Flushing
 
-Flushing was another challenge that required a lot of research, especially as a first-time builder. EK recommends against using harsh chemicals or vinegar to flush the radiator before use—surprisingly, a lot of people online suggest otherwise. I ended up buying a 5L bottle of distilled water (hard to find in the UK), an aquarium pump, coffee filter, and a small storage box. I cut a small hole in the top of the box to route a tube from the outlet of the pump, and a large hole to house the coffee filter. The tubing ran from the distilled water to the radiator, and then out through the coffee filter. I flushed the radiator this way for 20–30 minutes, then swapped the inlet and outlet and repeated the process. Some debris came out, though not as much as I expected—but I deemed it enough to proceed.
+Flushing was another challenge that required a lot of research, especially as a first-time builder. EK recommends against using harsh chemicals or vinegar to flush the radiator before use. Surprisingly, a lot of people online suggest otherwise. I ended up buying a 5L bottle of distilled water (hard to find in the UK), an aquarium pump, coffee filter, and a small storage box. I cut a small hole in the top of the box to route a tube from the outlet of the pump, and a large hole to house the coffee filter. The tubing ran from the distilled water to the radiator, and then out through the coffee filter. I flushed the radiator this way for 20–30 minutes, then swapped the inlet and outlet and repeated the process. Some debris came out, though not as much as I expected, but I deemed it enough to proceed.
 
 ## Assembly Challenges
 
 ### Radiator 
 
-The most challenging part of the build, by far, was connecting the fittings to and from the radiator. There's not much space to work with—especially on the inlet side near the PSU—so getting it to work came down to pure luck (thanks to the aforementioned mini Barrow 90-degree fittings).
+The most challenging part of the build, by far, was connecting the fittings to and from the radiator. There's not much space to work with (especially on the inlet side near the PSU), so getting it to work came down to pure luck (thanks to the aforementioned mini Barrow 90-degree fittings).
 
 ### Cable Management
 
@@ -121,11 +121,11 @@ When sourcing parts, I initially chose Barrow's 13/10mm PVC tubing. After furthe
 
 The only downside was that EPDM was a bit harder to cut due to its softness. The PVC tubing was easier to cut thanks to its stiffness, but that also made it more prone to kinking. I originally ordered 90-degree adapters to remove the kink in the GPU-to-CPU run, but with EPDM, they weren't necessary.
 
-Why 13/10mm instead of 16/10mm? I'm personally not a fan of how chunky 16/10mm tubing looks. Even though it's much more kink-resistant—which is useful in an SFF watercooling build—I just couldn't bring myself to use it.
+Why 13/10mm instead of 16/10mm? I'm personally not a fan of how chunky 16/10mm tubing looks. Even though it's much more kink-resistant, which is useful in an SFF watercooling build, I just couldn't bring myself to use it.
 
 ### Front Panel Connectors
 
-The front panel on this case features a standard USB A port, a type C port, and audio jack outputs. Now, I rarely ever use any of these—I mostly have things plugged into hubs or the rear IO—so I decided this just had to go. 
+The front panel on this case features a standard USB A port, a type C port, and audio jack outputs. Now, I rarely ever use any of these. I mostly have things plugged into hubs or the rear IO, so I decided this just had to go. 
 
 The USB cables are a nightmare to work with and as my motherboard doesn't even have a type C header, it was a no brainer. This freed up so much space and make managing things a whole lot easier. I think in the future, thanks to Dan cases making the STEP file available, I will create my own plugs for the front panel connectors so it isn't just sitting there empty.
 

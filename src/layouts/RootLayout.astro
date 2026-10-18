@@ -1,10 +1,7 @@
 ---
-import type {CollectionEntry} from 'astro:content';
-
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import SectionContainer from "../components/SectionContainer.astro";
 
 import {SITE_METADATA} from "../consts";
 
@@ -22,18 +19,15 @@ const { title, description, robots, hero } = Astro.props;
 
 ---
 
-<html lang={SITE_METADATA.language} class="scroll-smooth">
+<html lang={SITE_METADATA.language} class="dark scroll-smooth">
 <BaseHead {title} description={description ?? ''} {robots} {hero}/>
-<body class="bg-white text-black antialiased dark:bg-gray-950 dark:text-white">
-
-<SectionContainer>
-    <div class="flex h-screen flex-col justify-between font-sans">
-        <Header/>
-        <main class="mb-auto">
-            <slot/>
-        </main>
-        <Footer/>
-    </div>
-</SectionContainer>
+<body class="bg-black text-neutral-200 antialiased">
+<div class="mx-auto flex min-h-screen max-w-6xl flex-col px-4 sm:px-6">
+    <Header/>
+    <main class="mb-auto">
+        <slot/>
+    </main>
+    <Footer/>
+</div>
 </body>
 </html>

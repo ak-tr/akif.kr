@@ -20,7 +20,7 @@ const chip = Astro.props.chip ?? false;
 ---
 {slug && data ? (
   <Link href={`/tags/${slug}`} chip={chip}
-        class="mr-3 text-sm font-medium uppercase text-primary-500 hover:text-primary-600 dark:hover:text-primary-400 pt-3">
+        class="font-mono text-xs uppercase tracking-wide text-neutral-400 hover:text-white">
       {data.name}
   </Link>
 ) : null}

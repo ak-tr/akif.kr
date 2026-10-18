@@ -1,11 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&family=Onest:wght@100..900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 html {
-    font-family: "Onest", sans-serif;
+    --font-sans: "Onest";
+    --font-mono: "Geist Mono";
+    font-family: var(--font-sans), sans-serif;
     scroll-behavior: smooth;
     overflow-y: scroll;
 }
@@ -19,7 +20,7 @@ html {
 }
 
 .footnotes {
-    @apply mt-12 border-t border-gray-200 pt-8 dark:border-gray-700;
+    @apply mt-12 border-t border-neutral-800 pt-8;
 }
 
 .data-footnote-backref {
@@ -38,13 +39,13 @@ input:-webkit-autofill:focus {
 }
 
 :root {
-    font-size: 15px;
+    font-size: 16px;
 }
 
 /* Apply styling to anchor tags and change font for headings */
 @layer components {
-    *:is(header, h1, h2, h3, h4, h5, h6) {
-        font-family: "Space Mono", monospace;
+    *:is(header, h1, h2, h3, h4, h5, h6, .font-mono) {
+        font-family: var(--font-mono), monospace;
     }
 }
 

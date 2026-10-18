@@ -38,8 +38,8 @@ const processedImages: ProcessedImage[] = images.map(img => {
   <div class="relative overflow-x-visible">
     <div
       class="max-w-none
-        w-full md:w-[130%]
-        -translate-x-0 md:-translate-x-[10%]
+        w-full
+        
         mx-auto
         columns-1 sm:columns-2 lg:columns-3
         gap-2 space-y-2"
@@ -58,7 +58,7 @@ const processedImages: ProcessedImage[] = images.map(img => {
                 src={img.optimizedSrc}
                 alt={img.alt}
                 loading="lazy"
-                class="w-full h-auto rounded-md"
+                class="w-full h-auto "
                 data-original-src={img.url}
               />
             </picture>
@@ -67,14 +67,14 @@ const processedImages: ProcessedImage[] = images.map(img => {
               src={img.optimizedSrc}
               alt={img.alt}
               loading="lazy"
-              class="w-full h-auto rounded-md"
+              class="w-full h-auto "
               data-original-src={img.url}
             />
           )}
           <div
             class="
               absolute bottom-0 left-0 right-0 px-3 py-2 text-xs
-              text-white bg-black/60 rounded-b-md
+              text-white bg-black/60 
               pointer-events-none
             "
           >
@@ -103,7 +103,7 @@ const processedImages: ProcessedImage[] = images.map(img => {
           src={processedImages[0].optimizedSrc}
           alt={processedImages[0].alt}
           loading="lazy"
-          class="relative w-full h-auto max-w-full max-h-full sm:max-w-[70vw] sm:max-h-[70vh] rounded-md shadow-lg"
+          class="relative w-full h-auto max-w-full max-h-full sm:max-w-[70vw] sm:max-h-[70vh]  shadow-lg"
           data-original-src={processedImages[0].url}
         />
       </picture>
@@ -112,12 +112,12 @@ const processedImages: ProcessedImage[] = images.map(img => {
         src={processedImages[0]?.optimizedSrc || getOptimizedSrc(images[0].url)}
         alt={processedImages[0]?.alt || images[0].alt}
         loading="lazy"
-        class="relative w-full h-auto max-w-full max-h-full sm:max-w-[70vw] sm:max-h-[70vh] rounded-md shadow-lg"
+        class="relative w-full h-auto max-w-full max-h-full sm:max-w-[70vw] sm:max-h-[70vh]  shadow-lg"
         data-original-src={processedImages[0]?.url || images[0].url}
       />
     )}
     <div
-      class="absolute bottom-0 left-0 right-0 px-3 py-2 text-sm sm:text-md text-white bg-black/60 rounded-b-md pointer-events-none z-20"
+      class="absolute bottom-0 left-0 right-0 px-3 py-2 text-sm sm:text-md text-white bg-black/60  pointer-events-none z-20"
     >
       ""
     </div>

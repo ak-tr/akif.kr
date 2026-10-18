@@ -55,31 +55,11 @@ const {title, description, hero, robots = SITE_METADATA.robots} = Astro.props;
     <!-- Favicons -->
     <meta name="msapplication-TileColor" content="#000000"/>
 
-    <meta name="theme-color" content="#fff" id="theme-color-meta">
+    <meta name="theme-color" content="#000">
 
     <!-- iOS-specific -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-
-    <script>
-      const applyTheme = () => {
-        const theme = localStorage.getItem('theme') || 'system';
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const isDark = theme === 'dark' || (theme === 'system' && prefersDark);
-
-        document.documentElement.classList.remove('light', 'dark');
-        document.documentElement.classList.add(isDark ? 'dark' : 'light');
-
-        const meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) {
-          meta.setAttribute('content', isDark ? 'rgb(3 7 18 / 1)' : '#fff');
-        }
-      };
-
-      applyTheme();
-
-      document.addEventListener('astro:after-swap', applyTheme);
-    </script>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
     <ClientRouter />
 </head>

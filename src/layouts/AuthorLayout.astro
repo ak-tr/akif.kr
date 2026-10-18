@@ -2,67 +2,49 @@
 import { type CollectionEntry, getCollection } from "astro:content";
 
 import RootLayout from "./RootLayout.astro";
-import Link from "../components/Link.astro";
-import { sortBlogPosts } from "../functions";
-import { ITEMS_PER_PAGE } from "../consts";
-
-import Hero from "@/components/Hero.astro"
+import Mosaic from "../components/Mosaic.astro";
+import { excludeDrafts, sortBlogPosts } from "../functions";
 
 interface Props {
     content: CollectionEntry<"authors">["data"];
-    slug: string;
+    slug?: string;
 }
 
-const {
-    name,
-    shortBio,
-} = Astro.props.content;
+const { name, shortBio, occupation } = Astro.props.content;
 
-// Get the author's posts
-const authorPosts = await getCollection(
-    "blog",
-    ({ data: { authors, draft } }) => {
-        return (
-            !draft && authors.some((author) => author.id === Astro.props.slug)
-        );
-    }
-)
-    .then(sortBlogPosts)
-    .then((posts) => {
-        return posts.slice(0, ITEMS_PER_PAGE).map((post) => {
-            return { title: post.data.title, slug: post.id };
-        });
-    });
+// Single-author site: every published post is the author's
+const authorPosts = await getCollection("blog", excludeDrafts).then(sortBlogPosts);
 ---
 
 <RootLayout title={name} description={shortBio}>
-    <div class="items-start space-y-2 xl:gap-x-8 xl:space-y-0">
-        <div class="xl:col-span-2 max-w-none d-flex">
-            <Hero src="/static/images/home-hero.jpg" alt="Akif Karakus" />
-            <div class="prose flex flex-rows items-center space-x-2 pt-8 dark:prose-invert">
-                <h2>Hi, I'm Akif - a developer who builds tools, solves problems, and sometimes writes about it.</h2>
-            </div>
-            <div class="prose pb-8 pt-8 dark:prose-invert">
-                <slot />
-            </div>
-            {
-                authorPosts.length > 0 && (
-                    <div class="pt-8">
-                        <h2 class="text-2xl font-bold leading-8 tracking-tight">
-                            Recent Blog Posts
-                        </h2>
-                        <ul class="space-y-4 mt-4">
-                            {authorPosts.map((post) => (
-                                <li>
-                                    <Link href={`/blog/${post.slug}`}>
-                                        {post.title}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )
-            }
+    <section class="grid gap-8 pb-16 pt-4 md:grid-cols-[1fr_minmax(0,380px)] md:items-end md:gap-12">
+        <div>
+            <p class="font-mono text-xs uppercase tracking-wide text-neutral-500">{name}{occupation && ` / ${occupation}`}</p>
+            <h1 class="mt-6 font-sans text-4xl font-light leading-[1.05] tracking-[-.04em] text-white sm:text-6xl">
+                Hi, I'm Akif, a developer who builds tools, solves problems, and sometimes writes about it.
+            </h1>
+        </div>
+        <img src="/static/images/home-hero.avif" alt={name} loading="eager" class="aspect-square w-full object-cover grayscale"/>
+    </section>
+    <!-- 5-col grid: bio paragraphs take cols 2-5, the Potzo card (.not-prose) cols 1-4; numbered labels fill the gaps -->
+    <div class="prose prose-invert max-w-none pb-8 flex flex-col gap-5 [&>p]:my-0 [&>.not-prose]:order-last [&>.not-prose]:mt-0 md:grid md:grid-cols-5 md:gap-x-8 md:[&>p]:col-span-4 md:[&>p]:col-start-2 md:[&>.not-prose]:order-none md:[&>.not-prose]:col-span-4 md:[&>.not-prose]:col-start-1 md:[&>.not-prose]:mt-10">
+        <div class="md:col-start-1 md:row-start-1">
+            <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-[#2a2a2a] md:block" aria-hidden="true">01</span>
+            <span class="font-mono block text-xs uppercase tracking-wide text-neutral-500 md:mt-3">About</span>
+        </div>
+        <slot />
+        <div class="mt-10 md:col-start-5 md:text-right">
+            <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-[#2a2a2a] md:block" aria-hidden="true">02</span>
+            <span class="font-mono block text-xs uppercase tracking-wide text-neutral-500 md:mt-3">Building</span>
         </div>
     </div>
+    {authorPosts.length > 0 && (
+        <section class="pt-16">
+            <div class="font-mono mb-6 flex items-baseline justify-between text-xs uppercase tracking-wide text-neutral-500">
+                <h2 class="text-xs">Recent posts</h2>
+                <a href="/blog" class="hover:text-white">All {authorPosts.length} posts →</a>
+            </div>
+            <Mosaic posts={authorPosts.slice(0, 3)} total={authorPosts.length}/>
+        </section>
+    )}
 </RootLayout>

@@ -24,33 +24,16 @@ const { Content, headings } = await render(guide);
     <SectionContainer>
         <ScrollTopAndComments client:only="solid-js" />
         <article>
-            <div class="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700">
-                <header class="pt-6 xl:pb-6">
-                    <div class="flex flex-col gap-4 space-y-1 text-center">
-                        {guide.data.date && (
-                            <dl class="space-y-10">
-                                <div>
-                                    <dt class="sr-only">Published on</dt>
-                                    <dd
-                                        class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400"
-                                    >
-                                        <time datetime={guide.data.date.toISOString()}>
-                                            {guide.data.date.toLocaleDateString('en-us', {
-                                                year: 'numeric',
-                                                month: 'short',
-                                                day: 'numeric',
-                                            })}
-                                        </time>
-                                    </dd>
-                                </div>
-                            </dl>
-                        )}
-                        <div>
-                            <PageTitle>{guide.data.title}</PageTitle>
-                        </div>
-                    </div>
+            <div>
+                <header class="pt-2 pb-4">
+                    {guide.data.date && (
+                        <p class="font-mono mt-6 text-xs uppercase tracking-wide text-neutral-500">
+                            <time datetime={guide.data.date.toISOString()}>{guide.data.date.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'})}</time>
+                        </p>
+                    )}
+                    <div class="mt-4"><PageTitle>{guide.data.title}</PageTitle></div>
                 </header>
-                <div class="divide-y divide-gray-200 pb-8 dark:divide-gray-700">
+                <div class="pb-8">
                     <div class="xl:row-span-2 xl:pb-0">
                         {
                             guide.data.draft && (
