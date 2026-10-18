@@ -32,8 +32,3 @@ export const excludeGuideDrafts = ({data}: CollectionEntry<'guide'>): boolean =>
     return import.meta.env.PROD ? !data.draft : true;
 }
 
-export const sortForMasonryLayout = <T>(arr: T[], columnCount: number): T[] => {
-  const columns = Array.from({ length: columnCount }, () => [] as T[]);
-  arr.forEach((item, i) => columns[i % columnCount].push(item));
-  return columns.flat();
-};

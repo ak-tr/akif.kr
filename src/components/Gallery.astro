@@ -1,5 +1,4 @@
 ---
-import { sortForMasonryLayout } from '@/functions';
 import { checkModernFormats, getAvifPath, getWebpPath, getOptimizedSrc } from '@/utils/imageHelpers';
 
 interface Props {
@@ -11,176 +10,75 @@ interface Props {
 
 const { images } = Astro.props;
 
-// Pre-process images to check for modern formats
-type ProcessedImage = {
-  url: string;
-  alt: string;
-  shouldUsePicture: boolean;
-  avifPath: string | null;
-  webpPath: string | null;
-  optimizedSrc: string;
-};
-
-const processedImages: ProcessedImage[] = images.map(img => {
+const processedImages = images.map(img => {
   const { avifExists, webpExists } = checkModernFormats(img.url);
-  const shouldUsePicture = avifExists && webpExists && (img.url.startsWith('/static/images/') || img.url.startsWith('static/images/'));
   return {
     ...img,
-    shouldUsePicture,
-    avifPath: shouldUsePicture ? getAvifPath(img.url) : null,
-    webpPath: shouldUsePicture ? getWebpPath(img.url) : null,
+    shouldUsePicture: avifExists && webpExists,
     optimizedSrc: getOptimizedSrc(img.url),
   };
 });
+
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
-<section class="relative z-10 w-full overflow-visible">
-  <div class="relative overflow-x-visible">
-    <div
-      class="max-w-none
-        w-full
-        
-        mx-auto
-        columns-1 sm:columns-2 lg:columns-3
-        gap-2 space-y-2"
-      id="gallery"
-    >
-      {sortForMasonryLayout(processedImages, 1).map((img, i) => (
-        <div
-          id={`overlay-${i}`}
-          class="break-inside-avoid relative group cursor-pointer"
-        >
-          {img.shouldUsePicture ? (
-            <picture>
-              <source type="image/avif" srcset={img.avifPath} />
-              <source type="image/webp" srcset={img.webpPath} />
-              <img
-                src={img.optimizedSrc}
-                alt={img.alt}
-                loading="lazy"
-                class="w-full h-auto "
-                data-original-src={img.url}
-              />
-            </picture>
-          ) : (
-            <img
-              src={img.optimizedSrc}
-              alt={img.alt}
-              loading="lazy"
-              class="w-full h-auto "
-              data-original-src={img.url}
-            />
-          )}
-          <div
-            class="
-              absolute bottom-0 left-0 right-0 px-3 py-2 text-xs
-              text-white bg-black/60 
-              pointer-events-none
-            "
-          >
-            {img.alt}
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-</section>
+<!-- Square tiles on a 2px grid, rotating the Mosaic tile shades; the full image opens in the dialog below -->
+<ul class="grid grid-cols-2 gap-[2px] sm:grid-cols-3 lg:grid-cols-4">
+  {processedImages.map((img, i) => (
+    <li class="bg-[#111] [&:nth-child(4n+2)]:bg-[#161616] [&:nth-child(5n+3)]:bg-[#0c0c0c]">
+      <button
+        type="button"
+        class="group relative block aspect-square w-full overflow-hidden text-left"
+        data-gallery-item
+        data-index={`${pad(i + 1)} / ${pad(images.length)}`}
+        data-caption={img.alt}
+      >
+        {img.shouldUsePicture ? (
+          <picture>
+            <source type="image/avif" srcset={getAvifPath(img.url)} />
+            <source type="image/webp" srcset={getWebpPath(img.url)} />
+            <img src={img.optimizedSrc} alt={img.alt} loading="lazy" class="h-full w-full object-cover"/>
+          </picture>
+        ) : (
+          <img src={img.optimizedSrc} alt={img.alt} loading="lazy" class="h-full w-full object-cover"/>
+        )}
+        <span class="absolute inset-x-0 bottom-0 flex gap-3 bg-black px-3 py-2 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+          <span class="font-mono shrink-0 text-neutral-500">{pad(i + 1)}</span>
+          <span class="line-clamp-2">{img.alt}</span>
+        </span>
+      </button>
+    </li>
+  ))}
+</ul>
 
-<div
-  id="overlay"
-  class="fixed inset-0 z-10 flex items-center justify-center bg-black/0 p-4 opacity-0 pointer-events-none transition-opacity duration-300 data-[visible=true]:bg-black/60 data-[visible=true]:opacity-100 data-[visible=true]:pointer-events-auto"
-  data-visible="false"
->
-  <div
-    class="relative shadow-black shadow-2xl opacity-0 scale-95 transition-all duration-300 ease-out data-[visible=true]:opacity-100 data-[visible=true]:scale-100"
-    data-zoom-target
-  >
-    {processedImages[0]?.shouldUsePicture ? (
-      <picture>
-        <source type="image/avif" srcset={processedImages[0].avifPath} />
-        <source type="image/webp" srcset={processedImages[0].webpPath} />
-        <img
-          src={processedImages[0].optimizedSrc}
-          alt={processedImages[0].alt}
-          loading="lazy"
-          class="relative w-full h-auto max-w-full max-h-full sm:max-w-[70vw] sm:max-h-[70vh]  shadow-lg"
-          data-original-src={processedImages[0].url}
-        />
-      </picture>
-    ) : (
-      <img
-        src={processedImages[0]?.optimizedSrc || getOptimizedSrc(images[0].url)}
-        alt={processedImages[0]?.alt || images[0].alt}
-        loading="lazy"
-        class="relative w-full h-auto max-w-full max-h-full sm:max-w-[70vw] sm:max-h-[70vh]  shadow-lg"
-        data-original-src={processedImages[0]?.url || images[0].url}
-      />
-    )}
-    <div
-      class="absolute bottom-0 left-0 right-0 px-3 py-2 text-sm sm:text-md text-white bg-black/60  pointer-events-none z-20"
-    >
-      ""
-    </div>
-  </div>
-</div>
+<dialog id="gallery-dialog" class="m-auto max-h-none max-w-none bg-transparent p-4 text-neutral-200 backdrop:bg-black/90">
+  <figure class="flex flex-col gap-3">
+    <img alt="" class="max-h-[80vh] w-auto max-w-[90vw] object-contain"/>
+    <figcaption class="flex items-baseline gap-4 text-sm">
+      <span class="font-mono shrink-0 text-xs uppercase tracking-wide text-neutral-500" data-index></span>
+      <span class="text-neutral-300" data-caption></span>
+      <button type="button" class="font-mono ml-auto shrink-0 text-xs uppercase tracking-wide text-neutral-500 hover:text-white focus-visible:text-white" data-close>Esc / Close</button>
+    </figcaption>
+  </figure>
+</dialog>
 
 <script>
-const imageElements = document.querySelectorAll('[id^="overlay-"]');
-const overlay = document.getElementById('overlay') as HTMLElement;
-const zoomTarget = overlay.querySelector('[data-zoom-target]') as HTMLElement;
+  // Delegated on document because ClientRouter runs this once per session; Esc closing comes free with <dialog>
+  document.addEventListener('click', (e) => {
+    const dialog = document.getElementById('gallery-dialog') as HTMLDialogElement | null;
+    if (!dialog || !(e.target instanceof Element)) return;
 
-imageElements.forEach((img) => {
-  img.addEventListener('click', () => {
-    if (!overlay || !zoomTarget) return;
+    // Clicks on the backdrop land on the dialog itself
+    if (e.target === dialog || e.target.closest('[data-close]')) return dialog.close();
 
-    // Handle both picture and img elements
-    const imageElement = img.querySelector('img') as HTMLImageElement;
-    const alt = img.children[img.children.length - 1] as HTMLElement; // Alt div is last child
-
-    const overlayPicture = zoomTarget.querySelector('picture');
-    const overlayImage = overlayPicture 
-      ? overlayPicture.querySelector('img') as HTMLImageElement
-      : zoomTarget.querySelector('img') as HTMLImageElement;
-    const overlayAlt = zoomTarget.children[zoomTarget.children.length - 1] as HTMLDivElement;
-
-    if (imageElement && overlayImage) {
-      // Use data-original-src if available, otherwise use current src
-      const originalSrc = imageElement.getAttribute('data-original-src') || imageElement.src;
-      
-      // Update overlay picture sources if it exists
-      if (overlayPicture) {
-        const avifSource = overlayPicture.querySelector('source[type="image/avif"]') as HTMLSourceElement;
-        const webpSource = overlayPicture.querySelector('source[type="image/webp"]') as HTMLSourceElement;
-        
-        if (avifSource) {
-          const avifPath = originalSrc.replace(/\.(png|jpg|jpeg)$/i, '.avif');
-          avifSource.srcset = avifPath;
-        }
-        if (webpSource) {
-          const webpPath = originalSrc.replace(/\.(png|jpg|jpeg)$/i, '.webp');
-          webpSource.srcset = webpPath;
-        }
-      }
-      
-      overlayImage.src = originalSrc;
-      overlayImage.alt = alt.textContent || '';
-      overlayAlt.textContent = alt.textContent || '';
-    }
-
-    overlay.dataset.visible = 'true';
-    zoomTarget.dataset.visible = 'true'; // needed to trigger zoom
+    const item = e.target.closest<HTMLElement>('[data-gallery-item]');
+    if (!item) return;
+    const thumb = item.querySelector('img')!;
+    const full = dialog.querySelector('img')!;
+    full.src = thumb.currentSrc || thumb.src;
+    full.alt = thumb.alt;
+    dialog.querySelector('[data-index]')!.textContent = item.dataset.index ?? '';
+    dialog.querySelector('[data-caption]')!.textContent = item.dataset.caption ?? '';
+    dialog.showModal();
   });
-});
-
-overlay?.addEventListener('click', () => {
-  overlay.dataset.visible = 'false';
-  zoomTarget?.removeAttribute('data-visible');
-});
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    overlay.dataset.visible = 'false';
-    zoomTarget?.removeAttribute('data-visible');
-  }
-});
 </script>

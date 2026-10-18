@@ -10,7 +10,7 @@ interface Props {
     slug?: string;
 }
 
-const { name, shortBio, occupation } = Astro.props.content;
+const { name, shortBio, occupation, email } = Astro.props.content;
 
 // Single-author site: every published post is the author's
 const authorPosts = await getCollection("blog", excludeDrafts).then(sortBlogPosts);
@@ -24,11 +24,24 @@ const authorPosts = await getCollection("blog", excludeDrafts).then(sortBlogPost
                 Hi, I'm Akif, a developer who builds tools, solves problems, and sometimes writes about it.
             </h1>
         </div>
-        <img src="/static/images/home-hero.avif" alt={name} loading="eager" class="aspect-square w-full object-cover grayscale"/>
+        <img id="home-hero" src="/static/images/home-hero.avif" alt={name} loading="eager" class="aspect-square w-full object-cover grayscale transition-[filter] duration-700"/>
     </section>
+    <!-- Easter egg: typing "00" reveals this, see the script below -->
+    <!-- hidden sits on a wrapper because the grid class would override the hidden attribute -->
+    <div id="section-00" hidden>
+    <div class="mb-12 grid gap-5 md:grid-cols-5 md:gap-x-8">
+        <div>
+            <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-[#2a2a2a] md:block" aria-hidden="true">00</span>
+            <span class="font-mono block text-xs uppercase tracking-wide text-neutral-500 md:mt-3">Secret</span>
+        </div>
+        <p class="text-neutral-300 md:col-span-4">
+            You found the section before the first one. Not many people type numbers at a website, so say hi: <a href={`mailto:${email}`} class="text-white underline">{email}</a>. There are two more hidden around here. One is an old cheat code, the other is for people who open DevTools.
+        </p>
+    </div>
+    </div>
     <!-- 5-col grid: bio paragraphs take cols 2-5, the Potzo card (.not-prose) cols 1-4; numbered labels fill the gaps -->
     <div class="prose prose-invert max-w-none pb-8 flex flex-col gap-5 [&>p]:my-0 [&>.not-prose]:order-last [&>.not-prose]:mt-0 md:grid md:grid-cols-5 md:gap-x-8 md:[&>p]:col-span-4 md:[&>p]:col-start-2 md:[&>.not-prose]:order-none md:[&>.not-prose]:col-span-4 md:[&>.not-prose]:col-start-1 md:[&>.not-prose]:mt-10">
-        <div class="md:col-start-1 md:row-start-1">
+        <div class="md:col-start-1 md:row-start-1 md:row-span-2">
             <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-[#2a2a2a] md:block" aria-hidden="true">01</span>
             <span class="font-mono block text-xs uppercase tracking-wide text-neutral-500 md:mt-3">About</span>
         </div>
@@ -48,3 +61,38 @@ const authorPosts = await getCollection("blog", excludeDrafts).then(sortBlogPost
         </section>
     )}
 </RootLayout>
+
+<script>
+    // Easter eggs: "00" reveals the hidden section, the Konami code toggles colour on the hero photo.
+    // Elements are looked up per keypress because ClientRouter runs this once per session.
+    const konami = "ArrowUp ArrowUp ArrowDown ArrowDown ArrowLeft ArrowRight ArrowLeft ArrowRight b a";
+    let keys: string[] = [];
+
+    document.addEventListener("keydown", (e) => {
+        if (e.target instanceof HTMLElement && e.target.closest("input, textarea, [contenteditable]")) return;
+        keys = [...keys, e.key.length === 1 ? e.key.toLowerCase() : e.key].slice(-10);
+        const typed = keys.join(" ");
+
+        const secret = document.getElementById("section-00");
+        if (secret?.hidden && typed.endsWith("0 0")) {
+            secret.hidden = false;
+            secret.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+
+        const hero = document.getElementById("home-hero");
+        if (hero && typed === konami) {
+            keys = [];
+            const colour = hero.classList.toggle("grayscale") === false;
+            toast(colour ? "Cheat activated / colour mode" : "Cheat deactivated");
+        }
+    });
+
+    function toast(text: string) {
+        const el = document.createElement("div");
+        el.textContent = text;
+        el.setAttribute("role", "status");
+        el.className = "font-mono fixed bottom-6 left-1/2 z-50 -translate-x-1/2 bg-[#f2f2f2] px-4 py-2 text-xs uppercase tracking-wide text-black";
+        document.body.append(el);
+        setTimeout(() => el.remove(), 2500);
+    }
+</script>
