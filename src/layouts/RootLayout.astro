@@ -35,5 +35,17 @@ const { title, description, robots, hero, image, article } = Astro.props;
     </main>
     <Footer/>
 </div>
+<script>
+    import { SITE_METADATA } from "../consts";
+
+    // Easter egg for DevTools users: the tiled "a" logo, drawn from the same 7x7 grid as logo.svg.
+    // Text art gets seams from the console's line spacing, so it's rendered as an SVG background instead.
+    const grid = [".......", "..###..", ".....#.", "..####.", ".#...#.", "..####.", "......."];
+    const tiles = grid.flatMap((row, y) => [...row].map((t, x) =>
+        `<rect x="${x * 4 + 1}" y="${y * 4 + 1}" width="3" height="3" fill="${t === "#" ? "#f2f2f2" : "#1c1c1c"}"/>`));
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29 29"><rect width="29" height="29" fill="#000"/>${tiles.join("")}</svg>`;
+    console.log("%c ", `padding: 56px; background: url("data:image/svg+xml,${encodeURIComponent(svg)}") center / contain no-repeat`);
+    console.log(`%cOh hi, you opened DevTools. Curious people are my favourite kind. Say hello: ${SITE_METADATA.email}`, "font-family: monospace");
+</script>
 </body>
 </html>
