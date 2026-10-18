@@ -13,14 +13,20 @@ type Props = {
         src?: string;
         alt?: string;
     };
+    image?: string;
+    article?: {
+        published: Date;
+        modified?: Date;
+        keywords?: string[];
+    };
 };
 
-const { title, description, robots, hero } = Astro.props;
+const { title, description, robots, hero, image, article } = Astro.props;
 
 ---
 
 <html lang={SITE_METADATA.language} class="dark scroll-smooth">
-<BaseHead {title} description={description ?? ''} {robots} {hero}/>
+<BaseHead {title} description={description ?? ''} {robots} {hero} {image} {article}/>
 <body class="bg-black text-neutral-200 antialiased">
 <div class="mx-auto flex min-h-screen max-w-6xl flex-col px-4 sm:px-6">
     <Header/>

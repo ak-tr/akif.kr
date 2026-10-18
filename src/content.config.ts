@@ -40,7 +40,8 @@ const blog = defineCollection({
         lastmod: z.coerce.date().optional(),
         draft: z.boolean().default(false),
         summary: z.string().optional(),
-        images: z.string().optional(),
+        images: z.string().optional(), // social preview image, not rendered in the post
+        keywords: z.array(z.string()).optional(), // search terms kept out of the title (JSON-LD only)
         authors: z.array(reference('authors')).default(['default']),
         // TODO: Add support for tags-and-list layout
         layout: z.enum(['list', 'tags-and-list']).default('list'),

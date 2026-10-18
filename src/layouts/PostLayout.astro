@@ -26,7 +26,13 @@ const frontmatter = remarkPluginFrontmatter as {
 	wordCount: number;
 };
 ---
-<RootLayout title={post.data.title} description={post.data.summary} hero={post.data.hero}>
+<RootLayout
+    title={post.data.title}
+    description={post.data.summary}
+    hero={post.data.hero}
+    image={post.data.images}
+    article={{ published: post.data.date, modified: post.data.lastmod, keywords: post.data.keywords }}
+>
     <SectionContainer>
         <ScrollTopAndComments client:only="solid-js" />
         <article>

@@ -2,10 +2,21 @@
 title: "Fixing BMW E91 Adaptive Headlights: 9CBD, 9CBE and SMC Communication Errors"
 date: "2026-10-18"
 tags: ["e9x"]
-summary: "My E91 335i developed adaptive headlight faults that eventually stopped both headlights swivelling. After replacing modules, chasing communication errors and fighting with NCS Expert, I finally got everything working again."
+summary: "My E91 335i's adaptive headlights stopped swivelling with 9CBD and 9CBE SMC communication faults. I traced it to a corroded left SMC and an incompatible aftermarket replacement, then fixed it with a genuine BMW/Lear unit and NCS Expert. Applies to the E90, E91, E92 and E93."
+images: "/static/images/e91-adaptive-headlight-smc-diagnosis/01-left-smc-corrosion.jpeg"
+keywords:
+  - BMW E90 adaptive headlights not working
+  - BMW E91 9CBD 9CBE
+  - E92 E93 SMC communication fault
+  - adaptive headlight stepper motor controller
+  - AHL fault
+  - FRM
+  - "63 11 7 189 312"
+  - NCS Expert COAPI-2020 IFH-0009
+  - BMW 3 Series headlights not swivelling
 ---
 
-*Jump straight to the [fix.](#the-fix)*
+> **TL;DR:** On BMW E90, E91, E92 and E93 cars with adaptive xenon headlights (AHL), fault 9CBD means the left SMC (stepper motor controller) has lost communication with the FRM, and 9CBE means the right one has. On my car, water had corroded the left SMC. A cheap aftermarket replacement then stopped NCS Expert reading *either* side (COAPI-2020 / IFH-0009). Fitting a genuine BMW/Lear SMC (63 11 7 189 312) and VO coding it with `SG_CODIEREN` fixed it. [Jump straight to the fix.](#the-fix)
 
 ## Introduction
 
@@ -54,11 +65,11 @@ There was significant corrosion across the PCB and connector pins. Some of the c
 <div class="not-prose grid grid-cols-1 gap-2 sm:grid-cols-2">
   <PostImage
     src="/static/images/e91-adaptive-headlight-smc-diagnosis/01-left-smc-corrosion.jpeg"
-    alt="Original left SMC with corrosion across the PCB and connector pins"
+    alt="Original left adaptive headlight SMC from a BMW E91 with corrosion across the PCB and connector pins"
   />
   <PostImage
     src="/static/images/e91-adaptive-headlight-smc-diagnosis/02-left-smc-corrosion-close-up.jpeg"
-    alt="Underside of the original left SMC PCB and casing covered in white and green corrosion"
+    alt="Underside of the original BMW E91 left headlight SMC PCB and casing covered in white and green corrosion"
   />
 </div>
 
@@ -217,7 +228,7 @@ It had the same BMW and Lear part numbers as my original module.
 <div class="not-prose grid grid-cols-1 gap-2 sm:grid-cols-2">
   <PostImage
     src="/static/images/e91-adaptive-headlight-smc-diagnosis/04-genuine-bmw-lear-smc.jpeg"
-    alt="Original corroded BMW Lear SMC removed from the car, showing the BMW and Lear markings"
+    alt="Original corroded BMW/Lear headlight SMC (63 11 7 189 312) removed from the car, showing the BMW and Lear markings"
     subtitle="The corroded unit removed from the vehicle."
   />
   <PostImage
