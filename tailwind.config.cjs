@@ -14,11 +14,12 @@ module.exports = {
                 14: "3.5rem",
             },
             fontFamily: {
-                sans: ["Onest", ...fontFamily.sans],
+                sans: ["var(--font-sans)", ...fontFamily.sans],
+                mono: ["var(--font-mono)", ...fontFamily.mono],
             },
             colors: {
                 primary: colors.pink,
-                gray: colors.gray,
+                gray: colors.neutral,
             },
             screens: {
                 toc: { max: "1200px" },
@@ -27,36 +28,27 @@ module.exports = {
                 DEFAULT: {
                     css: {
                         a: {
-                            color: theme("colors.primary.500"),
-                            "&:hover": {
-                                color: `${theme("colors.primary.600")}`,
-                            },
-                            code: { color: theme("colors.primary.400") },
+                            color: theme("colors.white"),
+                            textDecorationColor: theme("colors.neutral.600"),
+                            textUnderlineOffset: "3px",
+                            "&:hover": { textDecorationColor: theme("colors.white") },
+                            code: { color: theme("colors.white") },
                         },
                         "h1,h2": {
                             fontWeight: "700",
                             letterSpacing: theme("letterSpacing.tight"),
                         },
-                        h3: {
-                            fontWeight: "600",
-                        },
-                        code: {
-                            color: theme("colors.indigo.500"),
-                        },
+                        h3: { fontWeight: "600" },
+                        code: { color: theme("colors.neutral.200") },
                     },
                 },
                 invert: {
                     css: {
-                        a: {
-                            color: theme("colors.primary.500"),
-                            "&:hover": {
-                                color: `${theme("colors.primary.400")}`,
-                            },
-                            code: { color: theme("colors.primary.400") },
-                        },
-                        "h1,h2,h3,h4,h5,h6": {
-                            color: theme("colors.gray.100"),
-                        },
+                        "--tw-prose-body": theme("colors.neutral.300"),
+                        "--tw-prose-bullets": theme("colors.neutral.600"),
+                        "--tw-prose-hr": theme("colors.neutral.800"),
+                        "--tw-prose-quote-borders": theme("colors.neutral.700"),
+                        "h1,h2,h3,h4,h5,h6": { color: theme("colors.neutral.100") },
                     },
                 },
             }),

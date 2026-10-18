@@ -3,7 +3,7 @@ import SectionContainer from "../components/SectionContainer.astro";
 import PageTitle from "../components/PageTitle.astro";
 import RootLayout from "./RootLayout.astro";
 import { type CollectionEntry, render } from "astro:content";
-import FormattedDate from "../components/FormattedDate.astro";
+import Tag from "../components/Tag.astro";
 import ScrollTopAndComments from "@/solid/ScrollTopAndComments.tsx";
 
 import Hero from "@/components/Hero.astro"
@@ -30,32 +30,29 @@ const frontmatter = remarkPluginFrontmatter as {
     <SectionContainer>
         <ScrollTopAndComments client:only="solid-js" />
         <article>
-            <div class="xl:divide-y xl:divide-gray-200 xl:dark:divide-gray-700">
-                <header class="pt-6 xl:pb-6">
-                    <div class="flex flex-col gap-4 space-y-1 text-center">
-                        <dl class="space-y-10">
-                            <div>
-                                <dt class="sr-only">Published on</dt>
-                                <dd
-                                    class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400"
-                                >
-                                    <FormattedDate date={post.data.date} {frontmatter} />
-                                </dd>
-                            </div>
-                        </dl>
-                        <div>
-                            <PageTitle>{post.data.title}</PageTitle>
-                        </div>
+            <div>
+                <header class="pt-2 pb-4">
+                    <a href="/blog" class="font-mono text-xs uppercase tracking-wide text-neutral-500 hover:text-white">← Blog</a>
+                    <p class="font-mono mt-10 flex flex-wrap gap-x-3 gap-y-1 text-xs uppercase tracking-wide text-neutral-500">
+                        <time datetime={post.data.date.toISOString()}>{post.data.date.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'})}</time>
+                        <span aria-hidden="true">/</span>
+                        <span>{frontmatter.minutesRead}</span>
+                        <span aria-hidden="true">/</span>
+                        <span>{frontmatter.wordCount.toLocaleString('en-GB')} words</span>
+                    </p>
+                    <div class="mt-4"><PageTitle>{post.data.title}</PageTitle></div>
+                    <div class="mt-6 flex flex-wrap gap-2">
+                        {post.data.tags.map((tag) => <Tag slug={tag.id} chip />)}
                     </div>
                 </header>
-                <div class="divide-y divide-gray-200 pb-8 dark:divide-gray-700">
+                <div class="pb-8">
                     <div
                         class="xl:row-span-2 xl:pb-0"
                     >
                         {
                             post.data.draft && (
-                                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-10 rounded-md">
-                                    <p class="leading-5 text-yellow-700">
+                                <div class="font-mono border border-dashed border-neutral-700 p-4 mt-10 text-xs">
+                                    <p class="text-neutral-400">
                                         This is a draft. It might be incomplete
                                         or have errors.
                                     </p>

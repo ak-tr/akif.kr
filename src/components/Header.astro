@@ -2,39 +2,19 @@
 import { SITE_METADATA, NAVIGATION } from '@/consts';
 import HeaderLink from './HeaderLink.astro';
 import MobileNav from "@/solid/MobileNav.tsx";
-import ThemeSwitcher from "@/solid/ThemeSwitcher.tsx";
 ---
 
-<header class="flex items-center justify-between py-5 sm:py-10">
-    <div class="flex items-center leading-5 space-x-4 sm:space-x-6 w-full">
-      <div class="mr-auto">
-          <a href="/" aria-label={SITE_METADATA.headerTitle}>
-            <div class="flex items-center justify-between">
-              {typeof SITE_METADATA.headerTitle === 'string' ? (
-                      <div class="h-6 text-2xl font-semibold">
-                        {SITE_METADATA.headerTitle}
-                      </div>
-              ) : (
-                SITE_METADATA.headerTitle
-              )}
-            </div>
-        </a>
-      </div>
-      {NAVIGATION
+<header class="flex items-center gap-7 py-7 text-sm sm:py-10">
+    <a href="/" class="mr-auto text-lg font-bold text-white" aria-label={SITE_METADATA.headerTitle}>
+        {SITE_METADATA.headerTitle}
+    </a>
+    {NAVIGATION
         .filter((link) => link.href !== '/')
         .map((link) => (
-                <HeaderLink
-                        href={link.href}
-                        class="hidden sm:block font-medium text-gray-900 dark:text-gray-100"
-                >
-                  {link.title}
-                </HeaderLink>
+            <HeaderLink href={link.href} class="hidden text-neutral-500 transition-colors hover:text-white sm:block [&.active]:text-white">
+                {link.title}
+            </HeaderLink>
         ))
-      }
-
-        <div class="flex gap-4">
-            <ThemeSwitcher client:only="solid-js"/>
-            <MobileNav client:only="solid-js" />
-        </div>
-    </div>
+    }
+    <MobileNav client:only="solid-js"/>
 </header>

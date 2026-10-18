@@ -24,7 +24,7 @@ export const SITE_METADATA = {
 /**
  * Default posts per page for pagination.
  */
-export const ITEMS_PER_PAGE = 5;
+export const ITEMS_PER_PAGE = 12;
 
 export const NAVIGATION = [
     { href: "/", title: "Home" },

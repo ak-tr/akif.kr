@@ -1,0 +1,111 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+    posts: CollectionEntry<'blog'>[];
+    /** Total post count and offset, so tile numbers count down across pages */
+    total?: number;
+    start?: number;
+}
+
+const { posts, total = posts.length, start = 0 } = Astro.props;
+
+// Groups of three: one 2x2 square + two 1x1 squares, big tile alternating sides.
+// Leftovers widen to fill the row so the grid never has holes.
+const full = posts.length - (posts.length % 3);
+const sizeOf = (i: number) => {
+    if (i < full) return i % 3 ? "" : Math.floor(i / 3) % 2 ? "big right" : "big";
+    return posts.length - full === 1 ? "wide-3" : i === full ? "wide-2" : "";
+};
+
+const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+---
+
+<div class="mosaic">
+    {posts.map(({ id, data: { title, date, summary, tags } }, i) => (
+        <a class:list={["tile", sizeOf(i)]} href={`/blog/${id}`}>
+            <div class="top font-mono">
+                <time datetime={date.toISOString()}>{fmt(date)}</time>
+                <span>{tags[0]?.id.replace("-", " ")}</span>
+            </div>
+            <span class="num font-mono" aria-hidden="true">{String(total - start - i).padStart(2, "0")}</span>
+            <div>
+                <h2>{title}</h2>
+                {summary && <p class="sum">{summary}</p>}
+            </div>
+        </a>
+    ))}
+</div>
+
+<style>
+    .mosaic {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-auto-flow: dense;
+        gap: 2px;
+    }
+    .tile {
+        aspect-ratio: 1;
+        min-width: 0;
+        background: #111;
+        padding: clamp(14px, 2vw, 28px);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+        transition: background-color .25s, color .25s;
+    }
+    .tile:nth-child(4n+2) { background: #161616; }
+    .tile:nth-child(5n+3) { background: #0c0c0c; }
+    .tile:hover, .tile:focus-visible { background: #f2f2f2; color: #000; outline: none; }
+
+    .big { grid-column: span 2; grid-row: span 2; aspect-ratio: auto; }
+    .big.right { grid-column: 2 / span 2; }
+    .wide-2 { grid-column: span 2; aspect-ratio: auto; }
+    .wide-3 { grid-column: span 3; aspect-ratio: auto; min-height: 260px; }
+
+    .top {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        opacity: .55;
+    }
+    .num {
+        font-size: clamp(40px, 7vw, 96px);
+        letter-spacing: -.05em;
+        line-height: 1;
+        color: #2a2a2a;
+        transition: color .25s;
+    }
+    .big .num { font-size: clamp(80px, 14vw, 200px); }
+    .tile:hover .num, .tile:focus-visible .num { color: #000; }
+
+    h2 {
+        font-family: var(--font-sans), sans-serif;
+        font-size: clamp(15px, 1.6vw, 20px);
+        font-weight: 500;
+        line-height: 1.25;
+        letter-spacing: -.01em;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .big h2 { font-size: clamp(24px, 3.4vw, 44px); letter-spacing: -.03em; }
+    .sum { color: #888; font-size: 15px; line-height: 1.5; margin-top: 14px; max-width: 560px; }
+    .tile:hover .sum { color: #444; }
+    .tile:not(.big) .sum { display: none; }
+
+    @media (max-width: 720px) {
+        .mosaic { grid-template-columns: 1fr 1fr; }
+        .big, .big.right, .wide-3 { grid-column: span 2; aspect-ratio: 1; min-height: 0; }
+        .wide-2 { grid-column: auto; aspect-ratio: 1; }
+        .top span { display: none; }
+        h2 { font-size: 14px; }
+        .big h2 { font-size: 24px; }
+        .sum { font-size: 14px; }
+    }
+</style>
