@@ -12,7 +12,7 @@ const { label, chips } = Astro.props;
   <dd>
     {chips ? (
       <span class="flex flex-wrap gap-1.5">
-        {chips.map((chip) => <span class="rounded bg-neutral-800 px-1.5 py-0.5 font-mono text-xs text-neutral-200">{chip}</span>)}
+        {chips.map((chip) => <span class="border border-neutral-800 px-1.5 py-0.5 font-mono text-xs text-neutral-200">{chip}</span>)}
       </span>
     ) : <slot />}
   </dd>
