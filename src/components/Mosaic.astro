@@ -47,7 +47,7 @@ const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: 
     .tile {
         aspect-ratio: 1;
         min-width: 0;
-        background: #111;
+        background: rgb(var(--tile));
         padding: clamp(14px, 2vw, 28px);
         display: flex;
         flex-direction: column;
@@ -55,9 +55,9 @@ const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: 
         overflow: hidden;
         transition: background-color .25s, color .25s;
     }
-    .tile:nth-child(4n+2) { background: #161616; }
-    .tile:nth-child(5n+3) { background: #0c0c0c; }
-    .tile:hover, .tile:focus-visible { background: #f2f2f2; color: #000; outline: none; }
+    .tile:nth-child(4n+2) { background: rgb(var(--tile-2)); }
+    .tile:nth-child(5n+3) { background: rgb(var(--tile-3)); }
+    .tile:hover, .tile:focus-visible { background: rgb(var(--invert)); color: rgb(var(--page)); outline: none; }
 
     .big { grid-column: span 2; grid-row: span 2; aspect-ratio: auto; }
     .big.right { grid-column: 2 / span 2; }
@@ -77,11 +77,11 @@ const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: 
         font-size: clamp(40px, 7vw, 96px);
         letter-spacing: -.05em;
         line-height: 1;
-        color: #2a2a2a;
+        color: rgb(var(--number));
         transition: color .25s;
     }
     .big .num { font-size: clamp(80px, 14vw, 200px); }
-    .tile:hover .num, .tile:focus-visible .num { color: #000; }
+    .tile:hover .num, .tile:focus-visible .num { color: rgb(var(--page)); }
 
     h2 {
         font-family: var(--font-sans), sans-serif;
@@ -95,8 +95,8 @@ const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: 
         overflow: hidden;
     }
     .big h2 { font-size: clamp(24px, 3.4vw, 44px); letter-spacing: -.03em; }
-    .sum { color: #888; font-size: 15px; line-height: 1.5; margin-top: 14px; max-width: 560px; }
-    .tile:hover .sum { color: #444; }
+    .sum { color: rgb(var(--muted)); font-size: 15px; line-height: 1.5; margin-top: 14px; max-width: 560px; }
+    .tile:hover .sum { color: rgb(var(--page) / .72); }
     .tile:not(.big) .sum { display: none; }
 
     @media (max-width: 720px) {

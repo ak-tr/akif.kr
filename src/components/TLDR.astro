@@ -6,8 +6,8 @@ interface Props {
 const { fix = "#the-fix" } = Astro.props;
 ---
 
-<aside aria-label="TL;DR" class="not-prose my-6 border border-neutral-800 bg-[#111]">
-  <div class="flex items-center justify-between border-b border-neutral-800 bg-[#0c0c0c] px-4 py-2.5">
+<aside aria-label="TL;DR" class="not-prose my-6 border border-neutral-800 bg-tile">
+  <div class="flex items-center justify-between border-b border-neutral-800 bg-tile-3 px-4 py-2.5">
     <span class="font-mono text-xs uppercase tracking-wide text-white">TL;DR</span>
     {fix && <a href={fix} class="font-mono text-xs uppercase tracking-wide text-white underline decoration-neutral-600 underline-offset-4 hover:decoration-white">Jump to the fix →</a>}
   </div>

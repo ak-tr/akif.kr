@@ -23,10 +23,10 @@ const tags = (await getCollection('tags'))
     <div class="grid grid-cols-2 gap-[2px] sm:grid-cols-4">
         {tags.map(({id, data, count}, i) => (
             <a href={`/tags/${id}`} aria-label={`View posts tagged ${data.name}`}
-               class:list={["group flex aspect-square flex-col justify-between p-4 transition-colors hover:bg-[#f2f2f2] hover:text-black sm:p-6",
-                   i % 3 === 1 ? "bg-[#161616]" : i % 3 === 2 ? "bg-[#0c0c0c]" : "bg-[#111]"]}>
+               class:list={["group flex aspect-square flex-col justify-between p-4 transition-colors hover:bg-invert hover:text-black sm:p-6",
+                   i % 3 === 1 ? "bg-tile-2" : i % 3 === 2 ? "bg-tile-3" : "bg-tile"]}>
                 <span class="font-mono text-[11px] uppercase tracking-wide opacity-60">{count} {count === 1 ? 'post' : 'posts'}</span>
-                <span class="font-mono text-5xl leading-none tracking-[-.05em] text-[#2a2a2a] transition-colors group-hover:text-black sm:text-7xl">{String(count).padStart(2, '0')}</span>
+                <span class="font-mono text-5xl leading-none tracking-[-.05em] text-number transition-colors group-hover:text-black sm:text-7xl">{String(count).padStart(2, '0')}</span>
                 <span class="text-lg font-medium sm:text-xl">{data.name}</span>
             </a>
         ))}
