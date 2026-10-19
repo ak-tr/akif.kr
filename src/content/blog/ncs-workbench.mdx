@@ -1,0 +1,188 @@
+---
+title: "NCS Workbench: Making BMW Coding Less of a File Juggling Exercise"
+date: "2026-10-19"
+tags: ["e9x", "programming"]
+draft: false
+summary: "After my first BMW coding session, I built NCS Workbench to handle the file gymnastics around NCS Expert and NCS Dummy: backups, comparisons, guided sessions and read-back checks."
+keywords:
+  - NCS Workbench
+  - NCS Expert
+  - NCS Dummy
+  - BMW coding
+  - FSW_PSW.TRC
+  - FSW_PSW.MAN
+  - SP-Daten
+related: ["e91-cruise-control-kmh-to-mph"]
+images: "https://raw.githubusercontent.com/ak-tr/NCS-Workbench/7065045e98a8bbee7e660944c0c4aca0691c02d8/docs/screenshots/sessions/01-home.png"
+hero:
+  src: "https://raw.githubusercontent.com/ak-tr/NCS-Workbench/7065045e98a8bbee7e660944c0c4aca0691c02d8/docs/screenshots/sessions/01-home.png"
+  alt: "NCS Workbench home screen showing Start Session, the backup, empty MAN and compare tools, recent sessions and the WORK folder"
+---
+
+## Introduction
+
+After my first successful coding session on my BMW E91, I realised how much of the process involved moving files around.
+
+Read the module. Back up the trace before it gets overwritten. Open it in NCS Dummy. Export the MAN file. Compare it against the original. Code the module. Read it back and check that the change actually stuck.
+
+None of those steps is particularly difficult on its own, but together they become a lot of "file gymnastics" just to keep everything in order.
+
+As someone who likes automating things, I naturally decided to build another tool.
+
+In hindsight, I probably should have checked whether something similar already existed. But I wanted to make it my own, and now that I have, I thought I'd share it.
+
+It's called **[NCS Workbench](https://github.com/ak-tr/NCS-Workbench)**.
+
+<TLDR fix="">
+  <TLDRRow label="What it does">Manages backups, file comparisons and read-back checks around NCS Expert and NCS Dummy.</TLDRRow>
+  <TLDRRow label="Runs on">Windows XP through Windows 11, as a single portable executable.</TLDRRow>
+  <TLDRRow label="Testing so far">Real TRC and MAN files from my car, but no live coding sessions using Workbench yet.</TLDRRow>
+  <TLDRRow label="Source">Open source under GPLv3, with contributions welcome.</TLDRRow>
+</TLDR>
+
+As of this post, the release version is **[1.1.0](https://github.com/ak-tr/NCS-Workbench/releases/tag/v1.1.0)**. The software will very likely have changed by the time you're reading this, so check the GitHub guides for the latest workflow and features.
+
+## What It Does
+
+NCS Workbench is a small, portable Windows application that manages the files passed between NCS Expert and NCS Dummy.
+
+NCS Expert still reads and codes the car. NCS Dummy still handles editing the coding configuration. Workbench takes care of the routine around them: keeping backups, showing what changed and comparing the result after coding.
+
+If you've read my [post about changing the cruise-control display from km/h to mph](/blog/e91-cruise-control-kmh-to-mph), that process is a good example of what I wanted to make easier.
+
+For one parameter change, I kept the original trace, prepared a manipulation file, compared the two, wrote the coding and read the module again to verify it.
+
+I wanted something that could help me follow that process consistently without having to organise everything manually each time.
+
+## It Started With Three Buttons
+
+The first version was fairly basic. It had three tools:
+
+- Back up `FSW_PSW.TRC`.
+- Empty `FSW_PSW.MAN`, saving a copy first.
+- Compare the trace against the MAN file after editing.
+
+That covered the immediate annoyance.
+
+NCS Expert reuses the same trace filename when you read modules, so keeping a separate copy matters. The MAN file also needs attention, because it can contain changes left over from a previous job.
+
+A comparison then gives you a chance to check what you're about to write.
+
+But after putting those tools together, I decided it would be more useful if the application guided me through the whole process.
+
+The original tools are still there. Sometimes you just want to back up a trace or empty a MAN file without starting a coding session.
+
+## Following a Coding Session
+
+A guided session starts by saving the existing trace and MAN files into a session folder, then preparing the WORK folder for a fresh read.
+
+From there, the process follows the same steps I was already doing manually.
+
+### Read the Module
+
+You read the ECU using NCS Expert as usual.
+
+Workbench watches the WORK folder and captures the new trace once the file has stopped changing and is no longer open for writing.
+
+You then confirm the chassis and module. It saves a copy with a filename that NCS Dummy can use to select the corresponding chassis and module.
+
+### Edit and Review
+
+You load that copy into NCS Dummy, make your changes and export `FSW_PSW.MAN` back to the WORK folder.
+
+Workbench saves the export and compares it with the original trace, showing the existing and intended values for each changed function.
+
+If you make another edit and export again, it saves that version too.
+
+Before moving on, it checks that the MAN file in WORK still matches the version you reviewed. If it has changed, you're sent back to review the new export.
+
+That was something I wanted to get right. A comparison is only useful if it's comparing the file you're actually going to use.
+
+### Code and Read Back
+
+You still perform the coding yourself in NCS Expert.
+
+Workbench can't see whether the coding job succeeded, so it asks you to confirm when NCS Expert has finished.
+
+It then helps prepare for another read of the same ECU. The new trace is compared against the intended changes, with each one shown as:
+
+| Result | Meaning |
+|---|---|
+| **MATCH** | The read-back contains the intended value. |
+| **MISMATCH** | The read-back contains a different value. |
+| **CAN'T VERIFY** | The available data doesn't allow a clear comparison. |
+
+This checks whether the values appear in the read-back. You still need to check that the feature behaves as expected in the car.
+
+For my cruise-control change, for example, reading back `wert_02` confirmed the setting had been retained. Taking the car for a drive confirmed that the set speed actually displayed in mph.
+
+### Keep the Record
+
+Each session keeps its original trace, MAN exports and read-back files together, along with the session details.
+
+You can browse previous sessions through the history window or export a session folder to keep elsewhere.
+
+An unfinished session can also be resumed after closing the application.
+
+## Working Out SP-Daten
+
+The part I found most difficult was understanding the SP-Daten files.
+
+I wanted Workbench to use the installed coding data to help identify which module a trace relates to, rather than making me type everything manually.
+
+That meant working out how the data files fit together, how functions link back to modules and how to compare that information against the function names in a trace.
+
+And, to be clear, AI was there holding my hand throughout that process.
+
+With SP-Daten available, Workbench can suggest a module based on the trace's functions. It's still a suggestion that you confirm yourself. The trace doesn't directly tell Workbench which ECU you selected in NCS Expert.
+
+Without SP-Daten, you can enter the chassis and module manually.
+
+## A Familiar Design
+
+Some of you may have already noticed a personal touch: Workbench follows the same design guide as this website, which I call **Mosaic**.
+
+Mostly, anyway. I'd say it follows about 90% of it, with a few adjustments for a Windows desktop application. I wanted it to feel like something I'd made, and carrying the design across from my website felt like a nice way to do that.
+
+## Why Windows XP?
+
+NCS Expert runs on Windows XP, so XP support was part of the requirement.
+
+If someone already has a working diagnostic laptop or virtual machine, I wanted Workbench to fit into that setup.
+
+The application is written in C++ using the Windows API and distributed as a single executable. There's no installer or separate runtime to set up.
+
+Portability and size were requirements too. I wanted something you could copy onto a diagnostic laptop or run from a USB stick without a setup process.
+
+The executable in version 1.1.0 is less than a megabyte. The plan is to keep it small, even as the feature set grows.
+
+Supporting XP also meant paying attention to the build tools and dependencies. It's quite easy to produce a Windows executable that quietly depends on something an older installation doesn't have.
+
+The build includes checks for imports that would prevent it from starting on XP.
+
+## Where Testing Stands
+
+At the time of writing, I've tested Workbench using trace files read from my own car and MAN files that I previously used to code it.
+
+Those are real files from real coding jobs, but I haven't yet used Workbench alongside a live coding session.
+
+That's the next step. I want to try it a few times on different modules before I start sharing it more widely.
+
+The repository also includes automated tests covering things such as files still being written, repeated MAN exports, read-back mismatches and restarting sessions.
+
+Workbench doesn't communicate with the car. Its changes are limited to managing the trace and MAN files: saving copies, removing a saved trace to prepare for a fresh read, and emptying a saved MAN file.
+
+Even so, those files are part of the coding workflow, so I want some experience using the whole thing at the car before making broader claims about it.
+
+## Try It or Contribute
+
+The source and [downloads](https://github.com/ak-tr/NCS-Workbench/releases) are available on [GitHub](https://github.com/ak-tr/NCS-Workbench). There are also illustrated guides covering both ways to use it:
+
+- [Guided coding sessions](https://github.com/ak-tr/NCS-Workbench/blob/main/docs/guides/guided-sessions.md): the full process from preparing WORK to reading back and verifying changes.
+- [Main window and tools](https://github.com/ak-tr/NCS-Workbench/blob/main/docs/guides/main-window.md): the home screen and the individual backup, empty MAN and comparison tools.
+
+It's open source under GPLv3, and contributions are welcome. If you find a bug, have a workflow I haven't considered or want to improve something, feel free to open an issue or pull request.
+
+For me, this started as a way to spend less time copying and checking files around a coding job.
+
+It has grown a little since those first three buttons, but that's still the purpose: make the routine easier to follow, and leave a useful record of what happened.
