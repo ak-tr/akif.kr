@@ -1,10 +1,10 @@
 # akif.kr design guide
 
-The site uses one visual system, called **Mosaic**: dark, monochrome, minimal, with a technical edge. Content sits on a grid of square tiles. Read this before adding a page or component so new work matches what's already here.
+The site uses one visual system, called **Mosaic**: monochrome, minimal, with a technical edge, dark by default. Content sits on a grid of square tiles. Read this before adding a page or component so new work matches what's already here.
 
 ## Principles
 
-1. **Dark only.** Black page, near-black tiles, white text. There is no light mode and no theme toggle.
+1. **Dakota Black first.** Black page, near-black tiles, white text. That's the default and the look everything is designed in; the other [themes](#themes) are recolourings of it.
 2. **Monochrome.** No accent colour. Use differences in grey, weight and size for hierarchy. Interaction is shown by inverting (dark tile turns light), not by adding colour.
 3. **Squares.** Tiles are square, corners are sharp, and gaps between tiles are hairline. Use square shapes for images and decoration too.
 4. **Type does the work.** Listings have no hero images. A tile is a date, a tag, a big faint number and a title.
@@ -13,23 +13,44 @@ The site uses one visual system, called **Mosaic**: dark, monochrome, minimal, w
 
 ## Colour
 
-| Token | Value | Use |
-|---|---|---|
-| Page | `#000` (`bg-black`) | Body background |
-| Tile | `#111` | Default tile / card background |
-| Tile alt 1 | `#161616` | Every 4th tile from the 2nd (`:nth-child(4n+2)`) |
-| Tile alt 2 | `#0c0c0c` | Every 5th tile from the 3rd (`:nth-child(5n+3)`) |
-| Hover | `#f2f2f2` + black text | Hovered or focused tile (inverted) |
-| Faint number | `#2a2a2a` | Large decorative numbers. Goes black on hover |
-| Heading | `white` | Titles, logo, active nav |
-| Body | `neutral-200` | Default text |
-| Secondary | `neutral-400` / `#888` | Summaries, descriptions, prose body (`neutral-300`) |
-| Muted | `neutral-500` | Mono labels, meta, inactive nav |
-| Rule | `neutral-900` / `neutral-800` | Section dividers, chip borders |
+Every colour is a theme token: a CSS variable in `global.css`, exposed as a Tailwind colour in `tailwind.config.cjs`. Never write a hex value or `bg-[#...]` in a component, or it won't follow the theme. Values below are Dakota Black.
 
-Tailwind's `gray` is mapped to `neutral` in `tailwind.config.cjs`, so `gray-*` classes are pure greys with no blue tint.
+| Token | Class / CSS | Dakota Black | Use |
+|---|---|---|---|
+| Page | `bg-black` / `--page` | `#000` | Body background |
+| Tile | `bg-tile` / `--tile` | `#111` | Default tile / card background |
+| Tile alt 1 | `bg-tile-2` / `--tile-2` | `#161616` | Every 4th tile from the 2nd (`:nth-child(4n+2)`) |
+| Tile alt 2 | `bg-tile-3` / `--tile-3` | `#0c0c0c` | Every 5th tile from the 3rd (`:nth-child(5n+3)`) |
+| Hover | `bg-invert` + `text-black` | `#f2f2f2` + black | Hovered or focused tile (inverted) |
+| Faint number | `text-number` / `--number` | `#2a2a2a` | Large decorative numbers. Goes `black` on hover |
+| Heading | `text-white` / `--white` | `#fff` | Titles, logo, active nav |
+| Body | `neutral-200` | `#e5e5e5` | Default text |
+| Secondary | `neutral-400` / `--muted` | `#a3a3a3` / `#888` | Summaries, descriptions, prose body (`neutral-300`) |
+| Muted | `neutral-500` | `#737373` | Mono labels, meta, inactive nav |
+| Rule | `neutral-900` / `neutral-800` | `#171717` / `#262626` | Section dividers, chip borders |
+
+`black`, `white` and the whole `neutral` scale are theme tokens, and Tailwind's `gray` is mapped to the same scale, so `gray-*` classes are pure greys with no blue tint. In CSS, use `rgb(var(--tile))` (values are `r g b`, so `rgb(var(--page) / .72)` works too).
 
 Rotate the three tile shades through a grid so it reads as a mosaic, not a flat block. Don't add new background shades outside this set.
+
+## Themes
+
+Five colour schemes, taken from [NCS Workbench](https://github.com/ak-tr/NCS-Workbench/blob/main/docs/guides/themes.md) and named after BMW interior colours. Dakota Black is the default and the original Mosaic look; the others are for readability.
+
+| Theme | `data-theme` | Kind | After |
+|---|---|---|---|
+| **Dakota Black** (default) | none | Dark | The original look: black with grey tiles |
+| Anthracite | `anthracite` | Dim | BMW Individual anthracite headliner, neutral charcoal |
+| Mocha | `mocha` | Dim | Dakota / Vernasca Mocha leather, warm brown-black |
+| Canberra Beige | `canberra-beige` | Light | Vernasca Canberra Beige leather, cream and sand |
+| Silverstone | `silverstone` | Light | M Merino Silverstone leather, plain light grey |
+
+- **Picker:** `THEME / DAKOTA BLACK` in the footer. It opens a menu above itself (a `popover`, so Esc and clicking outside close it): a `bg-tile` panel with a `neutral-800` border, mono uppercase rows that invert on hover/focus, and a small filled square marking the current theme. The choice is saved in `localStorage` (`theme`) and applied by `applyTheme()` in `BaseHead`, before paint and after every ClientRouter swap, so there's no flash. It also sets the footer label, which defaults to Dakota Black.
+- **Token names are from the dark design.** In a light theme `black` (`--page`) is the lightest colour and `white` the darkest text, so "invert on hover" still works: the tile goes dark, the text goes light. Write classes for Dakota Black and the other themes follow.
+- **Contrast:** in every theme except Dakota Black, all text is at least 4.5:1 against its tile. Dakota Black keeps its original greys.
+- **Still monochrome.** NCS Workbench adds blue/green/amber/red for focus and status; the site doesn't.
+- **Not themed:** the logo (it carries its own black square), photos, and code blocks (Shiki's `houston` theme stays dark in every scheme).
+- **Adding a theme:** add a `:root[data-theme="..."]` block in `global.css` with every variable the Dakota Black block sets, then add it to `THEMES` in `Footer.astro`.
 
 ## Typography
 
@@ -131,7 +152,8 @@ A lowercase **a** built from square tiles on a 7x7 grid: white (`#f2f2f2`) lette
 
 - Add an accent colour, gradients, shadows or rounded corners.
 - Use `rounded-*`, `shadow-*`, `primary-*` (pink) or `blue-*` classes.
-- Add a light theme or `dark:` variants (the `dark` class is always set on `<html>`).
+- Add `dark:` variants (the `dark` class is always set on `<html>`). Themes go through the tokens, not variants.
+- Hard-code a colour (`#111`, `bg-[#f2f2f2]`, Tailwind palette colours). Use a theme token.
 - Add non-square tiles to the Mosaic, or break the group-of-3 sizing.
 - Add a new font. Two families only: Onest and Geist Mono.
 
@@ -145,8 +167,9 @@ A lowercase **a** built from square tiles on a 7x7 grid: white (`#f2f2f2`) lette
 
 | Thing | File |
 |---|---|
-| Fonts, base size, heading font | `src/styles/global.css` |
-| Colour mapping, prose styles | `tailwind.config.cjs` |
+| Fonts, base size, heading font, theme colours | `src/styles/global.css` |
+| Theme picker / theme script | `src/components/Footer.astro`, `src/components/BaseHead.astro` |
+| Colour tokens, prose styles | `tailwind.config.cjs` |
 | Page shell | `src/layouts/RootLayout.astro`, `Header.astro`, `Footer.astro` |
 | Post grid | `src/components/Mosaic.astro` |
 | Listing page | `src/layouts/ListLayout.astro` |

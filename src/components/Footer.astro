@@ -1,13 +1,64 @@
 ---
 import SocialIcon from '@/components/social-icons/index.astro'
 import { SITE_METADATA } from '@/consts'
+
+// After NCS-Workbench. Colours are in global.css.
+const THEMES = [
+    ['dakota-black', 'Dakota Black'],
+    ['anthracite', 'Anthracite'],
+    ['mocha', 'Mocha'],
+    ['canberra-beige', 'Canberra Beige'],
+    ['silverstone', 'Silverstone'],
+]
 ---
 
 <footer class="font-mono mt-24 flex flex-col-reverse items-start gap-4 border-t border-neutral-900 py-8 text-xs text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
     <p>© {new Date().getFullYear()} {SITE_METADATA.author} / <a href="/" class="hover:text-white">{SITE_METADATA.title}</a></p>
-    <div class="flex gap-4">
+    <div class="flex items-center gap-4">
+        <!-- Theme picker: popover gives Esc and outside-click closing for free -->
+        <button type="button" popovertarget="theme-menu" class="group uppercase tracking-wide focus-visible:outline-none">
+            Theme / <span id="theme-name" class="transition-colors group-hover:text-white group-focus-visible:text-white group-focus-visible:outline group-focus-visible:outline-1 group-focus-visible:outline-offset-2 group-focus-visible:outline-white">Dakota Black</span>
+        </button>
+        <div id="theme-menu" popover aria-label="Theme" class="absolute inset-auto m-0 min-w-44 border border-neutral-800 bg-tile p-0 text-xs uppercase tracking-wide text-neutral-400">
+            {THEMES.map(([value, name]) => (
+                <button type="button" aria-pressed="false" data-theme-option={value}
+                        class="group flex w-full items-center justify-between gap-6 px-3 py-2.5 text-left transition-colors hover:bg-invert hover:text-black focus-visible:bg-invert focus-visible:text-black focus-visible:outline-none">
+                    {name}
+                    <span class="h-1.5 w-1.5 bg-current opacity-0 group-aria-pressed:opacity-100" aria-hidden="true"></span>
+                </button>
+            ))}
+        </div>
+        <script is:inline>applyTheme()</script>
         <SocialIcon kind="mail" href={`mailto:${SITE_METADATA.email}`} size={5}/>
         <SocialIcon kind="github" href={SITE_METADATA.github} size={5}/>
         <SocialIcon kind="linkedin" href={SITE_METADATA.linkedin} size={5}/>
     </div>
 </footer>
+<script>
+    // Delegated on document because ClientRouter runs this once per session
+    // beforetoggle doesn't bubble, so listen in the capture phase
+    document.addEventListener("beforetoggle", (e) => {
+        const menu = e.target as HTMLElement;
+        if (menu.id !== "theme-menu" || (e as ToggleEvent).newState !== "open") return;
+        // Open above the button, left-aligned. Absolute in the top layer is relative to the first viewport.
+        const r = document.querySelector("[popovertarget=theme-menu]")!.getBoundingClientRect();
+        menu.style.left = `${r.left + scrollX}px`;
+        menu.style.bottom = `${innerHeight - r.top - scrollY + 8}px`;
+        const current = document.documentElement.dataset.theme ?? "dakota-black";
+        // autofocus: the popover focuses the current theme when it opens
+        for (const o of document.querySelectorAll<HTMLElement>("[data-theme-option]")) {
+            o.setAttribute("aria-pressed", String(o.dataset.themeOption === current));
+            o.autofocus = o.dataset.themeOption === current;
+        }
+    }, true);
+
+    document.addEventListener("click", (e) => {
+        const option = (e.target as Element).closest<HTMLElement>("[data-theme-option]");
+        if (!option) return;
+        const theme = option.dataset.themeOption!;
+        try { localStorage.setItem("theme", theme); } catch {}
+        (window as any).applyTheme(theme);
+        document.getElementById("theme-menu")!.hidePopover();
+        document.querySelector<HTMLElement>("[popovertarget=theme-menu]")!.focus();
+    });
+</script>

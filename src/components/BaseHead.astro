@@ -81,11 +81,25 @@ const jsonLd = article && {
     <!-- Favicons -->
     <meta name="msapplication-TileColor" content="#000000"/>
 
-    <meta name="theme-color" content="#000">
-
     <!-- iOS-specific -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
     <ClientRouter />
+
+    <!-- Theme (DESIGN.md): applied before paint, and again after each ClientRouter swap replaces <html> -->
+    <script is:inline>
+        function applyTheme(theme) {
+            if (typeof theme !== "string") try { theme = localStorage.getItem("theme"); } catch {}
+            const root = document.documentElement;
+            if (theme && theme !== "dakota-black") root.dataset.theme = theme;
+            else delete root.dataset.theme;
+            // Footer picker label; the footer calls this again on first load, once it exists
+            const name = document.querySelector(`[data-theme-option="${root.dataset.theme ?? "dakota-black"}"]`)?.textContent.trim();
+            const label = document.getElementById("theme-name");
+            if (label) label.textContent = name ?? "Dakota Black";
+        }
+        applyTheme();
+        document.addEventListener("astro:after-swap", applyTheme);
+    </script>
 </head>

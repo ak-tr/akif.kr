@@ -31,7 +31,7 @@ const authorPosts = await getCollection("blog", excludeDrafts).then(sortBlogPost
     <div id="section-00" hidden>
     <div class="mb-12 grid gap-5 md:grid-cols-5 md:gap-x-8">
         <div>
-            <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-[#2a2a2a] md:block" aria-hidden="true">00</span>
+            <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-number md:block" aria-hidden="true">00</span>
             <span class="font-mono block text-xs uppercase tracking-wide text-neutral-500 md:mt-3">Secret</span>
         </div>
         <p class="text-neutral-300 md:col-span-4">
@@ -42,12 +42,12 @@ const authorPosts = await getCollection("blog", excludeDrafts).then(sortBlogPost
     <!-- 5-col grid: bio paragraphs take cols 2-5, the Potzo card (.not-prose) cols 1-4; numbered labels fill the gaps -->
     <div class="prose prose-invert max-w-none pb-8 flex flex-col gap-5 [&>p]:my-0 [&>.not-prose]:order-last [&>.not-prose]:mt-0 md:grid md:grid-cols-5 md:gap-x-8 md:[&>p]:col-span-4 md:[&>p]:col-start-2 md:[&>.not-prose]:order-none md:[&>.not-prose]:col-span-4 md:[&>.not-prose]:col-start-1 md:[&>.not-prose]:mt-10">
         <div class="md:col-start-1 md:row-start-1 md:row-span-2">
-            <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-[#2a2a2a] md:block" aria-hidden="true">01</span>
+            <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-number md:block" aria-hidden="true">01</span>
             <span class="font-mono block text-xs uppercase tracking-wide text-neutral-500 md:mt-3">About</span>
         </div>
         <slot />
         <div class="mt-10 md:col-start-5 md:text-right">
-            <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-[#2a2a2a] md:block" aria-hidden="true">02</span>
+            <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-number md:block" aria-hidden="true">02</span>
             <span class="font-mono block text-xs uppercase tracking-wide text-neutral-500 md:mt-3">Building</span>
         </div>
     </div>
@@ -91,7 +91,7 @@ const authorPosts = await getCollection("blog", excludeDrafts).then(sortBlogPost
         const el = document.createElement("div");
         el.textContent = text;
         el.setAttribute("role", "status");
-        el.className = "font-mono fixed bottom-6 left-1/2 z-50 -translate-x-1/2 bg-[#f2f2f2] px-4 py-2 text-xs uppercase tracking-wide text-black";
+        el.className = "font-mono fixed bottom-6 left-1/2 z-50 -translate-x-1/2 bg-invert px-4 py-2 text-xs uppercase tracking-wide text-black";
         document.body.append(el);
         setTimeout(() => el.remove(), 2500);
     }

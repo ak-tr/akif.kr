@@ -67,7 +67,7 @@ const content: Record<string, Content[]> = {
                 <li>
                   <Wrapper
                     href={details.url}
-                    class:list={["flex h-full flex-col gap-2 bg-[#111] p-5", {"transition-colors hover:bg-[#f2f2f2] hover:text-black group": details.url}]}
+                    class:list={["flex h-full flex-col gap-2 bg-tile p-5", {"transition-colors hover:bg-invert hover:text-black group": details.url}]}
                   >
                     <div class="flex items-start justify-between gap-4">
                       <span class="font-medium">{details.name}</span>

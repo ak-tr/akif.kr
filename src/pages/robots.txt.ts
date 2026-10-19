@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 
+// Commented out line by line: crawlers reject anything else as invalid syntax
 const easterEgg = `░█▀▄░█▀█░▀█▀░░░░░░░░                    
 ░█▀▄░█░█░░█░░░░░░░░░                    
 ░▀▀░░▀▀▀░░▀░░▄▀░░░░░                    
@@ -29,7 +30,7 @@ const blockedAIAgents = [
 ]
 
 const getRobotsTxt = (sitemapURL: URL) => `\
-${easterEgg}
+${easterEgg.split('\n').map(line => `# ${line.trimEnd()}`).join('\n')}
 
 User-agent: *
 Disallow: /cdn-cgi/l/email-protection
