@@ -1,5 +1,5 @@
 {
     "version": 1,
-    "include": ["/", "/blog/*", "/909dimensions/guide/*"],
+    "include": ["/", "/blog/*", "/909dimensions/guide/*", "/mcp"],
     "exclude": []
 }
