@@ -22,10 +22,11 @@ const gallery = defineCollection({
     schema: z.object({
         id: z.string(),
         title: z.string(),
+        tiles: z.boolean().optional(),
         images: z.array(
             z.object({
                 url: z.string(),
-                alt: z.string(),
+                alt: z.string().optional(),
             })
         ),
     }),
