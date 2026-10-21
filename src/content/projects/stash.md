@@ -14,7 +14,3 @@ image:
 ---
 
 Paste your code, pick an expiry and a syntax, and press Upload (or `⌘ + ⏎`). Stashes can expire after one read, or after 2, 12 or 24 hours. The ones you make are listed under **Your stashes** in that browser.
-
-## API
-
-The same host serves a small JSON API to create, read, read raw and delete stashes. One Cloudflare Worker serves both the app and the API.
