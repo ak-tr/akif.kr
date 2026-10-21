@@ -1,0 +1,157 @@
+---
+title: "Fixing BMW E91 Comfort Access: A068, A069, A06A and A06B Antenna Faults"
+date: "2026-10-21"
+tags: ["e9x", "programming"]
+draft: false
+summary: "My E91's keyless start never worked, so I used INPA, a multimeter and NCS Expert to track the problem down to its Comfort Access module. Replacing and coding it fixed the antenna faults, although I'm still chasing a weak key-detection range."
+---
+
+<TLDR>
+  <TLDRRow label="Applies to">BMW E9x with factory Comfort Access (`$322`), tested on my 2007 E91 335i</TLDRRow>
+  <TLDRRow label="Codes" chips={["A068", "A069", "A06A", "A06B"]} />
+  <TLDRRow label="Meaning">The Comfort Access (PGS) module reports its front interior, rear interior, luggage-compartment and rear bumper antennas as faulty</TLDRRow>
+  <TLDRRow label="Cause">A faulty original CA module. All four antenna circuits measured the same 4.7 Ω, ruling out obvious wiring faults</TLDRRow>
+  <TLDRRow label="Fix">Used CA module (61.35-9134708, a later revision of the same unit), VO coded with `SG_CODIEREN`</TLDRRow>
+  <TLDRRow label="Still open">Weak key-detection range. A fresh CR2032 is next</TLDRRow>
+</TLDR>
+
+*Jump straight to the [fix.](#the-fix)*
+
+## Introduction
+
+My 2007 BMW 335i E91 Touring (N54) came with Comfort Access: BMW's system for locking, unlocking and starting the car without putting the key in the ignition slot. Except the starting part had never worked in the time I'd owned it.
+
+I'm used to debugging software, so the plan was to treat this like any other fault: read the state, reproduce it, change one thing at a time and keep the results. The tooling was BMW Standard Tools (mostly INPA for diagnostics and NCS Expert for coding), plus a K+DCAN cable and a multimeter.
+
+I eventually got keyless starting working. The more interesting part was figuring out why, and separating the original fault from a second, still-unresolved range issue.
+
+## The Problem
+
+The door handles responded to touch, but keyless locking and unlocking were unreliable. With the key in my pocket, I could hear something actuate without the door unlocking. Holding the key closer to the handle often worked on the next attempt.
+
+Starting was worse. Pressing Start/Stop without inserting the key produced the crossed-out-key symbol. Put the key in the slot and the car started normally.
+
+The CAS (Car Access System, which handles start authorisation) had one stored fault, `A10A`, marked as not currently present. The more useful faults were in PGS (Passive Go System), the separate Comfort Access control module:
+
+<PostImage src="/static/images/e91-comfort-access-diagnosis/01-original-pgs-faults.png" alt="INPA showing four currently present PGS antenna faults A068, A069, A06A and A06B" subtitle="Fault memory of the original module: all four antenna faults present, logged at 126,840 km" />
+
+- `A068`: front interior antenna
+- `A069`: rear interior antenna
+- `A06A`: luggage-compartment antenna
+- `A06B`: rear bumper antenna
+
+Four different antenna circuits failing together seemed unlikely to be four unrelated broken antennas. But that was a hypothesis, not a diagnosis.
+
+## What I Tried
+
+### Looking at the live data
+
+INPA could communicate with `PGS_65_2`. Its analogue status showed about 13 V at KL30 (permanent battery supply); the digital status showed the K-bus wake-up state as ON.
+
+The antenna-status screen accepted numbers 1–10 and returned `RELAY_CONFIG`, `ANT_POWER` and `FUNCTIONCODE`. I recorded all ten, but couldn't establish a reliable mapping between those configuration-looking numbers and the physical antennas. They weren't a trustworthy signal-strength measurement, so I didn't try to diagnose from them.
+
+I cleared the PGS fault memory with the ignition off. It reported zero faults. Trying keyless start still gave the crossed-out key, but the codes didn't immediately return. Switching the ignition on with the key inserted didn't bring them back either.
+
+Then I walked away, returned and tried passive unlocking using the door handles. All four antenna codes came back.
+
+The most useful test was hidden under INPA → PGS → ACTIVATE → ANTENNA TEST. It said OK, requested `FS_LESEN` (read fault memory), and opened the error screen. After clearing the codes and running this test alone, the same four faults came back immediately. I finally had a reproducible test that didn't depend on where I was holding the key.
+
+### Checking the wiring instead of buying antennas
+
+The CA module sits behind the right-hand boot trim, above the battery. To get to it, I pulled back the felt backing above the battery compartment, fishing it past some wiring and removing one plastic push-pin clip. The module carrier is then held in by three T20 screws.
+
+<PostImage src="/static/images/e91-comfort-access-diagnosis/02-battery-compartment.jpg" alt="The battery compartment on the right-hand side of a BMW E91 boot, with the side trim removed" subtitle="The battery compartment, with the right-hand boot trim removed" />
+
+<PostImage src="/static/images/e91-comfort-access-diagnosis/03-felt-backing-pulled-back.jpg" alt="Felt backing pulled back above the BMW E91 battery compartment, exposing the Comfort Access module carrier" subtitle="The felt backing pulled back, exposing the module carrier above the battery" />
+
+<PostImage src="/static/images/e91-comfort-access-diagnosis/04-module-carrier-unscrewed.jpg" alt="Comfort Access module carrier unscrewed from the BMW E91 boot with its connectors still plugged in" subtitle="The module carrier unscrewed from its three T20 screws, with the connectors still plugged in" />
+
+With the battery negative terminal disconnected and the module unplugged, I measured the antenna circuits at the 26-pin module connector (`X13354`).
+
+| Circuit | Pins measured | Resistance |
+| --- | --- | ---: |
+| Front interior | 6–20 | 4.7 Ω |
+| Rear interior | 8–22 | 4.7 Ω |
+| Luggage compartment | 10–18 | 4.7 Ω |
+| Rear bumper | 13–25 | 4.7 Ω |
+
+All four read the same 4.7 Ω. The tested antenna terminals also showed no continuity to chassis ground. Pin 16 had continuity to ground; with the battery reconnected, I measured 12.1 V between pin 14 (KL30) and pin 16 (ground), with the charger disconnected.
+
+These checks didn't prove the antennas worked properly at their operating frequency, nor did a continuity beep prove the ground was good under load. But they made a collection of open-circuit antennas a less convincing explanation.
+
+### Opening the CA module
+
+This was the original-looking Siemens VDO Passive Go Steuergerät II, labelled BMW part number `61.35-6987184` and Siemens VDO `5WK49135A`.
+
+<PostImage src="/static/images/e91-comfort-access-diagnosis/05-original-ca-module.jpg" alt="The original BMW Siemens VDO Passive Go II module, labelled with BMW part number 6987184" subtitle="Label on the original module: BMW 61.35-6987184, Siemens VDO 5WK49135A" />
+
+I opened the casing and looked for water damage, green corrosion, broken solder joints and overheated components. The connector pins were clean, and the PCB looked clean too. There were a couple of empty component positions that looked factory-unpopulated, not like parts had snapped off. The board also had a protective coating.
+
+<PostImage src="/static/images/e91-comfort-access-diagnosis/06-ca-module-pcb.jpg" alt="Inside the original CA module, showing the coated circuit board, connector and relays with no obvious corrosion" subtitle="Inside the original module: a coated board with no corrosion or burnt components" />
+
+A board can fail without looking burnt or corroded, of course. At this point I had reasonable evidence against obvious wiring faults, but no visual smoking gun inside the module.
+
+### A firmware rabbit hole
+
+One oddity: INPA identification reported `9147052`, not `6987184` from the case label.
+
+<PostImage src="/static/images/e91-comfort-access-diagnosis/07-original-pgs-identification.png" alt="INPA identifying PGS software number 9147052 and showing a manufacture date of 26 October 2006" subtitle="Identification of the original module: software number 9147052, manufactured 26 October 2006" />
+
+Its reported manufacture date was 26 October 2006, consistent with a module that could have been fitted when the car was built. The original UIF (User Information Field, the programming record held by control units) showed PGS ZB `9147052`, VIN suffix matching my car, and a date of 13 November 2008. Quite a few other modules had the same UIF date, pointing towards a broader software update rather than an obvious one-off replacement.
+
+I found discussion suggesting `9147052` might be questionable for an E91, but I had no evidence that it caused this fault. I left the firmware alone. The INPA antenna test was still failing consistently; that was the stronger lead.
+
+## The Fix
+
+I bought a used CA module from an online parts reseller for around £31 after a discount, which was much cheaper than the other used modules I found. It reported a 2013 manufacture date and is a later revision of the same unit: BMW part number `61.35-9134708`, Siemens VDO `5WK49135B` and FSV `4.80.0`. The relevant numbers on its label matched my original: the same hardware, coding and diagnostic indexes (`A`, `04`, `609`) and the same MCV, OSV and AI versions. BMW lists `9134708` as superseding older revisions including `6987184`, `6950754` and `6955753`, so it is a direct replacement for my original.
+
+<PostImage src="/static/images/e91-comfort-access-diagnosis/08-old-and-new-ca-modules.jpg" alt="The original 6987184 Comfort Access module next to the replacement 9134708 module" subtitle="The original module (left) and the replacement (right)" />
+
+<PostImage src="/static/images/e91-comfort-access-diagnosis/09-replacement-ca-module.jpg" alt="Label on the replacement BMW Siemens VDO Passive Go II module showing BMW part number 9134708" subtitle="Label on the replacement module: BMW 61.35-9134708, Siemens VDO 5WK49135B" />
+
+At first, pressing Start/Stop still gave the crossed-out key. I inserted and removed the key, tried again, and suddenly passive ignition, and even engine starting, worked. It wasn't reliable with the key in my pocket yet, but this was the first time I'd had keyless start at all.
+
+The replacement's UIF showed ZB `9134708`, with a zeroed VIN field. That differed from the original module's `9147052`, but it wasn't evidence by itself that the new module needed flashing. Default coding was necessary, though. When I read the module's coding trace file, it still held configuration from the car it came from, such as which door handles were fitted and which antenna configuration was present. I backed up the replacement's trace file with [NCS Workbench](/blog/ncs-workbench), a tool I built to take the file juggling out of NCS Expert, then default-coded it to the existing vehicle order (VO/FA, BMW's list of installed options) using NCS Expert. My car already had factory Comfort Access (`$322`), so I didn't add or remove any VO options.
+
+The only coding write I made was:
+
+```text
+PGS > factory VO-based coding: existing donor coding → SG_CODIEREN defaults
+```
+
+In NCS Expert, I read the FA from CAS under chassis `E89`, selected `PGS`, ensured I wasn't applying an unexpected `FSW_PSW.MAN` override, and ran `SG_CODIEREN`.
+
+Then I cleared the PGS errors and ran the antenna test again.
+
+Zero errors. The original `A068`–`A06B` faults didn't return in that test.
+
+The replacement had initially shown two different faults, `A0A9` (`TAGE_BFT_Watchdog_Timer`) and `A089` (`TAGE_FAT_Watchdog_Timer`), with older stored mileages. Those may have come from the donor car; I didn't establish that definitively.
+
+<PostImage src="/static/images/e91-comfort-access-diagnosis/10-replacement-watchdog-faults.png" alt="Replacement PGS initially showing watchdog codes A0A9 and A089 rather than the original four antenna faults" subtitle="Fault memory of the replacement module before clearing: two watchdog faults from older mileages" />
+
+## Results
+
+The main fault was fixed: the E91 can now detect the Comfort Access key and start without the key inserted. The antenna test also went from immediately reproducing four faults to returning none after the module swap and coding.
+
+CAS diagnostics showed key number 1 as a valid ID sensor Passive Access, with the key position reported as Interior and Passive Access Active, while no key was in the slot.
+
+<PostImage src="/static/images/e91-comfort-access-diagnosis/11-cas-passive-key-status.png" alt="CAS diagnostics recognising key 1 as a valid passive-access key inside the vehicle" subtitle="CAS live data with no key in the slot: a valid Passive Access key detected inside the car" />
+
+There is still a separate problem: detection range is marginal. Passive door-handle operation needed the key close even with the old module, and the same behaviour remained with the replacement. The key often works outside my pocket, but not reliably when tucked deeper inside it.
+
+I even reproduced a failure by pushing the pocket holding the key under the laptop I had on my lap while running INPA. Moving the pocket away allowed detection again, so the laptop was likely causing interference.
+
+I measured 3.017 V open-circuit on the Toshiba CR2032 fitted in the key in July 2026. That's not proof of a failed battery, because a coin cell can look fine without load and sag during use. A fresh CR2032 is next on the list; I haven't recorded a confirmed battery-related fix yet.
+
+## Gotchas / Things I'd Do Differently
+
+- **Separate electrical diagnostics from key detection.** An antenna test passing doesn't prove strong enough reception in every key position. Conversely, a crossed-out key icon doesn't automatically mean the CAS immobiliser is faulty.
+- **Don't assume a case label and a software/ZB number must match.** The original module's sticker said `6987184`, while its programming record said `9147052`. They describe different aspects of the module's history.
+- **Don't change firmware based on one forum post.** I didn't flash anything. Swapping the module and running `SG_CODIEREN` was enough to get the antenna test passing.
+- **Record the donor module's state before coding.** Its UIF showed ZB `9134708` and a zeroed VIN. The VIN remained zeroed after `SG_CODIEREN`, which does not necessarily write UIF identity information. I left it alone rather than trying to force a VIN update for cosmetic consistency.
+- **Use a proper voltage and ground check.** My 4.7 Ω results ruled out obvious opens, not every possible RF fault. Battery-disconnected resistance testing and powered voltage testing are different jobs; I disconnected the negative terminal again before each resistance test.
+- **Don't use stacked batteries as a shortcut.** I measured about 6.5 V from two CR2016 cells stacked together, compared with the intended single 3 V CR2032. I didn't put 6.5 V into my only CA key.
+
+I also found `EMV_WORKAROUND_ON_OFF` in PGS coding, translated as an electromagnetic-interference workaround. Mine was set to `nicht_aktiv`. I didn't change it because I couldn't establish what the workaround actually changed, and the module swap had already fixed the repeatable antenna faults.
+
+For now, I'm calling this one confirmed repair and one remaining diagnosis: a faulty original CA module replaced and coded successfully, with an independent or additional key-detection range issue still to investigate.

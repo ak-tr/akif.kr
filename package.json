@@ -5,6 +5,7 @@
   "engines": {
     "node": ">=22.22.0"
   },
+  "packageManager": "pnpm@9.14.2",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
