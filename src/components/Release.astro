@@ -8,14 +8,21 @@ const { repo, tag } = Astro.props;
 ---
 <span data-release={repo.split("/")[1]}>{tag ?? "latest"}</span>
 
-<script>
-    // A new release shows without a redeploy. The endpoint is functions/api/releases/[repo].ts, cached at the edge.
-    // astro:page-load because ClientRouter runs this once per session.
-    document.addEventListener("astro:page-load", () => {
-        document.querySelectorAll<HTMLElement>("[data-release]").forEach(async (el) => {
-            const res = await fetch(`/api/releases/${el.dataset.release}`).catch(() => null);
-            const tag = res?.ok && (await res.json()).tag;
-            if (tag) el.textContent = tag;
-        });
-    });
+<!--
+    Inline so the last tag this browser saw is in place before the first paint, then refreshed in the background.
+    The endpoint is functions/api/releases/[repo].ts, cached at the edge. data-astro-rerun runs it again after ClientRouter navigations.
+-->
+<script is:inline data-astro-rerun>
+    (() => {
+        const el = document.currentScript.previousElementSibling, key = `release:${el.dataset.release}`;
+        try { el.textContent = localStorage.getItem(key) || el.textContent; } catch {}
+        fetch(`/api/releases/${el.dataset.release}`)
+            .then((res) => res.ok && res.json())
+            .then((data) => {
+                if (!data?.tag) return;
+                el.textContent = data.tag;
+                try { localStorage.setItem(key, data.tag); } catch {}
+            })
+            .catch(() => {});
+    })();
 </script>
