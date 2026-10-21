@@ -49,6 +49,13 @@
         "responses": { "200": { "$ref": "#/components/responses/Markdown" }, "404": { "description": "No such guide" } }
       }
     },
+    "/posts.json": {
+      "get": {
+        "summary": "Every post and guide with slug, title, summary, date, tags, keywords and URLs",
+        "operationId": "getPostIndex",
+        "responses": { "200": { "description": "Post index", "content": { "application/json": {} } } }
+      }
+    },
     "/llms.txt": {
       "get": {
         "summary": "Agent-oriented index of every post and guide, linking to their markdown versions",

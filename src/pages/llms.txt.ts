@@ -29,6 +29,8 @@ ${guides.join('\n')}
 ## Optional
 
 - [About](${new URL('index.md', site)}): about the author
+- [MCP server](${new URL('mcp', site)}): Streamable HTTP, tools list_posts, search_posts and get_post
+- [Post index](${new URL('posts.json', site)}): every post and guide as JSON
 - [API catalog](${new URL('.well-known/api-catalog', site)})
 - [RSS feed](${new URL('rss.xml', site)}): every post with its summary
 - [OpenAPI description](${new URL('openapi.json', site)})

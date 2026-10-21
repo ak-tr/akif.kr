@@ -12,6 +12,7 @@ All content is public and read-only. No registration, API key or `Authorization`
 - https://akif.kr/llms.txt lists every post and guide with a summary and a link to its markdown version.
 - https://akif.kr/rss.xml has every post, newest first, with dates and tags.
 - https://akif.kr/sitemap-index.xml lists every page.
+- https://akif.kr/posts.json has every post and guide as JSON, with tags and keywords.
 
 ## Get markdown
 
@@ -23,6 +24,10 @@ Either:
 This works for the homepage (`/index.md`), blog posts (`/blog/<slug>`) and guides (`/909dimensions/guide/<slug>`). Other pages, such as tags and the gallery, are HTML only.
 
 Images are absolute URLs under `https://akif.kr/static/`.
+
+## MCP
+
+If you support MCP, connect to `https://akif.kr/mcp` (Streamable HTTP, no auth). Tools: `list_posts`, `search_posts` (words in title, summary, tags or keywords) and `get_post` (full markdown by slug).
 
 ## Usage policy
 
