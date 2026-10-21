@@ -70,6 +70,24 @@ const guide = defineCollection({
     }),
 });
 
+const projects = defineCollection({
+    loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
+    schema: z.object({
+        title: z.string(),
+        summary: z.string(),
+        kind: z.string(), // e.g. "Web app", "Windows app"
+        language: z.string(),
+        platform: z.string(),
+        stack: z.array(z.string()),
+        started: z.coerce.date(),
+        repo: z.string(), // GitHub "owner/name"
+        site: z.string().url().optional(),
+        download: z.string().optional(), // release asset name, shown in place of the site button
+        post: reference('blog').optional(),
+        image: z.object({ src: z.string(), alt: z.string() }),
+    }),
+});
+
 const tags = defineCollection({
     loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/tags' }),
     schema: z.object({
@@ -81,4 +99,4 @@ const tags = defineCollection({
     }),
 });
 
-export const collections = { blog, authors, tags, gallery, guide };
+export const collections = { blog, authors, tags, gallery, guide, projects };

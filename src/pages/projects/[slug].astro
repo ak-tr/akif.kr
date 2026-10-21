@@ -1,0 +1,75 @@
+---
+import { type CollectionEntry, getCollection, getEntry, render } from "astro:content";
+
+import RootLayout from "@/layouts/RootLayout.astro";
+import SectionContainer from "@/components/SectionContainer.astro";
+import PageTitle from "@/components/PageTitle.astro";
+import Hero from "@/components/Hero.astro";
+import TLDR from "@/components/TLDR.astro";
+import TLDRRow from "@/components/TLDRRow.astro";
+import { latestRelease } from "@/functions";
+
+export async function getStaticPaths() {
+    const projects = await getCollection("projects");
+    return projects.map((project) => ({ params: { slug: project.id }, props: { project } }));
+}
+
+const { project } = Astro.props as { project: CollectionEntry<"projects"> };
+const { data } = project;
+const { Content } = await render(project);
+
+const github = `https://github.com/${data.repo}`;
+const release = data.download ? await latestRelease(data.repo) : undefined;
+const post = data.post && await getEntry(data.post);
+
+// Primary action: the download for desktop apps, the live site for web ones
+const actions = [
+    data.download
+        ? { text: "Download .exe ↓", meta: release, href: `${github}/releases/latest/download/${data.download}` }
+        : data.site && { text: `Open ${new URL(data.site).host} ↗`, href: data.site },
+    { text: "Source on GitHub ↗", href: github },
+    post && { text: "Read the write-up →", href: `/blog/${post.id}` },
+].filter((action) => !!action);
+
+const month = (d: Date) => d.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+---
+
+<RootLayout title={data.title} description={data.summary} image={data.image.src}>
+    <SectionContainer>
+        <article>
+            <header class="pt-2 pb-4">
+                <a href="/projects" class="font-mono text-xs uppercase tracking-wide text-neutral-500 hover:text-white">← Projects</a>
+                <p class="font-mono mt-10 flex flex-wrap gap-x-3 gap-y-1 text-xs uppercase tracking-wide text-neutral-500">
+                    {[data.kind, data.language, release, data.started.getFullYear()].filter(Boolean).map((item, i) => (
+                        <>{i > 0 && <span aria-hidden="true">/</span>}<span>{item}</span></>
+                    ))}
+                </p>
+                <div class="mt-4"><PageTitle>{data.title}</PageTitle></div>
+                <p class="mt-4 font-sans text-lg text-neutral-400">{data.summary}</p>
+                <!-- Buttons from the Mosaic guide: primary is inverted, every button flips on hover/focus -->
+                <div class="mt-8 flex flex-wrap gap-[2px]">
+                    {actions.map(({ text, href, meta }, i) => (
+                        <a href={href} {...(href.startsWith("/") ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+                           class:list={["font-mono inline-flex basis-full items-baseline justify-between gap-3.5 border px-5 py-3.5 text-xs uppercase tracking-wide transition-colors focus-visible:outline-none sm:basis-auto",
+                               i === 0
+                                   ? "border-invert bg-invert text-black hover:bg-tile hover:text-white focus-visible:bg-tile focus-visible:text-white"
+                                   : "border-neutral-800 bg-tile text-white hover:bg-invert hover:text-black focus-visible:bg-invert focus-visible:text-black"]}>
+                            <span>{text}</span>
+                            {meta && <span class="text-[11px] opacity-60">{meta}</span>}
+                        </a>
+                    ))}
+                </div>
+            </header>
+            <Hero src={data.image.src} alt={data.image.alt}/>
+            <TLDR label="Details" fix="">
+                <TLDRRow label="Platform">{data.platform}</TLDRRow>
+                <TLDRRow label="Stack" chips={data.stack}/>
+                <TLDRRow label="Started">{month(data.started)}</TLDRRow>
+                <TLDRRow label="Repo"><a href={github} class="text-white underline decoration-neutral-600 underline-offset-[3px] hover:decoration-white">{data.repo}</a></TLDRRow>
+            </TLDR>
+            <div class="prose max-w-none pb-8 dark:prose-invert">
+                <Content/>
+            </div>
+        </article>
+    </SectionContainer>
+</RootLayout>
