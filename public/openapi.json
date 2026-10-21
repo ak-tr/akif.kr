@@ -1,0 +1,109 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "akif.kr content",
+    "version": "1.0.0",
+    "description": "Read-only access to the public pages of akif.kr. No authentication, see https://akif.kr/auth.md. Pages that have a markdown version return it when requested with `Accept: text/markdown`, or directly at the page URL without the trailing slash plus `.md`. Usage preferences are declared as Content Signals in robots.txt.",
+    "contact": { "name": "Akif Karakus", "email": "akif@muhl.is", "url": "https://akif.kr/" }
+  },
+  "servers": [{ "url": "https://akif.kr" }],
+  "security": [],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Homepage: about the author and a list of every post",
+        "operationId": "getHomepage",
+        "parameters": [{ "$ref": "#/components/parameters/Accept" }],
+        "responses": { "200": { "$ref": "#/components/responses/Page" } }
+      }
+    },
+    "/blog/{slug}/": {
+      "get": {
+        "summary": "A blog post",
+        "operationId": "getPost",
+        "parameters": [{ "$ref": "#/components/parameters/Slug" }, { "$ref": "#/components/parameters/Accept" }],
+        "responses": { "200": { "$ref": "#/components/responses/Page" }, "404": { "description": "No such post" } }
+      }
+    },
+    "/blog/{slug}.md": {
+      "get": {
+        "summary": "A blog post as markdown",
+        "operationId": "getPostMarkdown",
+        "parameters": [{ "$ref": "#/components/parameters/Slug" }],
+        "responses": { "200": { "$ref": "#/components/responses/Markdown" }, "404": { "description": "No such post" } }
+      }
+    },
+    "/909dimensions/guide/{slug}/": {
+      "get": {
+        "summary": "A 909 Dimensions product guide",
+        "operationId": "getGuide",
+        "parameters": [{ "$ref": "#/components/parameters/Slug" }, { "$ref": "#/components/parameters/Accept" }],
+        "responses": { "200": { "$ref": "#/components/responses/Page" }, "404": { "description": "No such guide" } }
+      }
+    },
+    "/909dimensions/guide/{slug}.md": {
+      "get": {
+        "summary": "A 909 Dimensions product guide as markdown",
+        "operationId": "getGuideMarkdown",
+        "parameters": [{ "$ref": "#/components/parameters/Slug" }],
+        "responses": { "200": { "$ref": "#/components/responses/Markdown" }, "404": { "description": "No such guide" } }
+      }
+    },
+    "/posts.json": {
+      "get": {
+        "summary": "Every post and guide with slug, title, summary, date, tags, keywords and URLs",
+        "operationId": "getPostIndex",
+        "responses": { "200": { "description": "Post index", "content": { "application/json": {} } } }
+      }
+    },
+    "/llms.txt": {
+      "get": {
+        "summary": "Agent-oriented index of every post and guide, linking to their markdown versions",
+        "operationId": "getLlmsTxt",
+        "responses": { "200": { "description": "llms.txt index", "content": { "text/plain": {} } } }
+      }
+    },
+    "/rss.xml": {
+      "get": {
+        "summary": "RSS feed of every blog post, newest first",
+        "operationId": "getRssFeed",
+        "responses": { "200": { "description": "RSS 2.0 feed", "content": { "application/rss+xml": {} } } }
+      }
+    },
+    "/sitemap-index.xml": {
+      "get": {
+        "summary": "Sitemap of every page",
+        "operationId": "getSitemap",
+        "responses": { "200": { "description": "Sitemap index", "content": { "application/xml": {} } } }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "Slug": {
+        "name": "slug",
+        "in": "path",
+        "required": true,
+        "description": "Page slug, as listed in /llms.txt or the sitemap",
+        "schema": { "type": "string", "example": "ncs-workbench" }
+      },
+      "Accept": {
+        "name": "Accept",
+        "in": "header",
+        "required": false,
+        "description": "Send `text/markdown` to get the markdown version instead of HTML",
+        "schema": { "type": "string", "enum": ["text/html", "text/markdown"], "default": "text/html" }
+      }
+    },
+    "responses": {
+      "Page": {
+        "description": "The page as HTML, or as markdown when requested with `Accept: text/markdown`",
+        "content": { "text/html": {}, "text/markdown": {} }
+      },
+      "Markdown": {
+        "description": "The page as markdown",
+        "content": { "text/markdown": {} }
+      }
+    }
+  }
+}

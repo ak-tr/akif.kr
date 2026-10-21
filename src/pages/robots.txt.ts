@@ -33,6 +33,7 @@ const getRobotsTxt = (sitemapURL: URL) => `\
 ${easterEgg.split('\n').map(line => `# ${line.trimEnd()}`).join('\n')}
 
 User-agent: *
+Content-Signal: ai-train=no, search=yes, ai-input=yes
 Disallow: /cdn-cgi/l/email-protection
 
 ${blockedAIAgents.map(agent => {

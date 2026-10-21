@@ -5,6 +5,7 @@ import '@/styles/global.css';
 import { SITE_METADATA } from "@/consts";
 import { ClientRouter } from 'astro:transitions';
 import '@fontsource/onest';
+import WebMcpTools from '@/components/WebMcpTools.astro';
 
 interface Props {
   title: string;
@@ -53,6 +54,8 @@ const jsonLd = article && {
 
     <!-- Canonical URL -->
     <link rel="canonical" href={canonicalURL}/>
+    <link rel="alternate" type="application/rss+xml" title={SITE_METADATA.title} href="/rss.xml"/>
+    <link rel="ai-catalog" href="/.well-known/ai-catalog.json"/>
 
     <!-- Primary Meta Tags -->
     <title>{title}</title>
@@ -105,4 +108,6 @@ const jsonLd = article && {
         applyTheme();
         document.addEventListener("astro:after-swap", applyTheme);
     </script>
+
+    <WebMcpTools />
 </head>

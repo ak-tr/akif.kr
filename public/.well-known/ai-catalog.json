@@ -1,0 +1,45 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "akif.kr",
+    "identifier": "did:web:akif.kr"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:akif.kr:server:blog",
+      "displayName": "akif.kr MCP server",
+      "description": "Read-only MCP server over Akif Karakus's blog: list, search and read posts and guides as markdown. No authentication.",
+      "type": "application/mcp-server-card+json",
+      "url": "https://akif.kr/.well-known/mcp/server-card.json",
+      "representativeQueries": [
+        "how do I code cruise control from km/h to mph on a BMW E91",
+        "fix BMW adaptive headlight SMC 9CBD 9CBE errors",
+        "small form factor custom loop watercooling build",
+        "run Surfshark behind a Tailscale exit node"
+      ]
+    },
+    {
+      "identifier": "urn:air:akif.kr:api:content",
+      "displayName": "akif.kr content API",
+      "description": "HTTP access to every page as HTML or markdown, plus a JSON post index, RSS feed and sitemap.",
+      "type": "application/vnd.oai.openapi+json",
+      "url": "https://akif.kr/openapi.json",
+      "representativeQueries": [
+        "get a blog post from akif.kr as markdown",
+        "list every post on akif.kr with tags and dates",
+        "subscribe to new akif.kr posts"
+      ]
+    },
+    {
+      "identifier": "urn:air:akif.kr:skill:read-akif-kr",
+      "displayName": "Read akif.kr",
+      "description": "Agent skill explaining how to find and read akif.kr content as markdown, and its usage policy.",
+      "type": "text/markdown",
+      "url": "https://akif.kr/.well-known/agent-skills/read-akif-kr/SKILL.md",
+      "representativeQueries": [
+        "how should an agent read akif.kr",
+        "can I use akif.kr content in AI answers"
+      ]
+    }
+  ]
+}

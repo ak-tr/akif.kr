@@ -1,0 +1,23 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://akif.kr/",
+      "service-desc": [
+        { "href": "https://akif.kr/openapi.json", "type": "application/vnd.oai.openapi+json" }
+      ],
+      "service-doc": [
+        { "href": "https://akif.kr/llms.txt", "type": "text/plain" },
+        { "href": "https://akif.kr/auth.md", "type": "text/markdown" }
+      ]
+    },
+    {
+      "anchor": "https://akif.kr/mcp",
+      "service-desc": [
+        { "href": "https://akif.kr/.well-known/mcp/server-card.json", "type": "application/json" }
+      ],
+      "service-doc": [
+        { "href": "https://akif.kr/.well-known/agent-skills/read-akif-kr/SKILL.md", "type": "text/markdown" }
+      ]
+    }
+  ]
+}

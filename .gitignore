@@ -30,3 +30,6 @@ pnpm-debug.log*
 .firebaserc
 
 yarn.lock
+
+# wrangler local dev state
+.wrangler/

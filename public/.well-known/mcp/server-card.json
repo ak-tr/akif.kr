@@ -1,0 +1,16 @@
+{
+  "name": "kr.akif/blog",
+  "version": "1.0.0",
+  "title": "akif.kr",
+  "description": "Read-only access to Akif Karakus's blog: list, search and read posts and guides as markdown. No authentication.",
+  "websiteUrl": "https://akif.kr/",
+  "serverInfo": { "name": "akif-kr", "version": "1.0.0" },
+  "transport": { "type": "streamable-http", "endpoint": "https://akif.kr/mcp" },
+  "remotes": [{ "type": "streamable-http", "url": "https://akif.kr/mcp" }],
+  "capabilities": { "tools": {} },
+  "tools": [
+    { "name": "list_posts", "description": "List every blog post and guide with slug, title, summary, date, tags and URLs." },
+    { "name": "search_posts", "description": "Find posts and guides by words in their title, summary, tags or keywords." },
+    { "name": "get_post", "description": "Get the full content of a post or guide as markdown, by slug." }
+  ]
+}
