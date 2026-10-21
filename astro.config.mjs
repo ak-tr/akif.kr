@@ -1,3 +1,4 @@
+import { readdirSync, readFileSync } from "node:fs";
 import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
@@ -20,11 +21,28 @@ import {
     transformerMetaHighlight,
 } from '@shikijs/transformers'
 
+// Post URL -> lastmod (or date) from frontmatter, for the sitemap's <lastmod>
+const postDates = new Map(
+    [["blog", "blog"], ["guide", "909dimensions/guide"]].flatMap(([dir, path]) =>
+        readdirSync(`./src/content/${dir}`).map((file) => {
+            const frontmatter = readFileSync(`./src/content/${dir}/${file}`, "utf8");
+            const date = frontmatter.match(/^lastmod:\s*["']?([\d-]+)/m) ?? frontmatter.match(/^date:\s*["']?([\d-]+)/m);
+            return [new URL(`${path}/${file.replace(/\.mdx?$/, "")}/`, SITE_METADATA.siteUrl).href, date?.[1]];
+        })
+    )
+);
+
 // https://astro.build/config
 export default defineConfig({
     integrations: [
         mdx(),
-        sitemap(),
+        sitemap({
+            serialize(item) {
+                const lastmod = postDates.get(item.url);
+                if (lastmod) item.lastmod = lastmod;
+                return item;
+            },
+        }),
         solidJs(),
     ],
     prefetch: true,
