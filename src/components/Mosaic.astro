@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { tileSize } from "@/utils/tileSize";
 
 interface Props {
     posts: CollectionEntry<'blog'>[];
@@ -10,20 +11,12 @@ interface Props {
 
 const { posts, total = posts.length, start = 0 } = Astro.props;
 
-// Groups of three: one 2x2 square + two 1x1 squares, big tile alternating sides.
-// Leftovers widen to fill the row so the grid never has holes.
-const full = posts.length - (posts.length % 3);
-const sizeOf = (i: number) => {
-    if (i < full) return i % 3 ? "" : Math.floor(i / 3) % 2 ? "big right" : "big";
-    return posts.length - full === 1 ? "wide-3" : i === full ? "wide-2" : "";
-};
-
 const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 ---
 
 <div class="mosaic">
     {posts.map(({ id, data: { title, date, summary, tags } }, i) => (
-        <a class:list={["tile", sizeOf(i)]} href={`/blog/${id}`}>
+        <a class:list={["tile", tileSize(i, posts.length)]} href={`/blog/${id}`}>
             <div class="top font-mono">
                 <time datetime={date.toISOString()}>{fmt(date)}</time>
                 <span>{tags[0]?.id.replace("-", " ")}</span>
