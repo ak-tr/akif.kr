@@ -1,0 +1,40 @@
+---
+import { getCollection } from "astro:content";
+
+import RootLayout from "@/layouts/RootLayout.astro";
+import Release from "@/components/Release.astro";
+import { latestRelease } from "@/functions";
+
+const projects = (await getCollection("projects"))
+    .sort((a, b) => b.data.started.getTime() - a.data.started.getTime());
+
+const releases = await Promise.all(projects.map(({ data }) => data.download ? latestRelease(data.repo) : undefined));
+const years = projects.map(({ data }) => data.started.getFullYear());
+---
+
+<RootLayout title="Projects" description="Things I've built, for the web and not.">
+    <div class="grid gap-6 pb-10 pt-4 sm:grid-cols-[1fr_auto] sm:items-end">
+        <h1 class="font-sans text-6xl font-light leading-[.9] tracking-[-.06em] sm:text-8xl md:text-9xl">Projects</h1>
+        <p class="font-mono text-xs uppercase tracking-wide text-neutral-500 sm:text-right">{projects.length} projects / {Math.min(...years)} - {Math.max(...years)}</p>
+    </div>
+    <!-- List layout from the Mosaic guide: full-width tiles, shades rotate like the grid -->
+    <ul class="grid gap-[2px]">
+        {projects.map(({ id, data }, i) => (
+            <li>
+                <a href={`/projects/${id}`}
+                   class:list={["group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 p-5 transition-colors hover:bg-invert hover:text-black focus-visible:bg-invert focus-visible:text-black focus-visible:outline-none md:grid-cols-[120px_minmax(0,1fr)_24px] md:gap-6 md:p-7",
+                       i % 4 === 1 ? "bg-tile-2" : i % 5 === 2 ? "bg-tile-3" : "bg-tile"]}>
+                    <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-number transition-colors group-hover:text-black group-focus-visible:text-black md:block" aria-hidden="true">{String(projects.length - i).padStart(2, "0")}</span>
+                    <div>
+                        <p class="font-mono text-[11px] uppercase tracking-wide opacity-55">
+                            {data.kind} / {data.language} / {data.download && <><Release repo={data.repo} tag={releases[i]}/> / </>}{years[i]}
+                        </p>
+                        <h2 class="mt-2 font-sans text-[22px] font-medium leading-tight tracking-[-.03em] md:text-[28px]">{data.title}</h2>
+                        <p class="mt-1.5 text-sm text-neutral-400 group-hover:text-black/70 group-focus-visible:text-black/70 md:text-[15px]">{data.summary}</p>
+                    </div>
+                    <span class="font-mono text-right text-lg" aria-hidden="true">→</span>
+                </a>
+            </li>
+        ))}
+    </ul>
+</RootLayout>

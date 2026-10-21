@@ -42,9 +42,10 @@ input:-webkit-autofill:focus {
     font-size: 16px;
 }
 
-/* Apply styling to anchor tags and change font for headings */
+/* Headings default to mono. Element selectors only: a class in here (e.g. .font-mono) makes Tailwind
+   copy the rule for every variant like [&_code]:font-mono, and those copies beat font-sans on titles */
 @layer components {
-    *:is(header, h1, h2, h3, h4, h5, h6, .font-mono) {
+    :is(header, h1, h2, h3, h4, h5, h6) {
         font-family: var(--font-mono), monospace;
     }
 }
