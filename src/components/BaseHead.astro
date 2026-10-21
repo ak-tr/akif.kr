@@ -5,6 +5,7 @@ import '@/styles/global.css';
 import { SITE_METADATA } from "@/consts";
 import { ClientRouter } from 'astro:transitions';
 import '@fontsource/onest';
+import WebMcpTools from '@/components/WebMcpTools.astro';
 
 interface Props {
   title: string;
@@ -106,4 +107,6 @@ const jsonLd = article && {
         applyTheme();
         document.addEventListener("astro:after-swap", applyTheme);
     </script>
+
+    <WebMcpTools />
 </head>

@@ -1,0 +1,57 @@
+<script>
+    // WebMCP (https://webmachinelearning.github.io/webmcp/): the same read-only tools as
+    // the /mcp server, for agents driving a browser. Does nothing where the API is missing.
+    import { notFound, searchPosts, type PostEntry } from '@/utils/postSearch';
+
+    type Tool = {
+        name: string;
+        description: string;
+        inputSchema: object;
+        annotations?: { readOnlyHint?: boolean };
+        execute: (input: Record<string, string>) => Promise<unknown>;
+    };
+    const modelContext: { registerTool(tool: Tool): unknown } | undefined =
+        (document as any).modelContext ?? (navigator as any).modelContext;
+
+    const entries = async (): Promise<PostEntry[]> => (await fetch('/posts.json')).json();
+    const text = (value: unknown) => ({
+        content: [{ type: 'text', text: typeof value === 'string' ? value : JSON.stringify(value, null, 2) }],
+    });
+
+    const tools: Tool[] = [
+        {
+            name: 'list_posts',
+            description: 'List every blog post and guide on akif.kr, newest post first, with slug, title, summary, date, tags and URLs.',
+            inputSchema: { type: 'object', properties: {} },
+            execute: async () => text(await entries()),
+        },
+        {
+            name: 'search_posts',
+            description: 'Find posts and guides whose title, summary, tags or keywords contain every word of the query (case-insensitive).',
+            inputSchema: {
+                type: 'object',
+                properties: { query: { type: 'string', minLength: 1, description: 'Words to search for, e.g. "e91 coding"' } },
+                required: ['query'],
+            },
+            execute: async ({ query }) => text(searchPosts(await entries(), query)),
+        },
+        {
+            name: 'get_post',
+            description: 'Get the full content of a post or guide as markdown, by slug.',
+            inputSchema: {
+                type: 'object',
+                properties: { slug: { type: 'string', description: 'Slug from list_posts or search_posts, e.g. "ncs-workbench"' } },
+                required: ['slug'],
+            },
+            execute: async ({ slug }) => {
+                const entry = (await entries()).find((candidate) => candidate.slug === slug);
+                if (!entry) return { ...text(notFound(slug)), isError: true };
+                return text(await (await fetch(new URL(entry.markdown).pathname)).text());
+            },
+        },
+    ];
+
+    for (const tool of tools) {
+        Promise.resolve(modelContext?.registerTool({ ...tool, annotations: { readOnlyHint: true } })).catch(console.warn);
+    }
+</script>
