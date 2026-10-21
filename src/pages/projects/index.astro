@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 
 import RootLayout from "@/layouts/RootLayout.astro";
+import Release from "@/components/Release.astro";
 import { latestRelease } from "@/functions";
 
 const projects = (await getCollection("projects"))
@@ -26,7 +27,7 @@ const years = projects.map(({ data }) => data.started.getFullYear());
                     <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-number transition-colors group-hover:text-black group-focus-visible:text-black md:block" aria-hidden="true">{String(projects.length - i).padStart(2, "0")}</span>
                     <div>
                         <p class="font-mono text-[11px] uppercase tracking-wide opacity-55">
-                            {[data.kind, data.language, releases[i], years[i]].filter(Boolean).join(" / ")}
+                            {data.kind} / {data.language} / {data.download && <><Release repo={data.repo} tag={releases[i]}/> / </>}{years[i]}
                         </p>
                         <h2 class="mt-2 font-sans text-[22px] font-medium leading-tight tracking-[-.03em] md:text-[28px]">{data.title}</h2>
                         <p class="mt-1.5 text-sm text-neutral-400 group-hover:text-black/70 group-focus-visible:text-black/70 md:text-[15px]">{data.summary}</p>

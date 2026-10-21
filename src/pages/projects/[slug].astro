@@ -7,6 +7,7 @@ import PageTitle from "@/components/PageTitle.astro";
 import Hero from "@/components/Hero.astro";
 import TLDR from "@/components/TLDR.astro";
 import TLDRRow from "@/components/TLDRRow.astro";
+import Release from "@/components/Release.astro";
 import { latestRelease } from "@/functions";
 
 export async function getStaticPaths() {
@@ -25,7 +26,7 @@ const post = data.post && await getEntry(data.post);
 // Primary action: the download for desktop apps, the live site for web ones
 const actions = [
     data.download
-        ? { text: "Download .exe ↓", meta: release, href: `${github}/releases/latest/download/${data.download}` }
+        ? { text: "Download .exe ↓", release: true, href: `${github}/releases/latest/download/${data.download}` }
         : data.site && { text: `Open ${new URL(data.site).host} ↗`, href: data.site },
     { text: "Source on GitHub ↗", href: github },
     post && { text: "Read the write-up →", href: `/blog/${post.id}` },
@@ -40,22 +41,25 @@ const month = (d: Date) => d.toLocaleDateString("en-GB", { month: "short", year:
             <header class="pt-2 pb-4">
                 <a href="/projects" class="font-mono text-xs uppercase tracking-wide text-neutral-500 hover:text-white">← Projects</a>
                 <p class="font-mono mt-10 flex flex-wrap gap-x-3 gap-y-1 text-xs uppercase tracking-wide text-neutral-500">
-                    {[data.kind, data.language, release, data.started.getFullYear()].filter(Boolean).map((item, i) => (
-                        <>{i > 0 && <span aria-hidden="true">/</span>}<span>{item}</span></>
-                    ))}
+                    <span>{data.kind}</span>
+                    <span aria-hidden="true">/</span>
+                    <span>{data.language}</span>
+                    {data.download && <><span aria-hidden="true">/</span><Release repo={data.repo} tag={release}/></>}
+                    <span aria-hidden="true">/</span>
+                    <span>{data.started.getFullYear()}</span>
                 </p>
                 <div class="mt-4"><PageTitle>{data.title}</PageTitle></div>
                 <p class="mt-4 font-sans text-lg text-neutral-400">{data.summary}</p>
                 <!-- Buttons from the Mosaic guide: primary is inverted, every button flips on hover/focus -->
                 <div class="mt-8 flex flex-wrap gap-[2px]">
-                    {actions.map(({ text, href, meta }, i) => (
+                    {actions.map(({ text, href, release: showRelease }, i) => (
                         <a href={href} {...(href.startsWith("/") ? {} : { target: "_blank", rel: "noopener noreferrer" })}
                            class:list={["font-mono inline-flex basis-full items-baseline justify-between gap-3.5 border px-5 py-3.5 text-xs uppercase tracking-wide transition-colors focus-visible:outline-none sm:basis-auto",
                                i === 0
                                    ? "border-invert bg-invert text-black hover:bg-tile hover:text-white focus-visible:bg-tile focus-visible:text-white"
                                    : "border-neutral-800 bg-tile text-white hover:bg-invert hover:text-black focus-visible:bg-invert focus-visible:text-black"]}>
                             <span>{text}</span>
-                            {meta && <span class="text-[11px] opacity-60">{meta}</span>}
+                            {showRelease && <span class="text-[11px] opacity-60"><Release repo={data.repo} tag={release}/></span>}
                         </a>
                     ))}
                 </div>

@@ -1,0 +1,21 @@
+---
+interface Props {
+    repo: string; // GitHub "owner/name"
+    tag?: string; // read at build time, shown until the browser has a newer one
+}
+
+const { repo, tag } = Astro.props;
+---
+<span data-release={repo.split("/")[1]}>{tag ?? "latest"}</span>
+
+<script>
+    // A new release shows without a redeploy. The endpoint is functions/api/releases/[repo].ts, cached at the edge.
+    // astro:page-load because ClientRouter runs this once per session.
+    document.addEventListener("astro:page-load", () => {
+        document.querySelectorAll<HTMLElement>("[data-release]").forEach(async (el) => {
+            const res = await fetch(`/api/releases/${el.dataset.release}`).catch(() => null);
+            const tag = res?.ok && (await res.json()).tag;
+            if (tag) el.textContent = tag;
+        });
+    });
+</script>

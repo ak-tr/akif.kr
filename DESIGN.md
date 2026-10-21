@@ -20,7 +20,7 @@ This file covers only what's specific to akif.kr. To change the design itself (a
 ## Site specifics
 
 - **Mosaic grid:** `src/components/Mosaic.astro`, used by `/blog`, `/tags/:slug` and the home page. Pages hold 12 posts (`ITEMS_PER_PAGE`).
-- **Projects:** `/projects` uses the Mosaic list layout, newest first. Project pages use the reading column with the guide's buttons: download for desktop apps (`releases/latest`, version read from GitHub at build time), the live site for web ones. The details box is `TLDR` with `label="Details"`. Screenshots live in `public/static/images/projects/`; run `node scripts/optimiseImages.mjs` after adding one.
+- **Projects:** `/projects` uses the Mosaic list layout, newest first. Project pages use the reading column with the guide's buttons: download for desktop apps (`releases/latest`, version from the build, refreshed in the browser by `Release.astro` from `/api/releases/<repo>`, which caches GitHub at the edge for an hour), the live site for web ones. The details box is `TLDR` with `label="Details"`. Screenshots live in `public/static/images/projects/`; run `node scripts/optimiseImages.mjs` after adding one.
 - **Tag index:** `/tags` uses the square tile look in a 2/4-column grid. Uses items are `bg-tile` cards in a 2-column grid.
 - **Home:** the bio (right) and the Potzo card (left) are staggered 80% wide blocks with gap labels `01 / ABOUT`, `02 / BUILDING`. The portrait is greyscale.
 - **Page shell:** `max-w-6xl` container in `RootLayout`; posts and the guide use the `max-w-2xl` reading column (`SectionContainer`). Post titles use `PageTitle`.
