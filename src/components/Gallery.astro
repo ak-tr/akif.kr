@@ -34,7 +34,7 @@ const processedImages = images.map((img, i) => {
     <li class:list={["aspect-square bg-tile [&:nth-child(4n+2)]:bg-tile-2 [&:nth-child(5n+3)]:bg-tile-3", tiles && tileSize(i, images.length)]}>
       <button
         type="button"
-        class="group relative block h-full w-full overflow-hidden text-left outline-none after:pointer-events-none after:absolute after:inset-0 after:border-2 after:border-invert after:opacity-0 after:transition-opacity can-hover:hover:after:opacity-100 focus-visible:after:opacity-100"
+        class="group relative block h-full w-full overflow-hidden text-left outline-none"
         data-gallery-item
         data-index={`${pad(i + 1)} / ${pad(images.length)}`}
         data-caption={img.caption}
@@ -48,12 +48,11 @@ const processedImages = images.map((img, i) => {
         ) : (
           <img src={img.optimizedSrc} alt={img.alt} loading="lazy" class="absolute inset-0 h-full w-full object-cover"/>
         )}
-        {img.caption && (
-          <span class="absolute inset-x-0 bottom-0 flex gap-3 bg-black px-3 py-2 text-xs text-white opacity-0 transition-opacity can-hover:group-hover:opacity-100 group-focus-visible:opacity-100">
-            <span class="font-mono shrink-0 text-neutral-500">{pad(i + 1)}</span>
-            <span class="line-clamp-2">{img.caption}</span>
-          </span>
-        )}
+        <!-- Slides up from the bottom edge on hover or keyboard focus; captionless photos show their index -->
+        <span class="absolute inset-x-0 bottom-0 flex translate-y-full gap-3 bg-black px-3 py-2 text-xs text-white transition-transform duration-300 motion-reduce:transition-none can-hover:group-hover:translate-y-0 group-focus-visible:translate-y-0">
+          <span class="font-mono shrink-0 text-neutral-500">{img.caption ? pad(i + 1) : `${pad(i + 1)} / ${pad(images.length)}`}</span>
+          {img.caption && <span class="line-clamp-2">{img.caption}</span>}
+        </span>
       </button>
     </li>
   ))}
