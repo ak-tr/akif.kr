@@ -1,0 +1,127 @@
+---
+interface Props {
+    login: string;
+}
+
+const { login } = Astro.props;
+
+// Placeholder the size of GitHub's year (53 weeks) so the page doesn't jump when the real days arrive
+const weeks = 53;
+---
+
+<section class="contributions mt-8 grid gap-5 md:grid-cols-5 md:gap-x-8">
+    <div>
+        <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-number md:block" aria-hidden="true">03</span>
+        <h2 class="font-mono block text-xs uppercase tracking-wide text-neutral-500 md:mt-3">Activity</h2>
+    </div>
+    <div class="md:col-span-4">
+        <div class="font-mono mb-4 flex items-baseline justify-between text-xs uppercase tracking-wide text-neutral-500">
+            <p class="readout">Contributions / last year</p>
+            <a href={`https://github.com/${login}`} class="hover:text-white">GitHub →</a>
+        </div>
+        <div class="graph" style={`--weeks: ${weeks}`} role="img" aria-label="GitHub contributions in the last year">
+            {Array.from({ length: weeks }, (_, i) => (
+                <div class:list={["week", { old: i < weeks - 26 }]}>
+                    {Array.from({ length: 7 }, (_, row) => <span class="day l0" style={`grid-row: ${row + 2}`}></span>)}
+                </div>
+            ))}
+        </div>
+        <div class="font-mono mt-3 flex items-center justify-end gap-[2px] text-[11px] uppercase tracking-wide text-neutral-500" aria-hidden="true">
+            <span class="mr-2">Less</span>
+            {[0, 1, 2, 3, 4].map((level) => <span class={`day l${level} w-3`}></span>)}
+            <span class="ml-2">More</span>
+        </div>
+    </div>
+</section>
+
+<!-- Global because the script builds the days with innerHTML, which scoped styles can't reach -->
+<style is:global>
+    .contributions .graph {
+        display: grid;
+        grid-template-columns: repeat(var(--weeks), minmax(0, 1fr));
+        gap: 2px;
+    }
+    .contributions .week {
+        display: grid;
+        grid-template-rows: 18px repeat(7, 1fr);
+        gap: 2px;
+    }
+    .contributions .month {
+        grid-row: 1;
+        font-family: var(--font-mono), monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: rgb(var(--muted));
+        white-space: nowrap;
+        width: 0;
+    }
+    .contributions .day { aspect-ratio: 1; }
+    .contributions .day[data-readout]:hover { background: rgb(var(--white)); }
+    .contributions .l0 { background: rgb(var(--tile)); }
+    .contributions .l1 { background: rgb(var(--n-800)); }
+    .contributions .l2 { background: rgb(var(--n-600)); }
+    .contributions .l3 { background: rgb(var(--n-400)); }
+    .contributions .l4 { background: rgb(var(--invert)); }
+
+    /* A full year is too small to read on a phone, so show the last 26 weeks */
+    @media (max-width: 720px) {
+        .contributions .graph { grid-template-columns: repeat(26, minmax(0, 1fr)); }
+        .contributions .old { display: none; }
+    }
+</style>
+
+<script>
+    // The days come from functions/api/contributions.ts (edge-cached for a day), fetched only once the graph
+    // scrolls into view, then scanned in week by week.
+    interface Day { date: string; count: number; level: number }
+
+    const date = (iso: string, options: Intl.DateTimeFormatOptions) =>
+        new Date(iso).toLocaleDateString("en-GB", { ...options, timeZone: "UTC" }).replace(",", "");
+    const month = (iso: string) => date(iso, { month: "short" });
+
+    const render = (graph: HTMLElement, readout: HTMLElement, { total, weeks }: { total: number; weeks: Day[][] }) => {
+        graph.style.setProperty("--weeks", String(weeks.length));
+        graph.setAttribute("aria-label", `${total} GitHub contributions in the last year`);
+        graph.innerHTML = weeks.map((week, i) => `
+            <div class="week${i < weeks.length - 26 ? " old" : ""}">
+                ${i > 0 && i < weeks.length - 2 && month(week[0].date) !== month(weeks[i - 1][0].date) ? `<span class="month">${month(week[0].date)}</span>` : ""}
+                ${week.map(({ date: iso, count, level }) => `<span class="day l${level}" style="grid-row: ${new Date(iso).getUTCDay() + 2}"
+                    data-readout="${count} contribution${count === 1 ? "" : "s"} / ${date(iso, { weekday: "short", day: "numeric", month: "short", year: "numeric" })}"></span>`).join("")}
+            </div>`).join("");
+        readout.dataset.default = readout.textContent = `${total.toLocaleString("en-GB")} contributions / last year`;
+
+        if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        // Only visible weeks count, so the scan starts straight away on phones where the older half is hidden
+        [...graph.querySelectorAll<HTMLElement>(".week")].filter((week) => week.offsetParent).forEach((week, col) =>
+            week.querySelectorAll(".day").forEach((day, row) => day.animate(
+                [{ opacity: 0, transform: "scale(.4)" }, { opacity: 1, transform: "scale(1)" }],
+                { duration: 300, delay: col * 15 + row * 8, easing: "ease-out", fill: "backwards" },
+            )));
+    };
+
+    document.addEventListener("astro:page-load", () => {
+        const graph = document.querySelector<HTMLElement>(".contributions .graph");
+        const readout = document.querySelector<HTMLElement>(".contributions .readout");
+        if (!graph || !readout) return;
+
+        const observer = new IntersectionObserver(async ([entry]) => {
+            if (!entry.isIntersecting) return;
+            observer.disconnect();
+            const data = await fetch("/api/contributions").then((res) => res.ok ? res.json() : undefined, () => undefined);
+            if (data) render(graph, readout, data);
+            else readout.textContent = "Couldn't reach GitHub";
+        }, { threshold: 0.5 });
+        observer.observe(graph);
+    });
+
+    // Hovering a day swaps the summary line for that day's count. ClientRouter runs this once per session, so it listens on document.
+    document.addEventListener("mouseover", (e) => {
+        const readout = document.querySelector<HTMLElement>(".contributions .readout");
+        if (!readout?.dataset.default || !(e.target instanceof Element)) return;
+        const day = e.target.closest<HTMLElement>("[data-readout]");
+        // The 2px gaps between days are still inside .graph, so only reset once the pointer leaves it
+        if (day) readout.textContent = day.dataset.readout!;
+        else if (!e.target.closest(".graph")) readout.textContent = readout.dataset.default;
+    });
+</script>
