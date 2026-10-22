@@ -3,6 +3,7 @@ import { type CollectionEntry, getCollection } from "astro:content";
 
 import RootLayout from "./RootLayout.astro";
 import Mosaic from "../components/Mosaic.astro";
+import Contributions from "../components/Contributions.astro";
 import { excludeDrafts, sortBlogPosts } from "../functions";
 
 interface Props {
@@ -51,6 +52,7 @@ const authorPosts = await getCollection("blog", excludeDrafts).then(sortBlogPost
             <span class="font-mono block text-xs uppercase tracking-wide text-neutral-500 md:mt-3">Building</span>
         </div>
     </div>
+    <Contributions login="ak-tr"/>
     {authorPosts.length > 0 && (
         <section class="pt-16">
             <div class="font-mono mb-6 flex items-baseline justify-between text-xs uppercase tracking-wide text-neutral-500">
