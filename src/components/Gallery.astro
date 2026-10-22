@@ -73,7 +73,7 @@ const processedImages = images.map((img, i) => {
   }
 </style>
 
-<dialog id="gallery-dialog" class="m-auto max-h-none max-w-none bg-transparent p-4 text-neutral-200 backdrop:bg-black/90">
+<dialog id="gallery-dialog" class="m-auto max-h-none max-w-none overflow-visible bg-transparent p-4 text-neutral-200 backdrop:bg-black/90">
   <figure class="flex flex-col gap-3">
     <img alt="" class="max-h-[80vh] w-auto max-w-[90vw] object-contain"/>
     <figcaption class="flex items-baseline gap-4 text-sm">
@@ -85,22 +85,78 @@ const processedImages = images.map((img, i) => {
 </dialog>
 
 <script>
-  // Delegated on document because ClientRouter runs this once per session; Esc closing comes free with <dialog>
-  document.addEventListener('click', (e) => {
-    const dialog = document.getElementById('gallery-dialog') as HTMLDialogElement | null;
-    if (!dialog || !(e.target instanceof Element)) return;
+  // Delegated on document because ClientRouter runs this once per session
+  const still = matchMedia('(prefers-reduced-motion: reduce)');
+  const timing = { duration: 420, easing: 'cubic-bezier(.2, .8, .2, 1)' };
+  let from: HTMLElement | null = null; // the tile the open photo grew out of
+  let closing = false;
 
-    // Clicks on the backdrop land on the dialog itself
-    if (e.target === dialog || e.target.closest('[data-close]')) return dialog.close();
+  const isGalleryDialog = (t: EventTarget | null): t is HTMLDialogElement => t instanceof HTMLDialogElement && t.id === 'gallery-dialog';
 
-    const item = e.target.closest<HTMLElement>('[data-gallery-item]');
-    if (!item) return;
+  // The full photo scaled and clipped to exactly cover its tile, as object-fit: cover does, then its resting state
+  function morph(full: HTMLImageElement, tile: HTMLElement): Keyframe[] {
+    const t = tile.getBoundingClientRect(), f = full.getBoundingClientRect();
+    const s = Math.max(t.width / f.width, t.height / f.height);
+    const x = t.left + t.width / 2 - (f.left + f.width / 2), y = t.top + t.height / 2 - (f.top + f.height / 2);
+    const ix = (f.width - t.width / s) / 2, iy = (f.height - t.height / s) / 2;
+    return [{ transform: `translate(${x}px, ${y}px) scale(${s})`, clipPath: `inset(${iy}px ${ix}px)` }, { transform: 'none', clipPath: 'inset(0px 0px)' }];
+  }
+
+  async function open(dialog: HTMLDialogElement, item: HTMLElement) {
     const thumb = item.querySelector('img')!;
     const full = dialog.querySelector('img')!;
     full.src = thumb.currentSrc || thumb.src;
     full.alt = thumb.alt;
     dialog.querySelector('[data-index]')!.textContent = item.dataset.index ?? '';
     dialog.querySelector('[data-caption]')!.textContent = item.dataset.caption ?? '';
+    // Decode first, then open and animate in the same frame, so the photo never paints at full size before it grows
+    await full.decode().catch(() => {});
     dialog.showModal();
+    if (still.matches) return;
+    from = item;
+    thumb.style.visibility = 'hidden';
+    full.animate(morph(full, item), timing);
+    dialog.animate({ opacity: [0, 1] }, { ...timing, pseudoElement: '::backdrop' });
+    dialog.querySelector('figcaption')!.animate({ opacity: [0, 1] }, { duration: 200, delay: 300, fill: 'backwards' });
+  }
+
+  async function close(dialog: HTMLDialogElement) {
+    if (closing) return;
+    if (from) {
+      closing = true;
+      const full = dialog.querySelector('img')!;
+      const back = { duration: 340, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'forwards' as const };
+      dialog.querySelector('figcaption')!.animate({ opacity: [1, 0] }, { duration: 120, fill: 'forwards' });
+      dialog.animate({ opacity: [1, 0] }, { ...back, pseudoElement: '::backdrop' });
+      await full.animate(morph(full, from).reverse(), back).finished.catch(() => {});
+    }
+    dialog.close();
+  }
+
+  document.addEventListener('click', (e) => {
+    const dialog = document.getElementById('gallery-dialog') as HTMLDialogElement | null;
+    if (!dialog || !(e.target instanceof Element)) return;
+
+    // Clicks on the backdrop land on the dialog itself
+    if (e.target === dialog || e.target.closest('[data-close]')) return close(dialog);
+
+    const item = e.target.closest<HTMLElement>('[data-gallery-item]');
+    if (item) open(dialog, item);
   });
+
+  // cancel and close don't bubble, so listen in the capture phase. Esc shrinks the photo back like Close does
+  document.addEventListener('cancel', (e) => {
+    if (!isGalleryDialog(e.target)) return;
+    e.preventDefault();
+    close(e.target);
+  }, true);
+
+  // However it closed (a second Esc can skip cancel), put the tile back and drop the animations
+  document.addEventListener('close', (e) => {
+    if (!isGalleryDialog(e.target)) return;
+    e.target.getAnimations({ subtree: true }).forEach((a) => a.cancel());
+    from?.querySelector('img')!.style.removeProperty('visibility');
+    from = null;
+    closing = false;
+  }, true);
 </script>
