@@ -1,9 +1,10 @@
 ---
 title: "Fixing BMW E91 Comfort Access: A068, A069, A06A and A06B Antenna Faults"
 date: "2026-10-21"
+lastmod: "2026-10-22"
 tags: ["e9x", "programming"]
 draft: false
-summary: "My E91's keyless start never worked, so I used INPA, a multimeter and NCS Expert to track the problem down to its Comfort Access module. Replacing and coding it fixed the antenna faults, although I'm still chasing a weak key-detection range."
+summary: "My E91's keyless start never worked, so I used INPA, a multimeter and NCS Expert to track the problem down to its Comfort Access module. Replacing and coding it fixed the antenna faults, and a fresh key battery appears to have fixed the weak key-detection range."
 ---
 
 <TLDR>
@@ -12,7 +13,7 @@ summary: "My E91's keyless start never worked, so I used INPA, a multimeter and 
   <TLDRRow label="Meaning">The Comfort Access (PGS) module reports its front interior, rear interior, luggage-compartment and rear bumper antennas as faulty</TLDRRow>
   <TLDRRow label="Cause">A faulty original CA module. All four antenna circuits measured the same 4.7 Ω, ruling out obvious wiring faults</TLDRRow>
   <TLDRRow label="Fix">Used CA module (61.35-9134708, a later revision of the same unit), VO coded with `SG_CODIEREN`</TLDRRow>
-  <TLDRRow label="Still open">Weak key-detection range. A fresh CR2032 is next</TLDRRow>
+  <TLDRRow label="Update">Weak key-detection range. A fresh CR2032 fixed it in a first test</TLDRRow>
 </TLDR>
 
 *Jump straight to the [fix.](#the-fix)*
@@ -23,7 +24,7 @@ My 2007 BMW 335i E91 Touring (N54) came with Comfort Access: BMW's system for lo
 
 I'm used to debugging software, so the plan was to treat this like any other fault: read the state, reproduce it, change one thing at a time and keep the results. The tooling was BMW Standard Tools (mostly INPA for diagnostics and NCS Expert for coding), plus a K+DCAN cable and a multimeter.
 
-I eventually got keyless starting working. The more interesting part was figuring out why, and separating the original fault from a second, still-unresolved range issue.
+I eventually got keyless starting working. The more interesting part was figuring out why, and separating the original fault from a second range issue, which looks to have been the key battery.
 
 ## The Problem
 
@@ -143,6 +144,14 @@ I even reproduced a failure by pushing the pocket holding the key under the lapt
 
 I measured 3.017 V open-circuit on the Toshiba CR2032 fitted in the key in July 2026. That's not proof of a failed battery, because a coin cell can look fine without load and sag during use. A fresh CR2032 is next on the list; I haven't recorded a confirmed battery-related fix yet.
 
+### Update, 22 October 2026: a fresh battery
+
+I replaced the key's coin cell with a new Energizer CR2032. It measured just under 3.3 V open-circuit before going in, compared with 3.017 V on the old Toshiba cell, which suggests the old one was well into its life.
+
+I've tested it once so far, wearing the same trousers as in my earlier tests. The car unlocked on the first try with the key in my pocket, and keyless ignition switched on straight away too.
+
+One test isn't a pattern, so I'll keep an eye on it. But before the swap, the key in that pocket usually needed a second attempt or moving closer to the handle.
+
 ## Gotchas / Things I'd Do Differently
 
 - **Separate electrical diagnostics from key detection.** An antenna test passing doesn't prove strong enough reception in every key position. Conversely, a crossed-out key icon doesn't automatically mean the CAS immobiliser is faulty.
@@ -154,4 +163,4 @@ I measured 3.017 V open-circuit on the Toshiba CR2032 fitted in the key in July 
 
 I also found `EMV_WORKAROUND_ON_OFF` in PGS coding, translated as an electromagnetic-interference workaround. Mine was set to `nicht_aktiv`. I didn't change it because I couldn't establish what the workaround actually changed, and the module swap had already fixed the repeatable antenna faults.
 
-For now, I'm calling this one confirmed repair and one remaining diagnosis: a faulty original CA module replaced and coded successfully, with an independent or additional key-detection range issue still to investigate.
+That makes this one confirmed repair and one likely one: a faulty original CA module replaced and coded successfully, and a weak key-detection range that a fresh CR2032 appears to have fixed. I'll update this post again if the range problem comes back.
