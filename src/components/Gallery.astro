@@ -93,13 +93,15 @@ const processedImages = images.map((img, i) => {
 
   const isGalleryDialog = (t: EventTarget | null): t is HTMLDialogElement => t instanceof HTMLDialogElement && t.id === 'gallery-dialog';
 
-  // The full photo scaled and clipped to exactly cover its tile, as object-fit: cover does, then its resting state
-  function morph(full: HTMLImageElement, tile: HTMLElement): Keyframe[] {
+  const rest = { transform: 'none', clipPath: 'inset(0px 0px)' };
+
+  // The full photo scaled and clipped to exactly cover its tile, as object-fit: cover does
+  function inTile(full: HTMLImageElement, tile: HTMLElement) {
     const t = tile.getBoundingClientRect(), f = full.getBoundingClientRect();
     const s = Math.max(t.width / f.width, t.height / f.height);
     const x = t.left + t.width / 2 - (f.left + f.width / 2), y = t.top + t.height / 2 - (f.top + f.height / 2);
     const ix = (f.width - t.width / s) / 2, iy = (f.height - t.height / s) / 2;
-    return [{ transform: `translate(${x}px, ${y}px) scale(${s})`, clipPath: `inset(${iy}px ${ix}px)` }, { transform: 'none', clipPath: 'inset(0px 0px)' }];
+    return { transform: `translate(${x}px, ${y}px) scale(${s})`, clipPath: `inset(${iy}px ${ix}px)` };
   }
 
   async function open(dialog: HTMLDialogElement, item: HTMLElement) {
@@ -115,7 +117,13 @@ const processedImages = images.map((img, i) => {
     if (still.matches) return;
     from = item;
     thumb.style.visibility = 'hidden';
-    full.animate(morph(full, item), timing);
+    // Hold the start inline too: some browsers paint a frame before the animation applies, which flashed the photo at full size
+    const start = inTile(full, item);
+    Object.assign(full.style, start);
+    full.animate([start, rest], timing).finished.catch(() => {}).then(() => {
+      full.style.removeProperty('transform');
+      full.style.removeProperty('clip-path');
+    });
     dialog.animate({ opacity: [0, 1] }, { ...timing, pseudoElement: '::backdrop' });
     dialog.querySelector('figcaption')!.animate({ opacity: [0, 1] }, { duration: 200, delay: 300, fill: 'backwards' });
   }
@@ -128,7 +136,7 @@ const processedImages = images.map((img, i) => {
       const back = { duration: 340, easing: 'cubic-bezier(.4, 0, .2, 1)', fill: 'forwards' as const };
       dialog.querySelector('figcaption')!.animate({ opacity: [1, 0] }, { duration: 120, fill: 'forwards' });
       dialog.animate({ opacity: [1, 0] }, { ...back, pseudoElement: '::backdrop' });
-      await full.animate(morph(full, from).reverse(), back).finished.catch(() => {});
+      await full.animate([rest, inTile(full, from)], back).finished.catch(() => {});
     }
     dialog.close();
   }
