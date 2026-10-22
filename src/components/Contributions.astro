@@ -83,6 +83,7 @@ const weeks = 53;
     const render = (graph: HTMLElement, readout: HTMLElement, { total, weeks }: { total: number; weeks: Day[][] }) => {
         graph.style.setProperty("--weeks", String(weeks.length));
         graph.setAttribute("aria-label", `${total} GitHub contributions in the last year`);
+        const empty = getComputedStyle(graph.querySelector(".day")!).backgroundColor;
         graph.innerHTML = weeks.map((week, i) => `
             <div class="week${i < weeks.length - 26 ? " old" : ""}">
                 ${i > 0 && i < weeks.length - 2 && month(week[0].date) !== month(weeks[i - 1][0].date) ? `<span class="month">${month(week[0].date)}</span>` : ""}
@@ -92,10 +93,11 @@ const weeks = 53;
         readout.dataset.default = readout.textContent = `${total.toLocaleString("en-GB")} contributions / last year`;
 
         if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        // Each day starts as the empty placeholder colour and fades to its level, so the grid never blanks out.
         // Only visible weeks count, so the scan starts straight away on phones where the older half is hidden
         [...graph.querySelectorAll<HTMLElement>(".week")].filter((week) => week.offsetParent).forEach((week, col) =>
             week.querySelectorAll(".day").forEach((day, row) => day.animate(
-                [{ opacity: 0, transform: "scale(.4)" }, { opacity: 1, transform: "scale(1)" }],
+                [{ backgroundColor: empty, offset: 0 }],
                 { duration: 300, delay: col * 15 + row * 8, easing: "ease-out", fill: "backwards" },
             )));
     };
