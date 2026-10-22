@@ -1,0 +1,56 @@
+# Tells Bing (and the other IndexNow engines) about added, changed or deleted
+# posts once Cloudflare Pages has deployed them
+name: IndexNow
+
+on:
+  push:
+    branches: [main]
+    paths: ['src/content/blog/**', 'src/content/guide/**']
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      checks: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      KEY: c06421f67b0a306d08ed838e87077c8a
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Ping IndexNow
+        run: |
+          urls=$(git diff --name-only --diff-filter=AMD ${{ github.event.before }} ${{ github.sha }} -- src/content/blog src/content/guide \
+            | while read -r f; do
+                grep -q '^draft: true' "$f" 2>/dev/null && continue
+                slug=$(basename "${f%.*}")
+                case $f in
+                  src/content/guide/*) echo "https://akif.kr/909dimensions/guide/$slug/" ;;
+                  *) echo "https://akif.kr/blog/$slug/" ;;
+                esac
+              done)
+          [ -z "$urls" ] && { echo "No published posts changed"; exit 0; }
+          echo "$urls"
+
+          # Wait for the Cloudflare Pages build of this commit so crawlers don't hit a 404
+          while :; do
+            result=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/check-runs \
+              --jq '.check_runs[] | select(.name == "Cloudflare Pages") | .conclusion')
+            case $result in
+              success) break ;;
+              ''|null) sleep 15 ;;
+              *) echo "Cloudflare Pages deploy: $result"; exit 1 ;;
+            esac
+          done
+
+          jq -n --arg urls "$urls" --arg key "$KEY" '{
+            host: "akif.kr",
+            key: $key,
+            keyLocation: "https://akif.kr/\($key).txt",
+            urlList: ($urls | split("\n"))
+          }' | curl -sS --fail-with-body -X POST https://api.indexnow.org/indexnow \
+            -H 'Content-Type: application/json; charset=utf-8' --data-binary @-
