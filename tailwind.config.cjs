@@ -19,6 +19,8 @@ module.exports = {
             },
             screens: {
                 toc: { max: "1200px" },
+                // Touch screens fire hover on tap and leave it stuck, so hover styles go behind this
+                "can-hover": { raw: "(hover: hover)" },
             },
         },
     },
