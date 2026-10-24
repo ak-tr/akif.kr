@@ -1,7 +1,7 @@
 ---
 import { SITE_METADATA, NAVIGATION } from '@/consts';
 import HeaderLink from './HeaderLink.astro';
-import MobileNav from "@/solid/MobileNav.tsx";
+import MobileNav from "./MobileNav.astro";
 ---
 
 <header class="flex items-center gap-7 py-7 text-sm sm:py-10">
@@ -19,5 +19,5 @@ import MobileNav from "@/solid/MobileNav.tsx";
             </HeaderLink>
         ))
     }
-    <MobileNav client:only="solid-js"/>
+    <MobileNav/>
 </header>

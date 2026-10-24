@@ -1,0 +1,18 @@
+<button type="button" id="scroll-top" aria-label="Scroll To Top"
+        class="fixed bottom-8 right-8 hidden border border-neutral-800 bg-black p-2 text-neutral-400 transition-colors hover:border-white hover:text-white">
+    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path
+            fill-rule="evenodd"
+            d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z"
+            clip-rule="evenodd"
+        />
+    </svg>
+</button>
+
+<script>
+    // ClientRouter runs this once per session, so the button is looked up on each event
+    addEventListener("scroll", () => document.getElementById("scroll-top")?.classList.toggle("md:block", scrollY >= 50), { passive: true });
+    document.addEventListener("click", (e) => {
+        if ((e.target as Element).closest("#scroll-top")) scrollTo({ top: 0, behavior: "smooth" });
+    });
+</script>

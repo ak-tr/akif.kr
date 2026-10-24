@@ -1,10 +1,10 @@
 ---
 import { getCollection } from 'astro:content';
-import { excludeGuideDrafts } from "@/functions";
+import { excludeDrafts } from "@/functions";
 import GuideLayout from "@/layouts/GuideLayout.astro";
 
 export async function getStaticPaths() {
-    const guides = await getCollection('guide', excludeGuideDrafts);
+    const guides = await getCollection('guide', excludeDrafts);
     if (!guides) return { paths: [] };
     return guides.map((guide) => ({
         params: { slug: guide.id },

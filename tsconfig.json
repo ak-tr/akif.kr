@@ -5,10 +5,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@/solid/*": ["src/components/solidjs/*"],
     },
-    "jsx": "preserve",
-    "jsxImportSource": "solid-js",
     "allowJs": true,
   }
 }

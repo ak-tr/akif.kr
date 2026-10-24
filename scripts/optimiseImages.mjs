@@ -5,15 +5,6 @@ import sharp from "sharp";
 const ROOT = "public/static/images";
 const MAX_WIDTH = 1600;
 
-const walk = async (dir) => {
-    const entries = await fs.readdir(dir, { withFileTypes: true });
-    const files = await Promise.all(entries.map(async (e) => {
-        const p = path.join(dir, e.name);
-        return e.isDirectory() ? walk(p) : p;
-    }));
-    return files.flat();
-};
-
 const isInput = (p) => /\.(png|jpe?g)$/i.test(p);
 
 const optimizeOne = async (inputPath) => {
@@ -46,12 +37,12 @@ const optimizeOne = async (inputPath) => {
         return;
     }
 
-    await sharp(inputPath, { failOn: "none" })
+    await img.clone()
         .resize(resize)
         .webp({ quality: 75 })
         .toFile(webpOut);
 
-    await sharp(inputPath, { failOn: "none" })
+    await img.clone()
         .resize(resize)
         .avif({ quality: 45 })
         .toFile(avifOut);
@@ -62,8 +53,8 @@ const optimizeOne = async (inputPath) => {
 };
 
 const run = async () => {
-    const all = await walk(ROOT);
-    const inputs = all.filter(isInput);
+    const all = await fs.readdir(ROOT, { recursive: true });
+    const inputs = all.filter(isInput).map((p) => path.join(ROOT, p));
 
     if (inputs.length === 0) {
         console.log(`No png/jpg/jpeg files found under ${ROOT}`);

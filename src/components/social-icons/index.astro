@@ -12,10 +12,9 @@ const components = {
 type Props = {
     kind: keyof typeof components
     href: string | undefined
-    size?: number
 }
 
-const {kind, href, size = 8} = Astro.props
+const {kind, href} = Astro.props
 const SocialSvg = components[kind]
 ---
 
@@ -23,5 +22,5 @@ const SocialSvg = components[kind]
 <a class="text-neutral-500 transition-colors hover:text-white" target="_blank" rel="noopener noreferrer" href={href}>
     <span class="sr-only">{kind}</span>
     <SocialSvg
-            class={`fill-current h-${size} w-${size}`}/>
+            class="fill-current h-5 w-5"/>
 </a>

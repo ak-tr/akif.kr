@@ -1,12 +1,12 @@
 ---
-const { title, useMonoFont = false } = Astro.props;
+const { title } = Astro.props;
 ---
 
 <details
-  class="border border-gray-400 dark:border-gray-200 bg-gray-100 dark:bg-gray-800 px-5 py-3 rounded-md group"
+  class="border border-gray-200 bg-gray-800 px-5 py-3 rounded-md group"
 >
   <summary
-    class={`flex items-center justify-between gap-2 cursor-pointer select-none list-none py-1 ${useMonoFont ? 'font-mono' : ''}`}
+    class="flex items-center justify-between gap-2 cursor-pointer select-none list-none py-1 font-mono"
   >
     <span>{title}</span>
     <svg
@@ -25,7 +25,7 @@ const { title, useMonoFont = false } = Astro.props;
     </svg>
   </summary>
 
-  <div class="pt-3 prose prose-sm max-w-none dark:prose-invert [&>ul]:my-2 [&>ul]:list-disc [&>ul]:pl-6">
+  <div class="pt-3 prose prose-sm max-w-none prose-invert [&>ul]:my-2 [&>ul]:list-disc [&>ul]:pl-6">
     <slot />
   </div>
 </details>
