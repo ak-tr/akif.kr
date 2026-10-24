@@ -2,14 +2,12 @@ import { readdirSync, readFileSync } from "node:fs";
 import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
-import solidJs from "@astrojs/solid-js";
 import { unified } from "@astrojs/markdown-remark";
 
 import { SITE_METADATA } from "./src/consts.ts";
 
 // Rehype plugins
 import rehypeSlugAnchorSectionize from "rehype-slug-anchor-sectionize";
-import rehypeNotProseCodeBlock from "./src/plugins/rehype/notProseCodeBlock.mjs";
 
 // Remark plugins
 import remarkReadingTime from "./src/plugins/remark/readingTime.mjs";
@@ -43,7 +41,6 @@ export default defineConfig({
                 return item;
             },
         }),
-        solidJs(),
     ],
     prefetch: true,
     site: SITE_METADATA.siteUrl,
@@ -61,7 +58,7 @@ export default defineConfig({
         // plugins, so opt back into the unified pipeline for these.
         processor: unified({
             remarkPlugins: [remarkReadingTime],
-            rehypePlugins: [rehypeSlugAnchorSectionize, rehypeNotProseCodeBlock],
+            rehypePlugins: [rehypeSlugAnchorSectionize],
         }),
     },
 });

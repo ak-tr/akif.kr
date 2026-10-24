@@ -1,0 +1,27 @@
+---
+import { existsSync } from 'node:fs';
+
+interface Props {
+  src: string;
+  alt: string;
+  loading: 'eager' | 'lazy';
+  class: string;
+}
+
+const { src, alt, loading, class: className } = Astro.props;
+
+// Local png/jpg images get the AVIF and WebP twins from scripts/optimiseImages.mjs, when both exist
+const twin = (ext: string) => src.replace(/\.(png|jpe?g)$/i, ext);
+const hasTwins = /^\/?static\/images\/.+\.(png|jpe?g)$/i.test(src)
+  && ['.avif', '.webp'].every((ext) => existsSync(`public/${twin(ext).replace(/^\//, '')}`));
+---
+
+{hasTwins ? (
+  <picture>
+    <source type="image/avif" srcset={twin('.avif')} />
+    <source type="image/webp" srcset={twin('.webp')} />
+    <img src={twin('.webp')} alt={alt} loading={loading} class={className} />
+  </picture>
+) : (
+  <img src={src} alt={alt} loading={loading} class={className} />
+)}

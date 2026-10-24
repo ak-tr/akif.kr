@@ -1,5 +1,5 @@
 ---
-import { checkModernFormats, getAvifPath, getWebpPath, getOptimizedSrc } from '@/utils/imageHelpers';
+import Picture from './Picture.astro';
 
 interface Props {
   src: string;
@@ -7,32 +7,8 @@ interface Props {
 }
 
 const { src, alt } = Astro.props;
-
-// Check if modern formats exist (only for local static images)
-const { avifExists, webpExists } = checkModernFormats(src);
-const shouldUsePicture = avifExists && webpExists && (src.startsWith('/static/images/') || src.startsWith('static/images/'));
-// Get optimized src for the img tag (prioritizes webp, falls back to original)
-const optimizedSrc = getOptimizedSrc(src);
 ---
 
 <div id="hero" class="not-prose w-full flex justify-center items-start my-8 h-auto">
-  {shouldUsePicture ? (
-    <picture>
-      <source type="image/avif" srcset={getAvifPath(src)} />
-      <source type="image/webp" srcset={getWebpPath(src)} />
-      <img
-        src={optimizedSrc}
-        alt={alt}
-        loading="eager"
-        class="w-full block"
-      />
-    </picture>
-  ) : (
-    <img
-      src={optimizedSrc}
-      alt={alt}
-      loading="eager"
-      class="w-full block"
-    />
-  )}
+  <Picture src={src} alt={alt} loading="eager" class="w-full block" />
 </div>

@@ -4,7 +4,7 @@ import PageTitle from "../components/PageTitle.astro";
 import RootLayout from "./RootLayout.astro";
 import { type CollectionEntry, render } from "astro:content";
 import Tag from "../components/Tag.astro";
-import ScrollTopAndComments from "@/solid/ScrollTopAndComments.tsx";
+import ScrollTop from "@/components/ScrollTop.astro";
 
 import Hero from "@/components/Hero.astro"
 import Collapsible from "@/components/Collapsible.astro";
@@ -36,7 +36,7 @@ const frontmatter = remarkPluginFrontmatter as {
     article={{ published: post.data.date, modified: post.data.lastmod, keywords: post.data.keywords }}
 >
     <SectionContainer>
-        <ScrollTopAndComments client:only="solid-js" />
+        <ScrollTop />
         <article>
             <div>
                 <header class="pt-2 pb-4">

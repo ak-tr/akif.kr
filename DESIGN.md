@@ -7,7 +7,7 @@ This file covers only what's specific to akif.kr. To change the design itself (a
 ## How Mosaic is wired in
 
 - **Colours and fonts:** `global.css` imports `mosaic/tokens.css`, which sets the font names and the colour variables for every theme. It also loads Onest and Geist Mono from Google Fonts.
-- **Tailwind:** `tailwind.config.cjs` uses `mosaic/tailwind-preset.cjs`. The site only adds `primary` (pink, legacy, used by `ListWithTagsLayout`; don't use it in new work), extra line heights and the `toc` breakpoint.
+- **Tailwind:** `tailwind.config.cjs` uses `mosaic/tailwind-preset.cjs`. The site only adds the `can-hover` breakpoint, for hover styles that touch screens should skip.
 - **Dark mode:** the `dark` class is always set on `<html>`, so don't write `dark:` variants.
 - **Headings:** `h1`–`h6` and `header` default to Geist Mono (set in `global.css`). Add `font-sans` when a heading should use Onest, as the page titles do.
 

@@ -1,5 +1,5 @@
 ---
-import { checkModernFormats, getAvifPath, getWebpPath, getOptimizedSrc } from '@/utils/imageHelpers';
+import Picture from './Picture.astro';
 import { tileSize } from '@/utils/tileSize';
 
 interface Props {
@@ -16,16 +16,11 @@ const { images, tiles = false } = Astro.props;
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-const processedImages = images.map((img, i) => {
-  const { avifExists, webpExists } = checkModernFormats(img.url);
-  return {
-    ...img,
-    caption: img.alt,
-    alt: img.alt ?? `Photo ${pad(i + 1)} of ${pad(images.length)}`,
-    shouldUsePicture: avifExists && webpExists,
-    optimizedSrc: getOptimizedSrc(img.url),
-  };
-});
+const processedImages = images.map((img, i) => ({
+  ...img,
+  caption: img.alt,
+  alt: img.alt ?? `Photo ${pad(i + 1)} of ${pad(images.length)}`,
+}));
 ---
 
 <!-- Square tiles on a 2px grid, rotating the Mosaic tile shades; the full image opens in the dialog below -->
@@ -39,15 +34,7 @@ const processedImages = images.map((img, i) => {
         data-index={`${pad(i + 1)} / ${pad(images.length)}`}
         data-caption={img.caption}
       >
-        {img.shouldUsePicture ? (
-          <picture>
-            <source type="image/avif" srcset={getAvifPath(img.url)} />
-            <source type="image/webp" srcset={getWebpPath(img.url)} />
-            <img src={img.optimizedSrc} alt={img.alt} loading="lazy" class="absolute inset-0 h-full w-full object-cover"/>
-          </picture>
-        ) : (
-          <img src={img.optimizedSrc} alt={img.alt} loading="lazy" class="absolute inset-0 h-full w-full object-cover"/>
-        )}
+        <Picture src={img.url} alt={img.alt} loading="lazy" class="absolute inset-0 h-full w-full object-cover"/>
         <!-- Slides up from the bottom edge on hover or keyboard focus; captionless photos show their index -->
         <span class="absolute inset-x-0 bottom-0 flex translate-y-full gap-3 bg-black px-3 py-2 text-xs text-white transition-transform duration-300 motion-reduce:transition-none can-hover:group-hover:translate-y-0 group-focus-visible:translate-y-0">
           <span class="font-mono shrink-0 text-neutral-500">{img.caption ? pad(i + 1) : `${pad(i + 1)} / ${pad(images.length)}`}</span>

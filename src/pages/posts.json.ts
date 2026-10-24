@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
-import { excludeDrafts, excludeGuideDrafts, sortBlogPosts } from "@/functions";
+import { excludeDrafts, sortBlogPosts } from "@/functions";
 
 // Every post and guide with its metadata, read by the MCP server in functions/mcp.ts
 export const GET: APIRoute = async ({ site }) => {
@@ -18,7 +18,7 @@ export const GET: APIRoute = async ({ site }) => {
         tags: data.tags.map((tag) => tag.id),
         keywords: data.keywords ?? [],
     }));
-    const guides = (await getCollection('guide', excludeGuideDrafts))
+    const guides = (await getCollection('guide', excludeDrafts))
         .map(({ id, data }) => entry('guide', '909dimensions/guide', id, data));
 
     return Response.json([...posts, ...guides]);

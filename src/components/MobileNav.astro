@@ -1,0 +1,46 @@
+---
+import { NAVIGATION } from '@/consts';
+---
+
+<!-- Popover gives Esc closing and focus handling for free; ClientRouter swaps the body on navigation, which closes it -->
+<button type="button" popovertarget="mobile-nav" aria-label="Toggle Menu" class="sm:hidden">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-white h-7 w-7">
+        <path fill-rule="evenodd"
+              d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+              clip-rule="evenodd"/>
+    </svg>
+</button>
+<div id="mobile-nav" popover class="inset-0 m-0 h-full max-h-none w-full max-w-none border-0 bg-black p-0">
+    <div class="flex justify-end">
+        <button type="button" popovertarget="mobile-nav" popovertargetaction="hide" aria-label="Toggle Menu" class="mr-4 mt-7 h-7 w-7">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="text-white">
+                <path fill-rule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clip-rule="evenodd"/>
+            </svg>
+        </button>
+    </div>
+    <nav class="mt-8">
+        {NAVIGATION.map(({ href, title }) => (
+            <div class="px-6 py-3 border-b border-neutral-900">
+                <a href={href} class="font-mono text-3xl tracking-tight text-white">{title}</a>
+            </div>
+        ))}
+    </nav>
+</div>
+
+<style is:global>
+    /* Slides in from the right; browsers without @starting-style just show it */
+    #mobile-nav {
+        translate: 100% 0;
+        transition: translate .3s ease-in-out, display .3s allow-discrete, overlay .3s allow-discrete;
+    }
+    #mobile-nav:popover-open { translate: 0 0; }
+    @starting-style {
+        #mobile-nav:popover-open { translate: 100% 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        #mobile-nav { transition: none; }
+    }
+    html:has(#mobile-nav:popover-open) { overflow: hidden; }
+</style>
