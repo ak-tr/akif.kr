@@ -1,0 +1,142 @@
+---
+title: "Converting My BMW K+DCAN Cable to USB-C"
+date: "2026-10-26"
+tags: ["e9x"]
+draft: true
+summary: "Replacing the fixed USB-A lead on my BMW K+DCAN adapter with a USB-C socket, a reordered four-pin connector and a custom 3D printed jacket. Wiring checks are done; fitment and functional testing are still to come."
+---
+
+## Introduction
+
+I've been using a K+DCAN cable for diagnostics and coding on my BMW, and decided to give it a detachable USB-C connection.
+
+The idea is pretty simple: remove the fixed USB-A lead and put a USB-C socket in its place. Then I can use a separate USB cable rather than having one permanently attached to the adapter.
+
+Of course, that also meant finding a way to hold the new socket in the old case. A good excuse to design another little 3D printed part.
+
+This is still a work in progress. As I'm writing this, the liquid electrical tape is curing and the retaining jacket is still printing. I haven't functionally tested the modified adapter over USB yet.
+
+## Opening It Up
+
+Inside, the original cable had four wires going to a four-pin JST-XH-style plug, fitted onto bare header pins on the PCB.
+
+That made the wiring side fairly convenient. I could remove the old plug and cable, then make up a replacement lead between the existing header and the USB-C board.
+
+> **Photo 01 placeholder:** The original fixed USB-A cable and K+DCAN adapter.
+
+{/* Replace this placeholder with the PostImage below once the photo is added to public/static/images/kdcan-usbc-conversion/.
+<PostImage src="/static/images/kdcan-usbc-conversion/01-original-cable.jpg" alt="The original fixed USB-A cable and K+DCAN adapter" subtitle="The original fixed USB-A cable and K+DCAN adapter" />
+*/}
+
+> **Photo 02 placeholder:** The original four-wire plug on the bare PCB header pins, with the board's pin labels visible.
+
+{/* Replace this placeholder with the PostImage below once the photo is added to public/static/images/kdcan-usbc-conversion/.
+<PostImage src="/static/images/kdcan-usbc-conversion/02-original-connector.jpg" alt="The original four-wire plug on the bare PCB header pins, with the board's pin labels visible" subtitle="The original four-wire plug on the bare PCB header pins, with the board's pin labels visible" />
+*/}
+
+## Choosing the USB-C Socket
+
+I went for a compact USB-C female USB 2.0 socket board with integrated CC pull-down resistors. It has the four connections I needed for this conversion: `VBUS`, `D-`, `D+` and `GND`.
+
+The integrated resistors were one of the reasons I chose this board, rather than adding those separately in the already limited space inside the case.
+
+The plan is still to use the adapter as before, just with a detachable lead. Whether it actually behaves as intended is something I'll check once the wiring is insulated and the socket is held properly.
+
+> **Photo 03 placeholder:** The compact USB-C USB 2.0 socket board, showing its pads and integrated CC pull-down resistors.
+
+{/* Replace this placeholder with the PostImage below once the photo is added to public/static/images/kdcan-usbc-conversion/.
+<PostImage src="/static/images/kdcan-usbc-conversion/03-usbc-board.jpg" alt="The compact USB-C USB 2.0 socket board, showing its pads and integrated CC pull-down resistors" subtitle="The compact USB-C USB 2.0 socket board, showing its pads and integrated CC pull-down resistors" />
+*/}
+
+## Making the New Lead
+
+I bought a prewired four-pin JST-XH connector rather than making up the whole thing from individual terminals.
+
+The wires weren't in the order I needed, so I depinned the connector and moved them around to match the labelled pinout on the K+DCAN PCB. I went by the labels on the board, rather than assuming the wire colours or the supplied order would match.
+
+> **Photo 04 placeholder:** The replacement four-pin connector after depinning and reordering its wires to match the PCB labels.
+
+{/* Replace this placeholder with the PostImage below once the photo is added to public/static/images/kdcan-usbc-conversion/.
+<PostImage src="/static/images/kdcan-usbc-conversion/04-reordered-connector.jpg" alt="The replacement four-pin connector after depinning and reordering its wires to match the PCB labels" subtitle="The replacement four-pin connector after depinning and reordering its wires to match the PCB labels" />
+*/}
+
+I then shortened the wires to suit the space inside the case and soldered them onto the USB-C board.
+
+| K+DCAN PCB connection | USB-C board pad |
+| --- | --- |
+| USB supply | `VBUS` |
+| USB data minus | `D-` |
+| USB data plus | `D+` |
+| Ground | `GND` |
+
+That's the signal mapping I used, rather than a numbered pin order to copy. The order needs to match the labels on the actual adapter PCB.
+
+> **Photo 05 placeholder:** The replacement lead shortened for the space inside the adapter.
+
+{/* Replace this placeholder with the PostImage below once the photo is added to public/static/images/kdcan-usbc-conversion/.
+<PostImage src="/static/images/kdcan-usbc-conversion/05-shortened-wires.jpg" alt="The replacement lead shortened for the space inside the adapter" subtitle="The replacement lead shortened for the space inside the adapter" />
+*/}
+
+> **Photo 06 placeholder:** The four wires soldered to VBUS, D-, D+ and GND on the USB-C board, before insulation.
+
+{/* Replace this placeholder with the PostImage below once the photo is added to public/static/images/kdcan-usbc-conversion/.
+<PostImage src="/static/images/kdcan-usbc-conversion/06-soldered-usbc-board.jpg" alt="The four wires soldered to VBUS, D-, D+ and GND on the USB-C board, before insulation" subtitle="The four wires soldered to VBUS, D-, D+ and GND on the USB-C board, before insulation" />
+*/}
+
+## Insulation & Continuity Checks
+
+With the soldering done, I applied liquid electrical tape to insulate the connections. That's still curing at the moment.
+
+I also checked the wiring for continuity and checked between the individual pins for shorts. I didn't find any unintended continuity between the separate connections.
+
+Ground also had continuity to the metal shell of this USB-C socket. That's an observation from this particular board, rather than something I'd assume about every USB-C socket.
+
+> **Photo 07 placeholder:** The soldered connections covered with liquid electrical tape and left to cure.
+
+{/* Replace this placeholder with the PostImage below once the photo is added to public/static/images/kdcan-usbc-conversion/.
+<PostImage src="/static/images/kdcan-usbc-conversion/07-liquid-electrical-tape.jpg" alt="The soldered connections covered with liquid electrical tape and left to cure" subtitle="The soldered connections covered with liquid electrical tape and left to cure" />
+*/}
+
+> **Photo 08 placeholder:** Multimeter checks of the wiring, including ground-to-shell continuity.
+
+{/* Replace this placeholder with the PostImage below once the photo is added to public/static/images/kdcan-usbc-conversion/.
+<PostImage src="/static/images/kdcan-usbc-conversion/08-continuity-checks.jpg" alt="Multimeter checks of the wiring, including ground-to-shell continuity" subtitle="Multimeter checks of the wiring, including ground-to-shell continuity" />
+*/}
+
+So far, those are just wiring checks. I haven't confirmed that a computer recognises the adapter, or that it can still communicate with the car.
+
+## The 3D Printed Jacket
+
+The original cable had a strain relief where it left the case. Removing the cable left that space available for the new socket, but I still needed something to retain it.
+
+My solution is a little 3D printed "jacket" to hold the USB-C board in place and replace the original strain relief.
+
+The aim is for the printed part to take the force of plugging and unplugging a cable, rather than leaving that to the wires and solder joints. Whether the fit is right will have to wait until the print is finished.
+
+> **Photo 09 placeholder:** The jacket CAD model, showing how the USB-C socket is intended to sit in the original strain-relief opening.
+
+{/* Replace this placeholder with the PostImage below once the photo is added to public/static/images/kdcan-usbc-conversion/.
+<PostImage src="/static/images/kdcan-usbc-conversion/09-jacket-cad.jpg" alt="The jacket CAD model, showing how the USB-C socket is intended to sit in the original strain-relief opening" subtitle="The jacket CAD model, showing how the USB-C socket is intended to sit in the original strain-relief opening" />
+*/}
+
+I was aiming for a fairly close fit around the port, but I haven't confirmed the printed clearances yet. I'll add the final dimensions once I've tried it with the actual socket and case.
+
+> **Photo 10 placeholder:** Photo still to take: the finished jacket and a trial fit with the socket and adapter case.
+
+{/* Replace this placeholder with the PostImage below once the photo is added to public/static/images/kdcan-usbc-conversion/.
+<PostImage src="/static/images/kdcan-usbc-conversion/10-printed-jacket.jpg" alt="Photo still to take: the finished jacket and a trial fit with the socket and adapter case" subtitle="Photo still to take: the finished jacket and a trial fit with the socket and adapter case" />
+*/}
+
+## Next Steps
+
+At the moment, the old lead is out, the new connector is reordered and soldered, and the wiring checks haven't shown any shorts. Now I'm waiting for the insulation to cure and the jacket to finish printing.
+
+After that, I need to check the fit, assemble it and test the USB connection. I also want to check both plug orientations and the USB-A-to-C and USB-C-to-C cables I intend to use, then check communication with the car.
+
+> **Photo 11 placeholder:** Photo still to take: the assembled adapter with the USB-C socket retained in the printed jacket.
+
+{/* Replace this placeholder with the PostImage below once the photo is added to public/static/images/kdcan-usbc-conversion/.
+<PostImage src="/static/images/kdcan-usbc-conversion/11-assembled-adapter.jpg" alt="Photo still to take: the assembled adapter with the USB-C socket retained in the printed jacket" subtitle="Photo still to take: the assembled adapter with the USB-C socket retained in the printed jacket" />
+*/}
+
+I'll update this post with the photos, any changes to the jacket and the actual test results once I've got that far.
