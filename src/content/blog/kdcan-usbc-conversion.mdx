@@ -1,0 +1,163 @@
+---
+title: "Converting My BMW K+DCAN Cable to USB-C"
+date: "2026-10-26"
+tags: ["e9x"]
+draft: false
+summary: "Replacing the fixed USB-A lead on my BMW K+DCAN adapter with a USB-C socket, a reordered four-pin connector and a custom 3D printed jacket."
+---
+
+<TLDR fix="">
+  <TLDRRow label="Modification">Fixed USB-A lead replaced with a USB-C USB 2.0 socket with integrated CC pull-down resistors.</TLDRRow>
+  <TLDRRow label="Wiring">Reordered four-pin JST lead, shortened and soldered to the socket board.</TLDRRow>
+  <TLDRRow label="Mounting">Custom 3D printed jacket replacing the original strain relief.</TLDRRow>
+  <TLDRRow label="Checks">End-to-end continuity verified; adapter recognised on the laptop and visible in INPA.</TLDRRow>
+</TLDR>
+
+## Introduction
+
+I've been using a K+DCAN cable for diagnostics and coding on my BMW, and decided to give it a detachable USB-C connection.
+
+The idea is pretty simple: remove the fixed USB-A lead and put a USB-C socket in its place. Then I can use a separate USB cable rather than having one permanently attached to the adapter.
+
+Of course, that also meant finding a way to hold the new socket in the old case. A good excuse to design another little 3D printed part.
+
+<PostImage src="/static/images/kdcan-usbc-conversion/01-original-cable.jpg" alt="The K+DCAN adapter with its original fixed USB-A lead" subtitle="The original adapter, before opening it up" />
+
+## Opening It Up
+
+The case is held together by four screws, two on either side. Removing those lets the case open up to reveal the PCB.
+
+<PostImage src="/static/images/kdcan-usbc-conversion/02-open-case.jpg" alt="K+DCAN adapter opened to reveal the PCB, with the four case screws removed" subtitle="Four screws removed, two on either side, to open the case" />
+
+Inside, the original cable had four wires going to a four-pin JST-XH-style plug, fitted onto bare header pins on the PCB.
+
+That made the wiring side fairly convenient. I could remove the old plug and cable, then make up a replacement lead between the existing header and the USB-C board.
+
+<div class="[&_img]:aspect-[2/1] [&_img]:object-cover [&_img]:object-center">
+  <PostImage src="/static/images/kdcan-usbc-conversion/03-original-connector.jpg" alt="Removed original four-pin cable and moulded strain relief" subtitle="The original cable removed from the adapter" />
+</div>
+
+## Choosing the USB-C Socket
+
+I went for a compact USB-C female USB 2.0 socket board with integrated CC pull-down resistors. It has the four connections I needed for this conversion: `VBUS`, `D-`, `D+` and `GND`.
+
+The integrated resistors were one of the reasons I chose this board, rather than adding those separately in the already limited space inside the case.
+
+The idea is to keep the adapter's existing electronics and just replace the fixed lead with a socket.
+
+<div class="not-prose grid grid-cols-1 gap-2 sm:grid-cols-2">
+  <PostImage src="/static/images/kdcan-usbc-conversion/10-usbc-front.jpg" alt="Front of the unsoldered USB-C socket board showing its connection pads" subtitle="Front of the USB-C board, before soldering" />
+  <PostImage src="/static/images/kdcan-usbc-conversion/11-usbc-back.jpg" alt="Back of the unsoldered USB-C socket board" subtitle="Back of the USB-C board, before soldering" />
+</div>
+
+## Making the New Lead
+
+I bought a prewired four-pin JST-XH connector rather than making up the whole thing from individual terminals.
+
+<PostImage src="/static/images/kdcan-usbc-conversion/04-connector-comparison.jpg" alt="Original and replacement four-pin connectors side by side, with different wire colours and layouts" subtitle="Original lead on the left, replacement on the right" />
+
+<PostImage src="/static/images/kdcan-usbc-conversion/05-new-connector.jpg" alt="Complete new prewired four-pin JST-XH connector before modification" subtitle="The replacement connector before depinning" />
+
+The wires weren't in the order I needed, so I depinned the connector and moved them around to match the labelled pinout on the K+DCAN PCB. I went by the labels on the board, rather than assuming the wire colours or the supplied order would match.
+
+<PostImage src="/static/images/kdcan-usbc-conversion/06-depinned-connector.jpg" alt="Four wires removed from the new JST-XH housing with their crimp terminals attached" subtitle="The replacement connector depinned, ready to reorder the wires" />
+
+On mine, the PCB is labelled `5V`, `D+`, `D-`, `GND`. After reordering, those correspond to red, yellow, white and black on the new lead.
+
+<PostImage src="/static/images/kdcan-usbc-conversion/07-reordered-connector.jpg" alt="Reordered four-pin connector plugged into PCB pins labelled 5V, D+, D- and GND" subtitle="Reordered to match the PCB: 5V, D+, D-, GND" />
+
+I then shortened the wires to suit the space inside the case.
+
+<div class="[&_img]:aspect-[3/1] [&_img]:object-cover [&_img]:object-[50%_68%]">
+  <PostImage src="/static/images/kdcan-usbc-conversion/08-shortened-wires.jpg" alt="Shortened four-wire JST lead next to the USB-C socket board" subtitle="The shortened lead next to the USB-C board" />
+</div>
+
+With the wires cut to length, I soldered them onto the USB-C board using the following connections:
+
+| K+DCAN PCB connection | USB-C board pad |
+| --- | --- |
+| `5V` (red) | `VBUS` |
+| `D+` (yellow) | `D+` |
+| `D-` (white) | `D-` |
+| `GND` (black) | `GND` |
+
+That's the signal mapping I used, rather than a numbered pin order to copy. The order needs to match the labels on the actual adapter PCB.
+
+## Insulation & Continuity Checks
+
+With the soldering done, I applied liquid electrical tape to insulate the connections.
+
+I also checked the wiring for continuity and checked between the individual pins for shorts. I didn't find any unintended continuity between the separate connections.
+
+Ground also had continuity to the metal shell of this USB-C socket. That's an observation from this particular board, rather than something I'd assume about every USB-C socket.
+
+<div class="[&_img]:aspect-[5/2] [&_img]:object-cover [&_img]:object-[50%_40%]">
+  <PostImage src="/static/images/kdcan-usbc-conversion/09-insulated-solder-joints.jpg" alt="Shortened lead soldered to the USB-C board with liquid electrical tape over the joints" subtitle="Soldered onto the USB-C board and insulated with liquid electrical tape" />
+</div>
+
+## Repairing the K-Line Switch Wiring
+
+While working on the adapter, the original wires for the K-Line switch snapped off. The wires fitted by the manufacturer were very flimsy, so I replaced them using the leftover lengths from the new JST lead.
+
+I resoldered the switch wiring and used liquid electrical tape to secure it again.
+
+To check it, I used my multimeter between pins 7 and 8 of the OBD connector with the switch engaged and disengaged. I only had continuity between those pins in K-Line mode, confirming that the switch bridged pins 7 and 8 only in that position.
+
+## The 3D Printed Jacket
+
+The original cable had a strain relief where it left the case. Removing the cable left that space available for the new socket, but I still needed something to retain it.
+
+My solution is a little 3D printed "jacket" to hold the USB-C board in place and replace the original strain relief.
+
+The aim is for the printed part to take the force of plugging and unplugging a cable, rather than leaving that to the wires and solder joints.
+
+<PostImage src="/static/images/kdcan-usbc-conversion/jacket-cad.png" alt="CAD render of the retaining jacket with a raised circular face and a rounded USB-C opening" subtitle="The jacket I designed to replace the original cable strain relief" />
+
+Here's the sketch I drew up with all the dimensions. The outer shell, minus the USB-C opening, was extruded 4.8mm. The circular bump was then extruded a further 1.6mm, with a 4.8mm starting offset so it sits on top of the shell.
+
+<PostImage src="/static/images/kdcan-usbc-conversion/jacket-sketch.png" alt="Dimensioned CAD sketch of the jacket: a 14.5mm square with R1 corners, an 11.2mm diameter circle, and an 8.75mm by 3.05mm USB-C opening with R1.2 corners" subtitle="The sketch for the jacket, with all the dimensions" />
+
+I also used liquid electrical tape to glue the wires to the jacket and keep the lead in place.
+
+<div class="[&_img]:aspect-[2/1] [&_img]:object-cover [&_img]:object-[50%_40%]">
+  <PostImage src="/static/images/kdcan-usbc-conversion/12-wired-jacket.jpg" alt="Soldered USB-C board fitted into the printed jacket, with the wires secured using liquid electrical tape" subtitle="The wired USB-C socket in its jacket, with the wires held in place using liquid electrical tape" />
+</div>
+
+<PostImage src="/static/images/kdcan-usbc-conversion/13-jacket-in-case.jpg" alt="3D printed jacket pushed into the adapter case with the USB-C socket facing outwards" subtitle="The jacket pushed into the original cable opening" />
+
+## Assembly & Testing
+
+With the jacket pushed into the original cable opening, the USB-C socket and replacement lead sit inside the case.
+
+### One Final Wiring Check
+
+Before plugging it into a computer, I sacrificed a USB-A-to-C cable that I knew only had four wires. I cut off the Type-A end, stripped back the outer insulation and exposed the ends of all four individual wires.
+
+With the USB-C end plugged into the adapter, I checked continuity from each exposed cable wire to the corresponding wire on the JST lead:
+
+| Cable wire | JST wire | Continuity |
+| --- | --- | --- |
+| Red | Red (`5V`) | Yes |
+| Green | Yellow (`D+`) | Yes |
+| White | White (`D-`) | Yes |
+| Black | Black (`GND`) | Yes |
+
+All four matched. This checked the wiring through the cable and USB-C connection to the JST lead, rather than just checking the solder joints individually.
+
+### Testing on the Laptop
+
+With the wiring checks done, I plugged the modified adapter into my laptop. It was recognised, and I could see it in INPA with the two dots flashing.
+
+<PostImage src="/static/images/kdcan-usbc-conversion/14-final-build.jpg" alt="USB-C conversion fitted inside the K+DCAN adapter, with the case lid and screws beside it" subtitle="Everything fitted together inside the case" />
+
+### Testing in the Car
+
+Finally, I tested it in the car. With a long USB cable, the adapter didn't want to show up on my laptop. I'm not sure whether that was down to the cable or something else.
+
+A shorter coiled cable I already had in the car worked, and I was able to communicate with the car using INPA without any issues.
+
+## Final Thoughts
+
+It's a small change, but the adapter feels a lot more practical now. There's no fixed lead to wrap up, and if a cable gets damaged I can just swap it rather than having to open the adapter up again.
+
+The one thing I'd take away is to use a known good data cable. For now, the short coiled cable lives with the adapter in the car. When I get a chance, I'll try the long cable on another device to see whether it carries data at all.
