@@ -7,21 +7,25 @@ interface Props {
     /** Total post count and offset, so tile numbers count down across pages */
     total?: number;
     start?: number;
+    /** Tile numbers for a hand-picked set (e.g. a post's "keep reading"), in place of counting down */
+    numbers?: number[];
+    /** Two equal columns of square tiles instead of the group-of-3 layout */
+    pair?: boolean;
 }
 
-const { posts, total = posts.length, start = 0 } = Astro.props;
+const { posts, total = posts.length, start = 0, numbers, pair = false } = Astro.props;
 
 const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 ---
 
-<div class="mosaic">
+<div class:list={["mosaic", { pair }]}>
     {posts.map(({ id, data: { title, date, summary, tags } }, i) => (
-        <a class:list={["tile", tileSize(i, posts.length)]} href={`/blog/${id}`}>
+        <a class:list={["tile", !pair && tileSize(i, posts.length)]} href={`/blog/${id}`}>
             <div class="top font-mono">
                 <time datetime={date.toISOString()}>{fmt(date)}</time>
                 <span>{tags[0]?.id.replace("-", " ")}</span>
             </div>
-            <span class="num font-mono" aria-hidden="true">{String(total - start - i).padStart(2, "0")}</span>
+            <span class="num font-mono" aria-hidden="true">{String(numbers?.[i] ?? total - start - i).padStart(2, "0")}</span>
             <div>
                 <h2>{title}</h2>
                 {summary && <p class="sum">{summary}</p>}
@@ -37,6 +41,7 @@ const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: 
         grid-auto-flow: dense;
         gap: 2px;
     }
+    .mosaic.pair { grid-template-columns: 1fr 1fr; }
     .tile {
         aspect-ratio: 1;
         min-width: 0;

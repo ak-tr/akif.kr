@@ -72,6 +72,24 @@ h3:hover a[class="heading-anchor"] .heading-anchor__btn {
     padding-top: 20px;
 }
 
+/* Side-by-side images: the grid takes the spacing, not each image, so the gap matches single images
+   (margins inside a grid don't collapse with the ones around it) */
+#content[data-wide-images] .grid:has(> #hero) {
+    margin-block: 3rem;
+}
+
+#content[data-wide-images] .grid > #hero {
+    margin-block: 0;
+}
+
+/* Post images (and blocks holding them) sit a little wider than the text on desktop */
+@media (min-width: 1024px) {
+    :is(#content[data-wide-images], #content[data-wide-images] section) > :is(#hero, :not(section):has(#hero)) {
+        width: auto;
+        margin-inline: -32px;
+    }
+}
+
 pre.has-focused span.line {
     opacity: 0.50;
 }
