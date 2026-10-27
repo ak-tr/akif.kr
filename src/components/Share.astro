@@ -1,0 +1,92 @@
+---
+interface Props {
+    url: string;
+    title: string;
+    campaign: string; // utm_campaign, the post's slug
+    variant: "menu" | "box";
+}
+
+const { url, title, campaign, variant } = Astro.props;
+
+// Every shared link says where it was shared from (utm_source) and which post (utm_campaign)
+const link = (source: string) => {
+    const u = new URL(url);
+    u.search = new URLSearchParams({ utm_source: source, utm_medium: "share", utm_campaign: campaign }).toString();
+    return u.href;
+};
+
+const targets = [
+    ["X", `https://x.com/intent/post?${new URLSearchParams({ url: link("x"), text: title })}`],
+    ["Facebook", `https://www.facebook.com/sharer/sharer.php?${new URLSearchParams({ u: link("facebook") })}`],
+    ["Reddit", `https://www.reddit.com/submit?${new URLSearchParams({ url: link("reddit"), title })}`],
+    // mailto wants %20, not the + that URLSearchParams uses for spaces
+    ["Email", `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(link("email"))}`],
+];
+
+const menuItem = "group flex w-full uppercase items-center justify-between gap-4 px-3.5 py-2.5 text-left transition-colors hover:bg-invert hover:text-black focus-visible:bg-invert focus-visible:text-black focus-visible:outline-none";
+const boxButton = "inline-flex h-11 uppercase items-center justify-center border px-4 transition-colors focus-visible:outline-none flex-1 basis-2/5 sm:flex-none sm:basis-auto";
+---
+
+{variant === "menu" ? (
+    <button type="button" popovertarget="share-menu" data-share-native={link("native")} data-share-title={title}
+            class="inline-flex h-8 items-center gap-2 border border-neutral-800 px-3 font-mono text-[11px] uppercase tracking-wide text-neutral-400 transition-colors hover:border-white hover:text-white focus-visible:border-white focus-visible:text-white focus-visible:outline-none">
+        <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13"/><path d="M7 8l5-5 5 5"/><path d="M5 13v8h14v-8"/></svg>
+        Share
+    </button>
+    <div id="share-menu" popover aria-label="Share" class="absolute inset-auto m-0 w-56 border border-neutral-800 bg-tile p-0 py-1.5 font-mono text-xs uppercase tracking-wide text-neutral-300">
+        <button type="button" data-share-copy={link("copy")} class={menuItem}>
+            Copy link
+            <span class="hidden items-center gap-2 group-data-[copied]:flex"><span class="h-1.5 w-1.5 bg-current" aria-hidden="true"></span>Copied</span>
+        </button>
+        {targets.map(([name, href]) => (
+            <a href={href} target="_blank" rel="noopener noreferrer" class={menuItem}>{name}<span aria-hidden="true">↗</span></a>
+        ))}
+    </div>
+) : (
+    <section aria-label="Share this post" class="not-prose mt-24 flex flex-col gap-5 border border-neutral-800 bg-tile p-6 sm:p-8">
+        <div class="flex flex-col gap-2">
+            <p class="font-mono text-xs uppercase tracking-wide text-neutral-500">Share this post</p>
+            <p class="text-xl font-medium tracking-tight text-white">Found this useful? Pass it on.</p>
+        </div>
+        <div class="flex flex-wrap gap-0.5 font-mono text-xs uppercase tracking-wide">
+            <button type="button" data-share-copy={link("copy")}
+                    class:list={[boxButton, "group border-invert bg-invert text-black hover:bg-tile hover:text-white focus-visible:bg-tile focus-visible:text-white"]}>
+                <span class="group-data-[copied]:hidden">Copy link</span><span class="hidden group-data-[copied]:inline">Copied</span>
+            </button>
+            {targets.map(([name, href]) => (
+                <a href={href} target="_blank" rel="noopener noreferrer"
+                   class:list={[boxButton, "border-neutral-800 bg-tile text-white hover:bg-invert hover:text-black focus-visible:bg-invert focus-visible:text-black"]}>{name} ↗</a>
+            ))}
+        </div>
+    </section>
+)}
+
+<script>
+    // Delegated on document because ClientRouter runs this once per session
+    document.addEventListener("click", async (e) => {
+        const button = (e.target as Element).closest<HTMLElement>("[data-share-copy]");
+        if (!button) return;
+        await navigator.clipboard.writeText(button.dataset.shareCopy!);
+        button.dataset.copied = "";
+        setTimeout(() => delete button.dataset.copied, 2000);
+    });
+
+    // beforetoggle doesn't bubble, so listen in the capture phase
+    document.addEventListener("beforetoggle", (e) => {
+        const menu = e.target as HTMLElement;
+        if (menu.id !== "share-menu" || (e as ToggleEvent).newState !== "open") return;
+        const trigger = document.querySelector<HTMLElement>("[popovertarget=share-menu]")!;
+
+        // Phones get their own share sheet instead of the menu
+        if (matchMedia("(hover: none)").matches && navigator.share) {
+            e.preventDefault();
+            navigator.share({ title: trigger.dataset.shareTitle, url: trigger.dataset.shareNative }).catch(() => {});
+            return;
+        }
+
+        // Open below the button, right-aligned. Absolute in the top layer is relative to the first viewport.
+        const r = trigger.getBoundingClientRect();
+        menu.style.top = `${r.bottom + scrollY + 8}px`;
+        menu.style.right = `${document.documentElement.clientWidth - r.right - scrollX}px`;
+    }, true);
+</script>

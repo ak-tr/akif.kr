@@ -2,9 +2,13 @@
 import SectionContainer from "../components/SectionContainer.astro";
 import PageTitle from "../components/PageTitle.astro";
 import RootLayout from "./RootLayout.astro";
-import { type CollectionEntry, render } from "astro:content";
+import { type CollectionEntry, getCollection, render } from "astro:content";
 import Tag from "../components/Tag.astro";
 import ScrollTop from "@/components/ScrollTop.astro";
+import Share from "@/components/Share.astro";
+import Mosaic from "@/components/Mosaic.astro";
+import { SITE_METADATA } from "@/consts";
+import { excludeDrafts, sortBlogPosts } from "@/functions";
 
 import Hero from "@/components/Hero.astro"
 import Collapsible from "@/components/Collapsible.astro";
@@ -27,6 +31,15 @@ const frontmatter = remarkPluginFrontmatter as {
 	minutesRead: string;
 	wordCount: number;
 };
+
+// Keep reading: the two posts sharing the most tags with this one, newest first on a tie. Numbers match the blog grid.
+const posts = sortBlogPosts(await getCollection("blog", excludeDrafts));
+const tagIds = post.data.tags.map((tag) => tag.id);
+const sharedTags = (p: CollectionEntry<"blog">) => p.data.tags.filter((tag) => tagIds.includes(tag.id)).length;
+const related = posts.filter((p) => p.id !== post.id).sort((a, b) => sharedTags(b) - sharedTags(a)).slice(0, 2);
+const relatedNumbers = related.map((p) => posts.length - posts.indexOf(p));
+
+const share = { url: new URL(`blog/${post.id}/`, SITE_METADATA.siteUrl).href, title: post.data.title, campaign: post.id };
 ---
 <RootLayout
     title={post.data.title}
@@ -37,20 +50,24 @@ const frontmatter = remarkPluginFrontmatter as {
 >
     <SectionContainer>
         <ScrollTop />
-        <article>
+        <article class="mx-auto max-w-[680px]">
             <div>
-                <header class="pt-2 pb-4">
+                <header class="pt-6">
                     <a href="/blog" class="font-mono text-xs uppercase tracking-wide text-neutral-500 hover:text-white">← Blog</a>
-                    <p class="font-mono mt-10 flex flex-wrap gap-x-3 gap-y-1 text-xs uppercase tracking-wide text-neutral-500">
+                    <p class="font-mono mt-16 flex flex-wrap gap-x-3 gap-y-1 text-xs uppercase tracking-wide text-neutral-500">
                         <time datetime={post.data.date.toISOString()}>{post.data.date.toLocaleDateString('en-GB', {day: 'numeric', month: 'short', year: 'numeric'})}</time>
                         <span aria-hidden="true">/</span>
                         <span>{frontmatter.minutesRead}</span>
                         <span aria-hidden="true">/</span>
                         <span>{frontmatter.wordCount.toLocaleString('en-GB')} words</span>
                     </p>
-                    <div class="mt-4"><PageTitle>{post.data.title}</PageTitle></div>
-                    <div class="mt-6 flex flex-wrap gap-2">
-                        {post.data.tags.map((tag) => <Tag slug={tag.id} chip />)}
+                    <div class="mt-5"><PageTitle>{post.data.title}</PageTitle></div>
+                    {post.data.summary && <p class="mt-7 font-sans text-xl leading-relaxed text-neutral-400">{post.data.summary}</p>}
+                    <div class="mt-9 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex flex-wrap gap-2">
+                            {post.data.tags.map((tag) => <Tag slug={tag.id} chip />)}
+                        </div>
+                        <Share {...share} variant="menu" />
                     </div>
                 </header>
                 <div class="pb-8">
@@ -69,15 +86,26 @@ const frontmatter = remarkPluginFrontmatter as {
                         }
                         <div
                             id="content"
-                            class="prose max-w-none pb-8 dark:prose-invert"
+                            data-wide-images
+                            class="prose prose-lg max-w-none dark:prose-invert prose-h2:mt-20 prose-h2:text-[26px] [&_#hero]:my-12"
                         >
                             <slot />
                             {post.data.hero?.src && post.data.hero?.alt && <Hero src={post.data.hero.src} alt={post.data.hero.alt} />}
                             <Content components={{ ...components }} {headings} />
                         </div>
+                        <Share {...share} variant="box" />
                     </div>
                 </div>
             </div>
+            {related.length > 0 && (
+                <section aria-label="Keep reading" class="mt-16">
+                    <div class="mb-4 flex justify-between font-mono text-xs uppercase tracking-wide text-neutral-500">
+                        <span>Keep reading</span>
+                        <a href="/blog" class="text-neutral-400 hover:text-white">All {posts.length} posts →</a>
+                    </div>
+                    <Mosaic posts={related} numbers={relatedNumbers} pair />
+                </section>
+            )}
         </article>
     </SectionContainer>
 </RootLayout>
