@@ -7,7 +7,7 @@ const {href, class: className, ...props} = Astro.props;
 
 const {pathname} = Astro.url;
 const path = pathname.replace(/\/$/, '');
-const isActive = href === path || (href !== '/' && path.startsWith(`${href}/`)) || (href === '/blog' && path.startsWith('/tags'));
+const isActive = href === path || (href !== '/' && path.startsWith(`${href}/`));
 ---
 
 <a href={href} class:list={[className, {active: isActive}]} {...props}>
