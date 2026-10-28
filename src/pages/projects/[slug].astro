@@ -29,7 +29,7 @@ const actions = [
         ? { text: "Download .exe ↓", release: true, href: `${github}/releases/latest/download/${data.download}` }
         : data.site && { text: `Open ${new URL(data.site).host} ↗`, href: data.site },
     { text: "Source on GitHub ↗", href: github },
-    post && { text: "Read the write-up →", href: `/blog/${post.id}` },
+    post && { text: "Read the write-up →", href: `/blog/${post.id}/` },
 ].filter((action) => !!action);
 
 const month = (d: Date) => d.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
@@ -39,7 +39,7 @@ const month = (d: Date) => d.toLocaleDateString("en-GB", { month: "short", year:
     <SectionContainer>
         <article>
             <header class="pt-2 pb-4">
-                <a href="/projects" class="font-mono text-xs uppercase tracking-wide text-neutral-500 hover:text-white">← Projects</a>
+                <a href="/projects/" class="font-mono text-xs uppercase tracking-wide text-neutral-500 hover:text-white">← Projects</a>
                 <p class="font-mono mt-10 flex flex-wrap gap-x-3 gap-y-1 text-xs uppercase tracking-wide text-neutral-500">
                     <span>{data.kind}</span>
                     <span aria-hidden="true">/</span>

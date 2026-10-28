@@ -22,7 +22,7 @@ const tags = (await getCollection('tags'))
     {!tags.length && <p class="font-mono text-neutral-500">No tags found.</p>}
     <div class="grid grid-cols-2 gap-[2px] sm:grid-cols-4">
         {tags.map(({id, data, count}, i) => (
-            <a href={`/tags/${id}`} aria-label={`View posts tagged ${data.name}`}
+            <a href={`/tags/${id}/`} aria-label={`View posts tagged ${data.name}`}
                class:list={["group flex aspect-square flex-col justify-between p-4 transition-colors hover:bg-invert hover:text-black sm:p-6",
                    i % 3 === 1 ? "bg-tile-2" : i % 3 === 2 ? "bg-tile-3" : "bg-tile"]}>
                 <span class="font-mono text-[11px] uppercase tracking-wide opacity-60">{count} {count === 1 ? 'post' : 'posts'}</span>

@@ -57,7 +57,7 @@ const authorPosts = await getCollection("blog", excludeDrafts).then(sortBlogPost
         <section class="pt-16">
             <div class="font-mono mb-6 flex items-baseline justify-between text-xs uppercase tracking-wide text-neutral-500">
                 <h2 class="text-xs">Recent posts</h2>
-                <a href="/blog" class="hover:text-white">All {authorPosts.length} posts →</a>
+                <a href="/blog/" class="hover:text-white">All {authorPosts.length} posts →</a>
             </div>
             <Mosaic posts={authorPosts.slice(0, 3)} total={authorPosts.length}/>
         </section>
