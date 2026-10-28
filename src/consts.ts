@@ -21,8 +21,8 @@ export const ITEMS_PER_PAGE = 12;
 
 export const NAVIGATION = [
     { href: "/", title: "Home" },
-    { href: "/blog", title: "Blog" },
-    { href: "/projects", title: "Projects" },
-    { href: "/tags", title: "Tags" },
-    { href: "/uses", title: "Uses" },
+    { href: "/blog/", title: "Blog" },
+    { href: "/projects/", title: "Projects" },
+    { href: "/tags/", title: "Tags" },
+    { href: "/uses/", title: "Uses" },
 ];

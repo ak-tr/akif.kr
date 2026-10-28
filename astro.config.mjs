@@ -44,6 +44,7 @@ export default defineConfig({
     ],
     prefetch: true,
     site: SITE_METADATA.siteUrl,
+    trailingSlash: "always",
     markdown: {
         syntaxHighlight: 'shiki',
         shikiConfig: {

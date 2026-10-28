@@ -19,7 +19,7 @@ const data = tag?.data;
 const chip = Astro.props.chip ?? false;
 ---
 {slug && data ? (
-  <Link href={`/tags/${slug}`} chip={chip}
+  <Link href={`/tags/${slug}/`} chip={chip}
         class="font-mono text-xs uppercase tracking-wide text-neutral-400 hover:text-white">
       {data.name}
   </Link>

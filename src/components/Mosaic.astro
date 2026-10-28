@@ -20,7 +20,7 @@ const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: 
 
 <div class:list={["mosaic", { pair }]}>
     {posts.map(({ id, data: { title, date, summary, tags } }, i) => (
-        <a class:list={["tile", !pair && tileSize(i, posts.length)]} href={`/blog/${id}`}>
+        <a class:list={["tile", !pair && tileSize(i, posts.length)]} href={`/blog/${id}/`}>
             <div class="top font-mono">
                 <time datetime={date.toISOString()}>{fmt(date)}</time>
                 <span>{tags[0]?.id.replace("-", " ")}</span>

@@ -21,7 +21,7 @@ const years = projects.map(({ data }) => data.started.getFullYear());
     <ul class="grid gap-[2px]">
         {projects.map(({ id, data }, i) => (
             <li>
-                <a href={`/projects/${id}`}
+                <a href={`/projects/${id}/`}
                    class:list={["group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 p-5 transition-colors hover:bg-invert hover:text-black focus-visible:bg-invert focus-visible:text-black focus-visible:outline-none md:grid-cols-[120px_minmax(0,1fr)_24px] md:gap-6 md:p-7",
                        i % 4 === 1 ? "bg-tile-2" : i % 5 === 2 ? "bg-tile-3" : "bg-tile"]}>
                     <span class="font-mono hidden text-7xl leading-none tracking-[-.05em] text-number transition-colors group-hover:text-black group-focus-visible:text-black md:block" aria-hidden="true">{String(projects.length - i).padStart(2, "0")}</span>

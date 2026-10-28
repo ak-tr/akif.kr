@@ -38,9 +38,9 @@ const years = page.data.map(({data}) => data.date.getFullYear());
         )}
     </div>
     <nav aria-label="Tags" class="font-mono mb-6 flex flex-wrap gap-x-5 gap-y-2 text-xs uppercase tracking-wide text-neutral-500">
-        <a href="/blog" class:list={["hover:text-white", {"text-white": Astro.url.pathname.startsWith('/blog')}]}>All</a>
+        <a href="/blog/" class:list={["hover:text-white", {"text-white": Astro.url.pathname.startsWith('/blog')}]}>All</a>
         {tags.map(({id, data}) => (
-            <a href={`/tags/${id}`} class:list={["hover:text-white", {"text-white": Astro.url.pathname.startsWith(`/tags/${id}`)}]}>{data.name}</a>
+            <a href={`/tags/${id}/`} class:list={["hover:text-white", {"text-white": Astro.url.pathname.startsWith(`/tags/${id}/`)}]}>{data.name}</a>
         ))}
     </nav>
     {page.data.length ? (
