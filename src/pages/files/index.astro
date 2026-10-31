@@ -1,0 +1,220 @@
+---
+import RootLayout from "@/layouts/RootLayout.astro";
+
+// File browser, styled after Norton / Midnight Commander. /private is the R2 bucket, behind the login in
+// functions/api/files/[action].ts. /public and /content are files already public, listed by ./public.json.ts.
+const keys = [["Enter", "Open"], ["Bksp", "Up"], ["F5", "Get"], ["F10", "Logout"]];
+---
+
+<RootLayout title="Files" robots="noindex, nofollow">
+    <div class="grid gap-6 pb-12 pt-4 sm:grid-cols-[1fr_auto] sm:items-end">
+        <h1 class="font-sans text-6xl font-light leading-[.9] tracking-[-.06em] sm:text-8xl md:text-9xl">Files</h1>
+        <p class="max-w-xs text-sm text-neutral-500 sm:text-right">The site's public files, and a private folder. If you're in there, you know the password.</p>
+    </div>
+
+    <div id="fc" class="mb-16 font-mono text-sm text-neutral-200 md:text-base">
+        <form id="fc-login" class="mx-auto max-w-sm py-8" hidden>
+            <fieldset class="border-[3px] border-double border-neutral-400 px-4 pb-4 pt-2">
+                <legend class="mx-auto px-2 text-white">Login</legend>
+                <label for="fc-password" class="block text-neutral-500">Password:</label>
+                <input id="fc-password" type="password" autocomplete="current-password" required
+                       class="mt-1 w-full rounded-none border-0 bg-tile-2 px-2 py-1 text-neutral-200 outline-none focus:bg-invert focus:text-black"/>
+                <p id="fc-error" class="mt-2 min-h-[1.5em] text-white" role="alert"></p>
+                <div class="flex justify-center gap-2 [&>button]:px-2 [&>button:focus-visible]:bg-invert [&>button:focus-visible]:text-black [&>button:focus-visible]:outline-none [&>button:hover]:bg-invert [&>button:hover]:text-black">
+                    <button>[ OK ]</button>
+                    <button type="button" id="fc-cancel">[ Cancel ]</button>
+                </div>
+            </fieldset>
+        </form>
+
+        <div id="fc-panes">
+            <div class="grid gap-1.5 md:grid-cols-[minmax(0,1fr)_20rem]">
+                <fieldset class="min-w-0 border-[3px] border-double border-neutral-400 px-1.5 pb-1">
+                    <legend id="fc-path" class="mx-auto max-w-full truncate px-2 text-white">/files/</legend>
+                    <div class="row text-neutral-500" aria-hidden="true"><span>Name</span><span class="text-right">Size</span><span class="text-right">Modified</span></div>
+                    <ul id="fc-list" class="min-h-[24rem]" aria-label="Files"></ul>
+                    <p id="fc-selected" class="truncate border-t border-neutral-600 px-2 pt-1 text-neutral-500" role="status"></p>
+                </fieldset>
+                <fieldset class="min-w-0 border-[3px] border-double border-neutral-600 px-3 pb-3">
+                    <legend class="mx-auto px-2">Info</legend>
+                    <dl id="fc-info" class="grid gap-y-2 [&_dd]:break-all [&_dt]:text-neutral-500"></dl>
+                </fieldset>
+            </div>
+            <div class="mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
+                {keys.map(([key, label]) => (
+                    <button type="button" data-key={key} class="group">
+                        {key}<span class="ml-0.5 bg-invert px-1 text-black group-hover:bg-neutral-400">{label}</span>
+                    </button>
+                ))}
+            </div>
+        </div>
+    </div>
+</RootLayout>
+
+<style is:global>
+    #fc .row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 7ch 10ch;
+        column-gap: 1.5ch;
+        width: 100%;
+        padding: 1px 0.5rem;
+        text-align: left;
+    }
+    #fc .row > :first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* Phones keep the room for names; the date is still in the info pane */
+    @media (max-width: 767px) {
+        #fc .row { grid-template-columns: minmax(0, 1fr) 7ch; }
+        #fc .row > :nth-child(3) { display: none; }
+    }
+    #fc-list .row:focus { outline: none; background: rgb(var(--invert)); }
+    #fc-list .row:focus, #fc-list .row:focus * { color: rgb(var(--page)); }
+</style>
+
+<script>
+    interface Entry { name: string; folder?: boolean; size?: number; modified?: string; url?: string }
+    interface Listing { folders: string[]; files: Entry[] }
+
+    const api = "/api/files";
+    const roots: Record<string, string> = { private: "Password protected", public: "The site's public/ folder", content: "Posts and data, from GitHub" };
+    const size = (bytes: number) => {
+        const units = ["B", "K", "M", "G", "T"];
+        const power = Math.min(Math.floor(Math.log(bytes || 1) / Math.log(1024)), units.length - 1);
+        return `${+(bytes / 1024 ** power).toFixed(power && bytes < 10 * 1024 ** power ? 1 : 0)}${units[power]}`;
+    };
+    const date = (iso: string, options: Intl.DateTimeFormatOptions) => new Date(iso).toLocaleString("en-GB", options);
+
+    // One folder of the build-time list of public files, split like R2's delimiter listing
+    let publicFiles: Promise<{ path: string; size: number; url: string }[]> | undefined;
+    const listPublic = async (prefix: string): Promise<Listing> => {
+        publicFiles ??= fetch("/files/public.json").then((res) => res.json());
+        const folders = new Set<string>(), files: Entry[] = [];
+        for (const { path, size, url } of await publicFiles) {
+            if (!path.startsWith(prefix)) continue;
+            const [name, ...rest] = path.slice(prefix.length).split("/");
+            if (rest.length) folders.add(name);
+            else files.push({ name, size, url });
+        }
+        return { folders: [...folders], files };
+    };
+
+    document.addEventListener("astro:page-load", () => {
+        const fc = document.getElementById("fc");
+        if (!fc) return;
+        const $ = <T extends HTMLElement>(id: string) => document.getElementById(`fc-${id}`) as T;
+        const [login, panes, list, info, status] = ["login", "panes", "list", "info", "selected"].map($);
+        const password = $<HTMLInputElement>("password");
+        let path = "";
+        let pending = "";
+        let selected: HTMLElement | undefined;
+
+        const show = (view: HTMLElement) => [login, panes].forEach((el) => el.hidden = el !== view);
+        const back = () => { show(panes); selected?.focus(); };
+
+        const describe = (entry: Entry) => {
+            status.textContent = entry.name;
+            const rows: [string, string][] = entry.folder
+                ? [["Folder", entry.name], ...(!path && roots[entry.name] ? [["About", roots[entry.name]] as [string, string]] : []), ["Enter", entry.name === ".." ? "go up" : "open"]]
+                : [["File", entry.name], ["Size", `${entry.size!.toLocaleString("en-GB")} bytes`],
+                   ...(entry.modified ? [["Modified", date(entry.modified, { dateStyle: "medium", timeStyle: "short" })] as [string, string]] : []),
+                   ["Enter", entry.url?.startsWith("http") ? "open on GitHub" : "download"]];
+            info.replaceChildren(...rows.flatMap(([term, detail]) => {
+                const dt = document.createElement("dt"), dd = document.createElement("dd");
+                dt.textContent = term;
+                dd.textContent = detail;
+                return [dt, dd];
+            }));
+        };
+
+        const row = (entry: Entry) => {
+            // Files are plain links, so the browser handles big downloads itself
+            const el = document.createElement(entry.folder ? "button" : "a");
+            el.className = "row";
+            if (el instanceof HTMLAnchorElement) {
+                el.href = entry.url ?? `${api}/get?path=${encodeURIComponent(path.slice("private/".length) + entry.name)}`;
+                // Browsers ignore download on GitHub's links, so those open in a new tab instead
+                if (el.origin === location.origin) el.download = entry.name;
+                else el.target = "_blank";
+                el.dataset.astroPrefetch = "false";
+                el.dataset.astroReload = "";
+            } else {
+                el.type = "button";
+                el.onclick = () => open(entry.name === ".." ? path.replace(/[^/]+\/$/, "") : `${path}${entry.name}/`, entry.name === ".." ? path : undefined);
+            }
+            el.onfocus = () => { selected = el; describe(entry); };
+            const cells = [entry.folder ? `/${entry.name}` : ` ${entry.name}`,
+                entry.folder ? (entry.name === ".." ? "UP--DIR" : "DIR") : size(entry.size!),
+                entry.modified ? date(entry.modified, { day: "2-digit", month: "2-digit", year: "2-digit" }).replaceAll("/", "-") : ""];
+            el.append(...cells.map((text, i) => Object.assign(document.createElement("span"), { textContent: text, className: i ? "text-right" : entry.folder ? "text-white" : "" })));
+            const li = document.createElement("li");
+            li.append(el);
+            return li;
+        };
+
+        const listPrivate = async (prefix: string): Promise<Listing | string> => {
+            const res = await fetch(`${api}/list?path=${encodeURIComponent(prefix)}`).catch(() => null);
+            if (res?.ok) return res.json();
+            return res?.status === 401 ? "login" : res?.status === 503 ? "Private files aren't set up yet" : "Couldn't load the files. Try again later";
+        };
+
+        // `from` is the folder we just left, so going up lands on it like in Midnight Commander
+        const open = async (next: string, from?: string) => {
+            const listing = !next ? { folders: Object.keys(roots), files: [] }
+                : next.startsWith("private/") ? await listPrivate(next.slice("private/".length))
+                : await listPublic(next);
+            if (listing === "login") { pending = next; show(login); return password.focus(); }
+            if (typeof listing === "string") { status.textContent = listing; return; }
+            path = next;
+            $("path").textContent = `/files/${path}`;
+            const entries: Entry[] = [...(path ? [{ name: "..", folder: true }] : []), ...listing.folders.map((name) => ({ name, folder: true })), ...listing.files];
+            list.replaceChildren(...entries.map(row));
+            if (!entries.length) list.textContent = "Empty";
+            show(panes);
+            const index = Math.max(0, entries.findIndex((entry) => entry.folder && `${path}${entry.name}/` === from));
+            selected = list.querySelectorAll<HTMLElement>(".row")[index];
+            // Focused straight away, page load included, so the arrow keys work without a click first
+            if (selected) selected.focus({ preventScroll: true });
+            else info.replaceChildren();
+        };
+
+        login.onsubmit = async (event) => {
+            event.preventDefault();
+            const res = await fetch(`${api}/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: password.value }) }).catch(() => null);
+            password.value = "";
+            if (res?.ok) { $("error").textContent = ""; return open(pending); }
+            $("error").textContent = res?.status === 401 ? "Wrong password" : res?.status === 429 ? "Too many tries. Wait a minute" : "Couldn't log in. Try again later";
+        };
+        $("cancel").onclick = back;
+        login.onkeydown = (event) => { if (event.key === "Escape") back(); };
+
+        const actions: Record<string, () => void> = {
+            Bksp: () => path && open(path.replace(/[^/]+\/$/, ""), path),
+            Enter: () => selected?.click(),
+            F5: () => selected instanceof HTMLAnchorElement && selected.click(),
+            F10: async () => { await fetch(`${api}/logout`, { method: "POST" }); open(""); },
+        };
+        panes.querySelectorAll<HTMLElement>("[data-key]").forEach((button) =>
+            button.onclick = () => actions[button.dataset.key!]());
+
+        const keys = (event: KeyboardEvent) => {
+            const rows = [...list.querySelectorAll<HTMLElement>(".row")];
+            const index = selected ? rows.indexOf(selected) : -1;
+            const move = { ArrowDown: index + 1, ArrowUp: index - 1, Home: 0, End: rows.length - 1, PageDown: index + 10, PageUp: index - 10 }[event.key];
+            if (move !== undefined) rows[Math.max(0, Math.min(move, rows.length - 1))]?.focus();
+            else if (event.key === "Backspace") actions.Bksp();
+            else if (event.key === "F5" || event.key === "F10") actions[event.key]();
+            else return;
+            event.preventDefault();
+        };
+        list.onkeydown = keys;
+        // Starting a download can move focus off the row (browsers' download panels take it), so keys pressed
+        // with nothing focused still drive the list. A property, not a listener: ClientRouter swaps <body> out on navigation.
+        document.body.onkeydown = (event) => {
+            if (event.target !== document.body || panes.hidden || !selected) return;
+            if (event.key === "Enter") { event.preventDefault(); return selected.click(); }
+            selected.focus({ preventScroll: true });
+            keys(event);
+        };
+
+        open("");
+    });
+</script>

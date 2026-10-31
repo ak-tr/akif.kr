@@ -33,3 +33,6 @@ yarn.lock
 
 # wrangler local dev state
 .wrangler/
+
+# wrangler local secrets
+.dev.vars
