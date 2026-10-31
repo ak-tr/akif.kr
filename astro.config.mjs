@@ -35,6 +35,7 @@ export default defineConfig({
     integrations: [
         mdx(),
         sitemap({
+            filter: (page) => !page.includes("/files/"),
             serialize(item) {
                 const lastmod = postDates.get(item.url);
                 if (lastmod) item.lastmod = lastmod;
