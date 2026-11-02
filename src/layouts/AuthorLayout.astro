@@ -22,7 +22,7 @@ const authorPosts = await getCollection("blog", excludeDrafts).then(sortBlogPost
         <div>
             <p class="font-mono text-xs uppercase tracking-wide text-neutral-500">{name}{occupation && ` / ${occupation}`}</p>
             <h1 class="mt-6 font-sans text-4xl font-light leading-[1.05] tracking-[-.04em] text-white sm:text-6xl">
-                Hi, I'm Akif, a developer who builds tools, solves problems, and sometimes writes about it.
+                Hi, I'm Akif, and this is where I write up the stuff the internet didn't have an answer for.
             </h1>
         </div>
         <img id="home-hero" src="/static/images/home-hero.avif" alt={name} loading="eager" class="aspect-square w-full object-cover grayscale transition-[filter] duration-700"/>
