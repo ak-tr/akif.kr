@@ -122,36 +122,34 @@ pre .indent:nth-child(odd)::before {
     opacity: 0.15;
 }
 
-/* Custom scrollbar styling for astro-code blocks */
-.astro-code::-webkit-scrollbar {
+/* Scrollbars (page, code blocks, search results): square n-700 thumb on a clear track, n-500 on hover.
+   Chrome and Safari take the ::-webkit-scrollbar rules (square corners); Firefox only has the standard properties */
+::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 
-.astro-code::-webkit-scrollbar-track {
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
     background: transparent;
 }
 
-.astro-code::-webkit-scrollbar-thumb {
-    background-color: #4a5568;
-    border-radius: 4px;
+::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--n-700));
 }
 
-.astro-code::-webkit-scrollbar-thumb:hover {
-    background-color: #2d3748;
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(var(--n-500));
 }
 
-.astro-code::-webkit-scrollbar-corner {
-    background: transparent;
-}
-
-.astro-code::-webkit-scrollbar-button {
-    display: none;
+@supports not selector(::-webkit-scrollbar) {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: rgb(var(--n-700)) transparent;
+    }
 }
 
 .astro-code {
-    scrollbar-width: thin;
-    scrollbar-color: #4a5568 transparent;
     padding-top: 1rem;
     padding-bottom: 1rem;
     padding-left: 0;
