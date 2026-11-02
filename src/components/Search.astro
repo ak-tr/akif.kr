@@ -52,7 +52,7 @@ const keys = [["↑↓", "Move"], ["↵", "Open"], ["Esc", "Close"]];
                 }
                 // Show the summary unless the match is only in the text, then show the text around the whole
                 // query if it's there as a phrase, or else the first word
-                const inMeta = words.some((word) => meta.includes(word) || title.includes(word));
+                const inMeta = score > words.length; // a text-only match scores exactly 1 per word
                 const inPhrase = text.search(phrase(words));
                 const at = inMeta ? -1 : inPhrase >= 0 ? inPhrase : text.indexOf(words[0]);
                 const start = at > 50 ? entry.text!.indexOf(' ', at - 50) + 1 : 0;
@@ -162,7 +162,7 @@ const keys = [["↑↓", "Move"], ["↵", "Open"], ["Esc", "Close"]];
     });
 
     // Opened from a result with ?q=: highlight every match in the content and scroll to the first, then drop ?q=
-    // from the address bar. CSS Custom Highlights leave the DOM alone; without them it only scrolls.
+    // from the address bar. CSS Custom Highlights leave the DOM alone.
     const highlightPage = () => {
         const url = new URL(location.href);
         const query = url.searchParams.get('q')?.toLowerCase().split(/\s+/).filter(Boolean) ?? [];
@@ -192,14 +192,11 @@ const keys = [["↑↓", "Move"], ["↵", "Open"], ["Esc", "Close"]];
         const phrases = query.length > 1 ? find(phrase(query)) : [];
         const ranges = phrases.length ? phrases : find(pattern(words));
         if (!ranges.length) return;
-        if ('highlights' in CSS) CSS.highlights.set('search', new Highlight(...ranges));
+        CSS.highlights.set('search', new Highlight(...ranges));
         const first = ranges[0].startContainer.parentElement!;
         first.closest('details')?.setAttribute('open', '');
         first.scrollIntoView({ block: 'center', behavior: 'instant' });
     };
 
-    document.addEventListener('astro:page-load', () => {
-        if ('highlights' in CSS) CSS.highlights.delete('search');
-        highlightPage();
-    });
+    document.addEventListener('astro:page-load', highlightPage);
 </script>
