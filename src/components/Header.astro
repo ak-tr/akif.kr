@@ -19,5 +19,12 @@ import MobileNav from "./MobileNav.astro";
             </HeaderLink>
         ))
     }
+    <!-- Phones have no ⌘K, so they get a search button next to the menu -->
+    <button type="button" data-search-open aria-label="Search" class="sm:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="h-6 w-6 text-white">
+            <circle cx="8.5" cy="8.5" r="5.5"/>
+            <path d="M12.5 12.5 17 17" stroke-linecap="square"/>
+        </svg>
+    </button>
     <MobileNav/>
 </header>

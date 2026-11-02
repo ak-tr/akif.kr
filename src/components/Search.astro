@@ -1,0 +1,205 @@
+---
+// ⌘K / Ctrl+K search over /search.json
+const keys = [["↑↓", "Move"], ["↵", "Open"], ["Esc", "Close"]];
+---
+
+<dialog id="search" aria-label="Search" class="mx-auto mt-[12vh] w-[calc(100%-2rem)] max-w-xl border border-neutral-800 bg-tile p-0 text-neutral-200">
+    <input id="search-input" type="search" role="combobox" aria-expanded="true" aria-controls="search-results" aria-autocomplete="list"
+           autocomplete="off" spellcheck="false" placeholder="Search posts, projects and pages"
+           class="w-full border-0 border-b border-neutral-800 bg-transparent px-4 py-4 text-lg text-white placeholder:text-neutral-500 focus:outline-none focus:ring-0"/>
+    <div id="search-results" role="listbox" aria-label="Results" class="max-h-[60vh] overflow-y-auto"></div>
+    <div class="font-mono hidden gap-5 border-t border-neutral-800 px-4 py-2.5 text-[11px] uppercase tracking-wide text-neutral-500 sm:flex">
+        {keys.map(([key, label]) => <span><span class="text-white">{key}</span> {label}</span>)}
+    </div>
+</dialog>
+
+<style is:global>
+    #search::backdrop { background: rgb(var(--page) / .72); }
+    /* Search matches on the page a result opens, inverted like a selected tile */
+    ::highlight(search) { background-color: rgb(var(--invert)); color: rgb(var(--page)); }
+    html:has(#search[open]) { overflow: hidden; }
+</style>
+
+<script>
+    type Entry = { type: string; title: string; summary?: string; keywords?: string; text?: string; url: string };
+    type Result = { entry: Entry; snippet?: string };
+
+    // Elements are looked up per event because ClientRouter swaps the body but runs this once per session
+    const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+    let index: Promise<Entry[]> | undefined;
+    let results: Result[] = [];
+    let active = 0;
+
+    const escape = (word: string) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = (words: string[]) => new RegExp(`(${words.map(escape).join('|')})`, 'gi');
+    // The words in order with anything but letters and digits between them, so "crossed out" finds "crossed-out"
+    const phrase = (words: string[]) => new RegExp(words.map(escape).join('[^\\p{L}\\p{N}]+'), 'giu');
+
+    // Every word has to match somewhere; a word in the title counts most, then the summary/tags, then the text
+    const search = (entries: Entry[], words: string[]): Result[] => {
+        if (!words.length) return entries.filter((entry) => entry.type === 'Page').map((entry) => ({ entry }));
+        return entries
+            .map((entry) => {
+                const title = entry.title.toLowerCase();
+                const meta = `${entry.summary ?? ''} ${entry.keywords ?? ''}`.toLowerCase();
+                const text = entry.text?.toLowerCase() ?? '';
+                let score = 0;
+                for (const word of words) {
+                    if (title.includes(word)) score += 10;
+                    else if (meta.includes(word)) score += 3;
+                    else if (text.includes(word)) score += 1;
+                    else return null;
+                }
+                // Show the summary unless the match is only in the text, then show the text around the whole
+                // query if it's there as a phrase, or else the first word
+                const inMeta = words.some((word) => meta.includes(word) || title.includes(word));
+                const inPhrase = text.search(phrase(words));
+                const at = inMeta ? -1 : inPhrase >= 0 ? inPhrase : text.indexOf(words[0]);
+                const start = at > 50 ? entry.text!.indexOf(' ', at - 50) + 1 : 0;
+                const snippet = at < 0 ? entry.summary : `${start ? '…' : ''}${entry.text!.slice(start, at + 110).trim()}…`;
+                return { entry, snippet, score };
+            })
+            .filter((result) => result !== null)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 20);
+    };
+
+    // Text with the query words wrapped in <mark>, built as nodes so nothing from the index is parsed as HTML
+    const highlight = (text: string, words: string[]) => {
+        if (!words.length) return [document.createTextNode(text)];
+        return text.split(pattern(words)).map((part, i) => {
+            if (i % 2 === 0) return document.createTextNode(part);
+            const mark = document.createElement('mark');
+            mark.className = 'bg-transparent text-inherit underline underline-offset-2';
+            mark.textContent = part;
+            return mark;
+        });
+    };
+
+    const select = (i: number) => {
+        const options = $('search-results').querySelectorAll('[role=option]');
+        if (!options.length) return;
+        active = (i + options.length) % options.length;
+        options.forEach((option, j) => option.setAttribute('aria-selected', String(j === active)));
+        $('search-input').setAttribute('aria-activedescendant', options[active].id);
+        options[active].scrollIntoView({ block: 'nearest' });
+    };
+
+    const update = async () => {
+        const query = $<HTMLInputElement>('search-input').value;
+        const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+        const found = search(await (index ??= fetch('/search.json').then((response) => response.json())), words);
+        if (query !== $<HTMLInputElement>('search-input').value) return; // a newer keystroke already rendered
+        results = found;
+
+        const list = $('search-results');
+        if (!results.length) {
+            const empty = document.createElement('p');
+            empty.className = 'px-4 py-6 text-sm text-neutral-500';
+            empty.textContent = `Nothing found for "${query.trim()}".`;
+            list.replaceChildren(empty);
+            $('search-input').removeAttribute('aria-activedescendant');
+            return;
+        }
+        list.replaceChildren(...results.map(({ entry, snippet }, i) => {
+            const option = document.createElement('a');
+            option.id = `search-option-${i}`;
+            // Posts, guides and projects open with the query highlighted (see astro:page-load below)
+            option.href = words.length && ['Post', 'Guide', 'Project'].includes(entry.type) ? `${entry.url}?q=${encodeURIComponent(query.trim())}` : entry.url;
+            option.setAttribute('role', 'option');
+            option.className = 'group block border-b border-neutral-900 px-4 py-3 last:border-0 aria-selected:bg-invert';
+            option.innerHTML = `
+                <span class="flex items-baseline justify-between gap-4">
+                    <span data-title class="text-white group-aria-selected:text-black"></span>
+                    <span class="font-mono shrink-0 text-[11px] uppercase tracking-wide text-neutral-500 group-aria-selected:text-black">${entry.type}</span>
+                </span>
+                <span data-snippet class="mt-1 line-clamp-2 text-sm text-neutral-400 empty:hidden group-aria-selected:text-black"></span>`;
+            option.querySelector('[data-title]')!.replaceChildren(...highlight(entry.title, words));
+            if (snippet) option.querySelector('[data-snippet]')!.replaceChildren(...highlight(snippet, words));
+            return option;
+        }));
+        select(0);
+    };
+
+    const open = () => {
+        const dialog = $<HTMLDialogElement>('search');
+        if (dialog.open) return dialog.close();
+        dialog.showModal();
+        $<HTMLInputElement>('search-input').select();
+        update();
+    };
+
+    document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            open();
+        }
+        if (!(e.target as Element).closest?.('#search')) return;
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            select(active + (e.key === 'ArrowDown' ? 1 : -1));
+        }
+        if (e.key === 'Enter' && results.length) {
+            e.preventDefault();
+            $('search-results').querySelectorAll<HTMLElement>('[role=option]')[active].click();
+        }
+    });
+
+    document.addEventListener('input', (e) => {
+        if ((e.target as Element).id === 'search-input') update();
+    });
+
+    document.addEventListener('pointermove', (e) => {
+        const option = (e.target as Element).closest?.('#search [role=option]');
+        if (option) select([...option.parentElement!.children].indexOf(option));
+    });
+
+    document.addEventListener('click', (e) => {
+        const target = e.target as Element;
+        if (target.closest('[data-search-open]')) open();
+        // A click on the dialog itself (not its contents) is a click on the backdrop
+        if (target.id === 'search' || target.closest('#search [role=option]')) $<HTMLDialogElement>('search').close();
+    });
+
+    // Opened from a result with ?q=: highlight every match in the content and scroll to the first, then drop ?q=
+    // from the address bar. CSS Custom Highlights leave the DOM alone; without them it only scrolls.
+    const highlightPage = () => {
+        const url = new URL(location.href);
+        const query = url.searchParams.get('q')?.toLowerCase().split(/\s+/).filter(Boolean) ?? [];
+        const words = query.filter((word) => word.length > 1);
+        if (!words.length) return;
+        url.searchParams.delete('q');
+        history.replaceState(history.state, '', url);
+
+        const content = document.getElementById('content') ?? document.querySelector('main article');
+        if (!content) return;
+        const find = (regex: RegExp) => {
+            const ranges: Range[] = [];
+            const walker = document.createTreeWalker(content, NodeFilter.SHOW_TEXT);
+            while (walker.nextNode()) {
+                const node = walker.currentNode as Text;
+                for (const match of node.data.matchAll(regex)) {
+                    const range = new Range();
+                    range.setStart(node, match.index);
+                    range.setEnd(node, match.index + match[0].length);
+                    ranges.push(range);
+                }
+            }
+            return ranges;
+        };
+        // The whole query as a phrase first, so "passive go" lands on "Passive Go" rather than an earlier "got";
+        // each word on its own when the phrase isn't there (or crosses an element, like a link inside it)
+        const phrases = query.length > 1 ? find(phrase(query)) : [];
+        const ranges = phrases.length ? phrases : find(pattern(words));
+        if (!ranges.length) return;
+        if ('highlights' in CSS) CSS.highlights.set('search', new Highlight(...ranges));
+        const first = ranges[0].startContainer.parentElement!;
+        first.closest('details')?.setAttribute('open', '');
+        first.scrollIntoView({ block: 'center', behavior: 'instant' });
+    };
+
+    document.addEventListener('astro:page-load', () => {
+        if ('highlights' in CSS) CSS.highlights.delete('search');
+        highlightPage();
+    });
+</script>
