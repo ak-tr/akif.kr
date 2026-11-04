@@ -1,0 +1,251 @@
+---
+title: "From EPDM to Acrylic: My Dan A4-H2O Hardline Build"
+date: "2026-11-03"
+tags: ["my-pc"]
+draft: false
+summary: "Converting my Dan A4-H2O custom loop from EPDM to acrylic hardline tubing. Freehand bends, awkward routing, and the challenges of fitting acrylic tubing into an SFF case."
+keywords:
+  - Dan A4-H2O hardline watercooling
+  - SFF acrylic tubing
+  - Corsair Hydro X XT Hardline 12mm
+  - EK-Quantum Torque Micro HDC 12
+hero:
+  src: "/static/images/dan-a4-h2o-hardline-conversion/hero-studio.jpg"
+  alt: "My Dan A4-H2O hardline build with its illuminated FLT80 reservoir, against a white studio backdrop"
+---
+
+## Introduction
+
+After [building my first custom loop in the Dan A4-H2O](/blog/my-first-custom-loop-sff-watercooling-dan-a4-h2o/), I decided to give myself another thing to figure out: replacing the EPDM tubing with acrylic hardline.
+
+There wasn't anything wrong with the EPDM. I liked the idea of a hardline loop, wanted to learn how to bend the tubing, and thought it would be an interesting next step for this build. I wasn't expecting any meaningful improvement in cooling performance. This was mostly about the appearance and the itch to tinker.
+
+I also wanted to make use of the tubing itself for the routing, with interesting bends rather than straight pieces joined by 90-degree fittings everywhere. Doing that inside an A4-H2O was always going to be a challenge, but I still had the original EPDM tubing and fittings to fall back on if it didn't work out.
+
+## Parts & Tools
+
+Most of the main components are the same as in the original build: EK Quantum Velocity CPU block, EK Quantum Vector RTX 3080/3090 GPU block, EK Quantum Surface S240 radiator, and an inverted FLT80 reservoir. The Aqua Computer QUADRO and original coolant temperature sensor are also staying.
+
+Before starting the hardline conversion, I'd already changed the FLT80 mounting bracket because I was having fitment issues with the previous one. At the same time, I replaced the pump with a FREEZEMOD PC Slim Water Pump, which has a metal heatsink.
+
+Since I had to drain the coolant for the pump swap anyway, I took the opportunity to refresh it and add a second coolant temperature sensor at the CPU outlet. That gives me a second measurement point so I can measure the coolant temperature delta between the two sensors.
+
+I've covered the original layout and component choices in the [previous post](/blog/my-first-custom-loop-sff-watercooling-dan-a4-h2o/#parts-list), so I'll keep this list to the conversion.
+
+### Tubing
+
+I bought approximately 6 metres of Corsair Hydro X XT Hardline 12mm PMMA Clear tubing. It's acrylic, with a 12mm outer diameter and 10mm inner diameter. Six metres gave me room to experiment and make mistakes rather than having to get every bend right first time.
+
+I chose PMMA over PETG for its better temperature resistance. My original loop had reached around 44°C coolant temperature under load, so temperature resistance was something I wanted to allow for. As for the size, I prefer thinner tubing, especially in a case this small. I wasn't a fan of chunky soft tubing in the original build either.
+
+### Fittings
+
+For the hardline fittings, I went with EK-Quantum Torque Micro HDC 12 in black. They're compact, which is useful here, and Overclockers UK had them heavily discounted at £1.99 each when I bought them.
+
+My initial calculation was eight fittings for four tubing runs. Thankfully, I bought extras, because the GPU-to-CPU connection ended up needing two pieces of tubing and another two HDC fittings.
+
+I also reused the original Barrow mini 90-degree rotary adapters and bought a selection of extensions and a larger Barrow 90-degree adapter to finish the radiator-to-reservoir connection. More on that below.
+
+### Bending Tools
+
+I bought the Corsair XT Hardline Bending Toolkit, which includes a silicone insert, bending jig, cutting tools, and deburring/chamfering tools.
+
+I already had a heat gun, although it only has two settings: 375°C and 550°C. I used the lower setting, adjusting the distance from the tube and continuously rotating it to spread the heat. Those are the heat gun settings, rather than the temperature of the acrylic itself.
+
+## Planning the Conversion
+
+The loop order is staying the same:
+
+<StepFlow steps={["Pump/Res", "GPU", "CPU", "Radiator", "Pump/Res"]} />
+
+The radiator was one of the most awkward parts of the original build, and that hasn't changed. There is very little room around its ports, and the inverted reservoir adds another routing constraint at the front of the case.
+
+With EPDM, I could work with some flexibility in the tube. With acrylic, I have to get the shape right and work out how to get that finished shape into the case. Those turned out to be two separate problems.
+
+### Draining the Original Loop
+
+To drain the loop, I put the PC on its side so I could remove one of the bottom plugs on the reservoir and attach a piece of soft tubing with a standard compression fitting. I then removed one of the top plugs and attached another soft tube with a compression fitting. The idea was to let air in as the coolant drained out, although I'm not sure how much that second tube actually helped.
+
+This drained most of the reservoir on the first pass. To get the coolant out of the radiator, I rotated the PC until most of it had flowed back into the reservoir and out through the bottom hose.
+
+I then slowly removed the remaining hoses, using tissue to catch any coolant left in them so it didn't spill across the electrical components.
+
+## Learning to Bend Acrylic
+
+This was my first time bending hardline tubing. I started with the Corsair jig, but I didn't particularly like using it and found I preferred bending freehand. That gave me more control over the shape, especially for bends in different planes and radii that didn't suit the jig.
+
+I used the silicone insert to keep the tubing from collapsing while bending. Unfortunately, I also learnt quite quickly that getting the insert back out needs some thought.
+
+### A Stuck Insert and a Cracked Tube
+
+One of my early bends ended up with a tighter radius than I intended. The silicone insert became stuck, and I'd managed to push the entire thing inside the tube, leaving nothing sticking out to grip.
+
+I eventually recovered the silicone, but a tool slipped while I was trying to remove it and cracked the acrylic. That section went in the bin.
+
+After that, I learnt to leave some of the insert sticking out and lubricate it with water before bending. For more complicated pieces, it can also be easier to remove and reposition the insert between bends rather than leaving it inside throughout.
+
+### Working Out the Bends
+
+I tried single 90-degree bends, 180-degree U-bends, and multiple 90-degree bends in different planes. There were also freehand bends with nonstandard radii and short runs needing offsets across more than one axis.
+
+A couple of smaller things caught me out too. Sharpie was useful for marking the tube, but removing the marks wasn't as straightforward as I'd expected. At one point, I also thought I'd overheated some bends because they appeared to have bubbles. After washing the tubing, those disappeared, so they were likely soap residue rather than damage to the acrylic.
+
+The biggest lesson so far has been that making the right shape is only part of the job. A tube can line up with both ports and still be impossible to install without taking a substantial amount of the PC apart. The GPU-to-CPU run made that particularly clear.
+
+## Installing the Hardline Tubing
+
+### CPU to Radiator
+
+This was one of the connections I expected to be particularly difficult. In the EPDM build, I needed three chained Barrow mini 90-degree adapters to make the connection between the CPU block and radiator fit in the available space.
+
+This was actually the first hardline run I made. I added a 7.5mm Barrow extension fitting to the end of the CPU block's 90-degree adapter to make the connection. With so little clearance in this area, it was one of the routes I most wanted to get sorted.
+
+<PostImage src="/static/images/dan-a4-h2o-hardline-conversion/01-cpu-to-radiator.jpg" alt="First acrylic run from the CPU block to the radiator, with the PSU unscrewed and moved aside" subtitle="My first run, with the 7.5mm Barrow extension on the CPU adapter and the PSU moved out of the way" />
+
+### GPU to CPU
+
+Originally, I wanted this to be one continuous piece of acrylic with bends in multiple planes. The problem was that even if I made the shape correctly, there wasn't a practical way to feed the finished tube through the case without dismantling a substantial amount of the PC.
+
+<PostImage src="/static/images/dan-a4-h2o-hardline-conversion/02-cpu-side-section.jpg" alt="CPU-side acrylic section bending down and along the bottom of the case, with the PSU installed" subtitle="The CPU-side half of the connection, with the PSU back in place" />
+
+I decided to split it into two sections, joining them with a Barrow 90-degree fitting. It has G1/4 internal threads at both ends, so I screwed an additional EK Micro HDC fitting into each end to connect the two acrylic sections. That was where the extra HDC fittings I bought came in handy. Splitting the run made it practical to install while keeping the route entirely hardline.
+
+<PostImage src="/static/images/dan-a4-h2o-hardline-conversion/03-barrow-joint.jpg" alt="Close-up of the Barrow 90-degree joint joining the hardline sections beneath the PSU cables" subtitle="The Barrow joint tucked beneath the PSU cables, photographed with flash" />
+
+<PostImage src="/static/images/dan-a4-h2o-hardline-conversion/04-gpu-side-section.jpg" alt="GPU-side acrylic section bending along the bottom of the case and into the GPU block fitting" subtitle="The second section, completing the route from the joint to the GPU" />
+
+I would have liked the continuous piece, but this was a compromise I was happy to make. It also justified buying the extra fittings. Planning where the tube ends up isn't enough; I need to plan how it gets there too.
+
+### Reservoir to GPU
+
+This connection is relatively short, but it was still one of the more difficult ones. The reservoir and GPU ports are offset across two axes, so a bend in a single plane wasn't enough to connect them.
+
+Getting that geometry right took a couple of attempts. In such a short distance, there was very little room for error or adjustment. A shorter run doesn't necessarily mean an easier one.
+
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+  <PostImage src="/static/images/dan-a4-h2o-hardline-conversion/05-reservoir-to-gpu.jpg" alt="GPU side of the case showing the short acrylic connection from the inverted FLT80 reservoir to the GPU" subtitle="The reservoir-to-GPU connection in place" />
+  <PostImage src="/static/images/dan-a4-h2o-hardline-conversion/06-reservoir-offset-close-up.jpg" alt="Close-up of the acrylic bends bridging the offset between the reservoir outlet and GPU fitting" subtitle="A closer look at the offset across two axes" />
+</div>
+
+### Radiator to Reservoir
+
+This was the last connection to finish. Between the radiator position, limited clearance and upside-down FLT80, I couldn't make it work with my initial selection of fittings. My earlier attempt at an offset U-shaped tube hadn't given me a route I could fit confidently either.
+
+I ordered a selection of extensions in different lengths and a larger Barrow 90-degree adapter, rather than another of the mini ones I'd used elsewhere. Once those arrived, I used a 20mm extension into the larger 90-degree adapter to point the connection towards the outside of the case. My one remaining Barrow micro 90-degree adapter then turned it back towards the inside.
+
+That gave me a route I could work with, but I still needed a 180-degree bend in the acrylic to connect the two ends. I tried freehand bending it at first, but couldn't get the radius right.
+
+### A 3D-Printed Bending Guide
+
+To get a more useful reference, I measured from the top of the upper fitting to the bottom of the lower fitting. That came to roughly 50mm. I then designed and 3D printed a flat piece with two raised sections, one on either side, spaced 50mm apart.
+
+<PostImage src="/static/images/dan-a4-h2o-hardline-conversion/07-printed-bending-guide.jpg" alt="Acrylic U-bend with its silicone insert still inside, resting against the 3D-printed bending guide on the desk beside the PC" subtitle="The printed guide and 180-degree bend, with the silicone insert still inside the tube" />
+
+I was still bending the tube by hand, but having that guide gave me something consistent to work against. This time, I got the 180-degree bend to match the spacing I needed. I cut both ends to the right length and fitted the tube, finally completing the last connection.
+
+<PostImage src="/static/images/dan-a4-h2o-hardline-conversion/08-radiator-return-dry.jpg" alt="Completed 180-degree acrylic return from the radiator to the inverted FLT80 reservoir before filling" subtitle="The final radiator-to-reservoir run fitted, with the loop still empty" />
+
+## Leak Testing & Filling
+
+### Pressure Testing
+
+With all the tubing fitted, I used my Barrow pressure tester to pressurise the loop to 0.3 bar. Unfortunately, it was losing pressure faster than I was happy with, and I could hear a bubbling-like sound.
+
+I checked the fittings and found that the CPU end of the GPU-to-CPU run felt a little loose. Tightening it didn't solve the problem. The pressure would drop, although it would eventually stabilise rather than continuing to fall.
+
+I then removed and refitted all the fittings, including the joint connecting the two sections between the GPU and CPU. After that, the bubbling sound stopped, but the pressure loss remained.
+
+I tried soapy water around the fittings to find where air was escaping, without any luck. I also briefly checked the pressure tester itself, which seemed fine, although that didn't give me a definite explanation for what was happening.
+
+At that point, I was frustrated. I judged the remaining pressure loss to be small enough to move on to filling and wet testing. I still hadn't found its cause, so I couldn't call this a successful pressure test.
+
+### Filling the Loop
+
+I used my 24-pin PSU jumper cable with its illuminated on/off switch to run the pump for filling and testing without starting the PC.
+
+<PostImage src="/static/images/dan-a4-h2o-hardline-conversion/09-psu-jumper-switch.jpg" alt="Illuminated on/off switch on the 24-pin PSU jumper cable held beside the CPU side of the case" subtitle="The switched PSU jumper used to run the pump during filling and wet testing" />
+
+To fill the loop, I have to put the PC on its side so the ports on the side of the reservoir face upwards. I fill the reservoir to the brim, replace the plug, then put the PC upright again and run the pump to circulate the coolant.
+
+As the coolant moves into the tubing and radiator, the reservoir level drops. I stop the pump before the level gets low enough for it to draw air, put the PC back on its side, remove the plug and top it up again.
+
+I repeated that process until running the pump no longer dropped the coolant below the level it needed.
+
+### Bleeding
+
+I let the pump circulate the coolant until it was no longer drawing bubbles in, then tilted the PC roughly 15–30 degrees in each direction and gave it a light shake to help release trapped air.
+
+Whenever more air came out and the reservoir level dropped, I repeated the filling procedure to top it up. It took a combination of circulation, tilting and topping up to work the air out.
+
+### Wet Testing
+
+I ran the loop from the PSU jumper for approximately four hours in total, with a 15-minute break around the three-hour mark. There were no issues, no visible leaks and no signs of moisture around the connections. That was encouraging, although it still didn't explain the pressure loss during the air test.
+
+<PostImage src="/static/images/dan-a4-h2o-hardline-conversion/10-wet-test-one-hour.jpg" alt="Filled hardline loop running during its first hour of wet testing, with the radiator return and reservoir visible" subtitle="About an hour into wet testing, still running from the PSU jumper, with no tissues around the fittings" />
+
+### First Power-On & Idle Warm-Up
+
+After the wet test, I removed the jumper, reconnected the PC and powered it on normally. I let it idle for 20 minutes before moving on to anything more demanding.
+
+At an idle load of around 60–80W, the coolant warmed by roughly 2°C over those 20 minutes, which was the sort of small rise I expected. There were no issues during the warm-up.
+
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+  <PostImage src="/static/images/dan-a4-h2o-hardline-conversion/11-powered-on-gpu-side.jpg" alt="GPU side of the filled hardline build with the PC powered on normally and the FLT80 reservoir illuminated" subtitle="The GPU side, now running with the PC powered on normally" />
+  <PostImage src="/static/images/dan-a4-h2o-hardline-conversion/12-powered-on-cpu-side.jpg" alt="CPU side of the powered-on PC showing the illuminated EK Velocity block and completed acrylic tubing" subtitle="The CPU side after reconnecting the PC and removing the PSU jumper" />
+</div>
+
+### First Thermal Test: 35°C
+
+After checking everything was still dry following the idle warm-up, I started Unigine Heaven 4.0 at 1080p Low to introduce some GPU load. For this first test, I let the coolant reach 35°C before stopping the benchmark.
+
+The coolant temperature continued to rise briefly after Heaven stopped as the remaining heat worked its way into the loop. I then let it cool back towards 30°C and checked the fittings and tubing again. There was no moisture, no sign of a leak and nothing had moved.
+
+### Second Thermal Test: 40°C
+
+I started Heaven again from approximately 30°C, this time aiming for a coolant temperature of 40°C. Around that point, I recorded:
+
+| Measurement | Approximate reading |
+|---|---|
+| GPU temperature / power | 59°C / 250W |
+| CPU temperature / power | 70°C / 55W |
+| Pump speed | 3,400 RPM, up from around 2,500 RPM earlier |
+
+The first 5°C of coolant warming happened noticeably faster than the final 5°C. That suggested the loop was getting closer to thermal equilibrium, although I stopped at 40°C rather than leaving it running to establish a final temperature.
+
+The side panels were off throughout testing, so these aren't representative of what I'll see with the case fully enclosed.
+
+At the higher pump speed, the small inverted FLT80 became turbulent and started circulating air bubbles. I'd had the same issue with the previous soft-tubing setup, so this wasn't something new with the acrylic.
+
+I stopped Heaven at 40°C and let the coolant cool back to approximately 30°C. Another inspection showed no leaks, moisture or coolant loss. I also adjusted the QUADRO pump curve to reduce the turbulence and avoid repeatedly drawing air back into the pump.
+
+### Temperature Sensor Readings
+
+One thing that caught my attention during testing was the calculated temperature delta across the radiator. It was consistently negative, at around −0.4°C, despite the sensors being labelled hot and cold. The readings stayed consistent as the coolant warmed.
+
+I swapped the hot and cold assignments in Aquasuite. I'd previously upgraded the QUADRO firmware/software, which may have affected the configuration, but I haven't confirmed that was the cause.
+
+## What I'd Do Differently
+
+### Give Myself More Planning Time
+
+I probably wouldn't attempt hardline in a case this small again without giving myself much more time to plan it. I wanted the PC back up and running as soon as possible, which meant trying to get the conversion done quickly while still figuring out how everything would fit. If I did it again, I'd allow more time for that before taking the existing loop apart.
+
+### Print More Bending Guides
+
+The printed guide for the radiator return made me wish I'd used more of them. Next time, I'd probably print guides for the other awkward bends too, to give myself a better chance of getting the alignment right first time rather than freehand bending everything.
+
+That said, I did enjoy the freehand bending. It felt like a challenge, which was part of the reason I wanted to try this in the first place, so I can't complain too much.
+
+### Pressure Test as I Go
+
+If I started over, I'd look at pressure testing each section as I made it, rather than leaving everything until the whole loop was assembled. Having fewer connections to investigate at once would probably have made the troubleshooting less stressful. It would also give me more confidence in each section as the build progressed.
+
+### Check Tube Insertion & Fitting Alignment More Carefully
+
+I'd also spend more time checking how each tube sits in its fittings: whether both ends are fully inserted and whether they line up naturally without having to pull the tube into position. In such a tight case, it's easy to focus on getting a run to fit and give those checks less attention than they deserve. I'd make them part of finishing each run, rather than leaving them for the final check of the assembled loop.
+
+## Final Thoughts
+
+With four hours of pump-only wet testing followed by thermal cycles to 35°C and 40°C, cooling back to around 30°C between tests, the loop has now been through more than just filling and bleeding. Throughout those tests, I saw no visible leaks, moisture, tube movement or changes in coolant level.
+
+I'm happy with that progress, but it doesn't explain the small pressure drop during the original air test or establish how the loop will hold up long term. I'll keep monitoring it. The next step is to reinstall the side panels and test under normal gaming conditions.
