@@ -6,20 +6,74 @@ export interface Props {
 const { steps } = Astro.props;
 ---
 
-<div class="w-full flex justify-center my-6">
-  <div class="flex flex-col sm:flex-row sm:flex-nowrap items-center gap-3 w-fit">
+<div class="step-flow not-prose my-6">
+  <ol role="list" class="flow-list m-0 flex list-none flex-col p-0">
     {steps.map((step, index) => (
-      <>
-        <div class="font-mono bg-gray-700 text-gray-100 px-4 py-1.5 rounded text-sm font-semibold text-center">
+      <li class="flow-step m-0 flex min-w-0 flex-col items-center p-0">
+        <span class="flow-label w-full border border-neutral-800 bg-tile px-3 py-3 text-center font-mono text-xs uppercase tracking-wide text-neutral-200">
           {step}
-        </div>
+        </span>
         {index < steps.length - 1 && (
-          <>
-            <div class="text-gray-400 sm:hidden">↓</div>
-            <div class="hidden sm:block text-gray-400">→</div>
-          </>
+          <span aria-hidden="true" class="flow-arrow flex shrink-0 items-center justify-center text-neutral-500">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter">
+              <path d="M5 12h14m-6-6 6 6-6 6" />
+            </svg>
+          </span>
         )}
-      </>
+      </li>
     ))}
-  </div>
+  </ol>
 </div>
+
+<style>
+  .step-flow {
+    container-type: inline-size;
+  }
+
+  .flow-arrow {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .flow-arrow svg {
+    transform: rotate(90deg);
+  }
+
+  @container (min-width: 36rem) {
+    .flow-list,
+    .flow-step {
+      flex-direction: row;
+    }
+
+    .flow-list {
+      gap: 1.75rem;
+      align-items: stretch;
+    }
+
+    .flow-step {
+      position: relative;
+      flex: 1 1 0%;
+    }
+
+    .flow-label {
+      display: flex;
+      min-width: 0;
+      min-height: 3rem;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      overflow-wrap: anywhere;
+    }
+
+    .flow-arrow {
+      position: absolute;
+      top: 50%;
+      right: -1.75rem;
+      transform: translateY(-50%);
+    }
+
+    .flow-arrow svg {
+      transform: none;
+    }
+  }
+</style>
