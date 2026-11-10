@@ -10,6 +10,8 @@ const flatten = (text: string, site: URL) => text
     .replace(/^import .*\n/gm, '')
     .replace(/\{\/\*[\s\S]*?\*\/\}\n?/g, '')
     .replace(/^[ \t]*<\/?(div|TLDR|Collapsible)\b[^>]*>\n?/gm, '')
+    .replace(/^[ \t]*<Warning>([\s\S]*?)<\/Warning>/gm, (_, body: string) =>
+        `> Warning\n>\n${body.trim().split('\n').map((line) => `> ${line.trim()}`).join('\n')}`)
     .replace(/^[ \t]*<PostImage\b[\s\S]*?\/>/gm, (tag) => {
         const alt = attr(tag, 'alt') ?? '';
         const subtitle = attr(tag, 'subtitle');
