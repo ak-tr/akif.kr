@@ -1,7 +1,7 @@
 ---
 title: "Fixing BMW E91 Comfort Access: A068, A069, A06A and A06B Antenna Faults"
 date: "2026-10-21"
-lastmod: "2026-10-22"
+lastmod: "2026-11-10"
 tags: ["e9x", "programming"]
 draft: false
 summary: "My E91's keyless start never worked, so I used INPA, a multimeter and NCS Expert to track the problem down to its Comfort Access module. Replacing and coding it fixed the antenna faults, and a fresh key battery appears to have fixed the weak key-detection range."
@@ -164,3 +164,7 @@ One test isn't a pattern, so I'll keep an eye on it. But before the swap, the ke
 I also found `EMV_WORKAROUND_ON_OFF` in PGS coding, translated as an electromagnetic-interference workaround. Mine was set to `nicht_aktiv`. I didn't change it because I couldn't establish what the workaround actually changed, and the module swap had already fixed the repeatable antenna faults.
 
 That makes this one confirmed repair and one likely one: a faulty original CA module replaced and coded successfully, and a weak key-detection range that a fresh CR2032 appears to have fixed. I'll update this post again if the range problem comes back.
+
+### Update, 10 November 2026: a high-power spare key
+
+Replacing the PGS cleared the antenna faults, but the old fob still had patchy reception. In the [follow-up](/blog/e91-comfort-access-high-power-key/), I cover the high-power 315 MHz spare, how I blocked the missing key in ISTA, and what I tried before keyless entry and starting worked.

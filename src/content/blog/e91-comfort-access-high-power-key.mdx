@@ -1,0 +1,70 @@
+---
+title: "Upgrading My BMW E91 to a High-Power 315 MHz Comfort Access Key"
+date: "2026-11-10"
+tags: ["e9x"]
+summary: "I ordered a genuine high-power 315 MHz spare key for my Japanese-import E91 335i. The buttons worked from much farther away, and after blocking the missing key and cycling the ignition, Comfort Access worked with the new key deep in my pocket."
+images: "/static/images/e91-comfort-access-high-power-key/01-ista-key-blocked.png"
+---
+
+<TLDR>
+  <TLDRRow label="Car">2007 BMW E91 335i (N54), Japanese import with factory Comfort Access</TLDRRow>
+  <TLDRRow label="Key">Genuine BMW high-power 315 MHz fob, part `66129275556`</TLDRRow>
+  <TLDRRow label="Result">Much better button range, plus keyless entry and an immediate start with the new key deep in my pocket</TLDRRow>
+</TLDR>
+
+In my [Comfort Access repair](/blog/e91-comfort-access-diagnosis/), I traced four antenna faults to the PGS (Passive Go System) module. Replacing it and coding it to the car's vehicle order cleared the faults and got keyless start working.
+
+I still only had one key, a low-power 315 MHz Siemens VDO fob. The buttons had poor range, and I'd still sometimes get the crossed-out-key warning when the fob was in my pocket. I wanted a spare anyway, so I ordered the high-power version.
+
+## Ordering the Key
+
+I ordered a genuine BMW high-power 315 MHz key, part `66129275556`, VIN-coded from Germany. The fob was £247.97 and the cut key was £36.09, for a subtotal of £284.06 before VAT. VAT was £56.81 (20% on both items).
+
+The buttons worked from much farther away than with the old fob. Comfort Access still didn't work with the new one.
+
+<PostImage src="/static/images/e91-comfort-access-high-power-key/02-keys-front.jpg" alt="Fronts of the new high-power BMW key on the left and the old Siemens VDO key on the right" subtitle="New high-power key on the left, old low-power key on the right." />
+
+<PostImage src="/static/images/e91-comfort-access-high-power-key/03-keys-back.jpg" alt="Backs of both BMW keys, with the markings on the new key visible on the left" subtitle="The same two keys from the back." />
+
+<PostImage src="/static/images/e91-comfort-access-high-power-key/04-key-batteries.jpg" alt="Both BMW keys with their battery covers removed, showing the Panasonic CR2032 in the new key on the left" subtitle="The new key from BMW Germany came with a Panasonic CR2032." />
+
+## Why Do We Need to Block the Key?
+
+Comfort Access uses the first two enabled key positions, according to E90Post. Blocking the missing key can free a position for the new fob. That's what I tried when its buttons worked but passive entry and starting still didn't. [Comfort Access Coding on E90Post](https://www.e90post.com/forums/showthread.php?t=1285135)
+
+## Blocking the Missing Key
+
+My working Siemens VDO fob was key 2 in ISTA. INPA and Tool32 use a zero-based raw `KEY_NUMBER`, so the same fob showed up there as `1`. INPA showed keys 1 and 2 as initialised. I expected the new fob to be key 3 in ISTA's numbering, but I never verified its slot directly.
+
+In ISTA+, I opened Vehicle management → Service functions → Body → Locking and security functions → Remote key → Block/enable. That opens Block and enable remote key (`ABL-DIT-S6100_6CAS1`). From there, select Block/enable again.
+
+<Warning>
+  Check the numbering before blocking anything. Blocking the wrong key can stop it from starting the car.
+</Warning>
+
+1. Current key number. Check each key you still have separately and write down its ISTA number.
+2. Remote key status. Review which positions ISTA lists as enabled or blocked.
+3. Block remote key. Select the number you've identified as the missing key. In my case that was key 1, and ISTA confirmed it was blocked.
+
+<PostImage src="/static/images/e91-comfort-access-high-power-key/01-ista-key-blocked.png" alt="ISTA+ confirming that remote key number 1 was blocked" subtitle="ISTA+ confirmation after blocking the missing key." />
+
+## What I Tried Next
+
+Comfort Access still didn't work immediately after I blocked key 1. I took the new key out and locked the car, but that didn't do it either. Here's what I did next.
+
+1. I walked away, came back and unlocked the car with the new fob's buttons.
+2. I put the new key in the slot and switched the ignition on for 5–10 seconds with the engine off.
+3. I switched the ignition off and waited another 5–10 seconds.
+4. I removed the key, locked the car and walked away again.
+
+When I came back, the door unlocked by touch. I left the new key deep in my pocket with the rest of my stuff, pressed Start/Stop, and the engine started immediately. The old key could be slower even when I held it out of my pocket.
+
+That was the sequence I observed. I don't know which step made the difference, or which steps were necessary.
+
+I checked the old fob afterwards. Its buttons still lock and unlock the car, but I didn't retest engine start with it. The new key also brought back the Japanese head-unit language and units. That could be BMW Personal Profile loading a different set of preferences, though I didn't check.
+
+## Would a New Key Help on Other E9X Models?
+
+I only tried this on my Japanese-import car with 315 MHz keys. I don't know whether a new key would improve reception on cars that use a different frequency.
+
+The old fob was about 20 years old, and replacing its battery hadn't helped much. The new fob is the updated high-power version, but the old one might simply have been getting tired. I can't tell how much of the improvement came from the high-power design and how much came from replacing an ageing fob.
