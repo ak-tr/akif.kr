@@ -1,0 +1,111 @@
+---
+title: "Grapho: Making My Own Minimalist Graphing Tool"
+date: "2026-11-16"
+tags: ["programming", "javascript", "astro"]
+draft: false
+summary: "A love of minimalist graphs and a slightly cumbersome Matplotlib workflow led me to build Grapho, a browser-based tool for making graphs and exporting them as images or animations."
+images: "/static/images/projects/grapho.jpg"
+hero:
+  src: "/static/images/projects/grapho.jpg"
+  alt: "Grapho showing a line graph with two example data series and the series controls on the left"
+---
+
+## Why Another Graphing Tool?
+
+I love graphs. I find them fascinating, especially when they're designed in a minimalist style. A few lines, some carefully chosen colours and clear labels can make a set of numbers much more interesting to look at.
+
+One of my inspirations was the graphs optimum tech uses in his videos on YouTube. I liked the way they looked, and it made me want to build my own graphing software.
+
+There was also a more practical reason. Whenever I needed a graph for this blog, I was using Matplotlib. It worked, but I found the process cumbersome, particularly when I wanted to adjust how a graph looked. I wanted to be able to put in my data, change the styling while looking at the result, and export an image for a post.
+
+So I made **[Grapho](https://grapho.akif.kr)**.
+
+## From Data to a Graph
+
+Grapho runs in the browser. You can import a CSV, TSV or JSON file, or paste your data straight into the editor. From there, you choose a graph type and the columns you want to show.
+
+It supports line, area, scatter, vertical and horizontal bar charts, and pie charts. You can give each series its own colour, put it on the left or right Y axis, and adjust things such as line shape and smoothing.
+
+The editor is split into six tabs: Setup, Series, Axes, Labels, Style and Animate. Most parts of the graph can also be edited by clicking them directly in the preview, so you can click an axis or a series to get to its settings.
+
+The screenshot above uses made-up data to show the editor and a simple two-series graph.
+
+## Getting the Look Right
+
+The styling is a big part of why I wanted to make this in the first place.
+
+I wanted control over the details that make a graph feel at home in a blog post: the background, colours, typeface, grid lines, labels and spacing. Grapho lets you adjust those alongside the graph's size, axis ranges and number formatting.
+
+You can start with a Mosaic colour way or save your own. Mosaic is the design system I use for this website, and Grapho uses it too. The app's theme and the graph's colours are separate, so changing the editor's appearance doesn't change the image you're working on.
+
+For my blog, the useful part is being able to make these adjustments while seeing the graph update. If a label needs more space or a grid line feels too prominent, I can change it there and then.
+
+## Still Images and Animations
+
+For a blog post, you can export a graph as SVG or PNG. SVG is useful when you want it to stay sharp at different sizes, while PNG gives you a straightforward image to drop into a page.
+
+Grapho also supports animations. You build a sequence of steps that draw, fade or grow parts of the graph, or bring bars in one at a time. Each step has its own duration and easing, and can run after or alongside the previous step.
+
+You can preview the animation, scrub through the timeline, and export it as MP4 or GIF.
+
+## A Few Examples
+
+Here are a few graphs made with Grapho, using a GPU dataset and figures from this blog. Each example has its CSV linked underneath if you want to try styling it yourself.
+
+### Comparing GPUs
+
+Horizontal bars leave plenty of room for the card names, with two series showing performance at 1440p and 4K. Here is the same data in two layouts, using the same zero-based scale and colours.
+
+<PostImage src="/static/images/grapho/gpu-comparison.svg" alt="Grouped horizontal bars comparing average 1440p and 4K frame rates for six GPUs" subtitle="Selected entries from the GPU dataset, using its average performance fields. These are dataset values, not my own benchmark results." />
+
+The grouped layout puts the bars next to each other. Switching to overlaid bars puts the larger value behind the smaller one, making each pair more compact. Grapho places the smaller value inside its bar so both values remain readable.
+
+<PostImage src="/static/images/grapho/gpu-comparison-overlay.svg" alt="The same six GPUs with 4K bars overlaid on the larger 1440p bars, using identical values and axis limits to the grouped chart" subtitle="Overlaid bars: the larger 1440p value sits behind the smaller 4K value." />
+
+[Download the CSV](/static/data/grapho/gpu-comparison.csv) · [Grouped SVG](/static/images/grapho/gpu-comparison.svg) · [Overlaid SVG](/static/images/grapho/gpu-comparison-overlay.svg)
+
+### One Card, Three Resolutions
+
+For a smaller comparison, vertical bars work well. This uses the RTX 3080 entry from the same dataset, showing how its reported average frame rate changes with resolution. Here, the value labels are set to sit inside the bars.
+
+<PostImage src="/static/images/grapho/rtx-3080-resolutions.svg" alt="Vertical bars showing RTX 3080 average performance of 232.4 FPS at 1080p, 173 FPS at 1440p and 105 FPS at 4K" subtitle="Average performance values from the supplied GPU dataset; not measurements from my undervolting tests." />
+
+[Download the CSV](/static/data/grapho/rtx-3080-resolutions.csv) · [Download the SVG](/static/images/grapho/rtx-3080-resolutions.svg)
+
+### The Blog Over Time
+
+A line graph can show something other than temperatures and clock speeds. This one counts the published posts on this blog by month. The stepped line keeps the total flat between monthly counts, rather than suggesting a steady rate of publishing.
+
+<PostImage src="/static/images/grapho/blog-growth.svg" alt="Stepped line chart of cumulative published blog posts, growing from 2 in February 2024 to 19 in November 2026" subtitle="Cumulative totals by month, using post publication dates. November 2026 includes this post and runs up to 16 November. Drafts and duplicate copies are excluded." />
+
+For comparison, here is the same data with smoothing set to **5** and the line shape set to **Smooth**. Smoothing averages each point with up to two neighbours on either side, using fewer points at the ends. The smooth line shape rounds the joins between those averaged values.
+
+<PostImage src="/static/images/grapho/blog-growth-smoothed.svg" alt="Smoothed version of the blog-growth graph, using a centred five-point moving average and a smooth line shape on the same zero-to-twenty scale" subtitle="A styling demonstration using averaged values, not exact published-post totals. The endpoint changes too because it averages the available neighbouring months." />
+
+The stepped version is the one I'd use to report the actual count. The smoothed version shows the broader trend, but introduces fractional counts and softens when the changes happened.
+
+[Download the CSV](/static/data/grapho/blog-growth.csv) · [Original SVG](/static/images/grapho/blog-growth.svg) · [Smoothed SVG](/static/images/grapho/blog-growth-smoothed.svg)
+
+### Where the Power Was Going
+
+For a part-to-whole view, this doughnut chart uses the approximate GPU and CPU power readings from my [hardline-loop thermal test](/blog/dan-a4-h2o-hardline-conversion/#second-thermal-test-40c): 250W and 55W respectively, with the coolant at around 40°C.
+
+<PostImage src="/static/images/grapho/loop-power.svg" alt="Doughnut chart showing GPU power of 250 watts and CPU power of 55 watts, approximately 82 percent and 18 percent of their combined 305 watts" subtitle="A snapshot from the second thermal test, with the side panels off. This is the combined CPU and GPU power only, not total system consumption." />
+
+[Download the CSV](/static/data/grapho/loop-power.csv) · [Download the SVG](/static/images/grapho/loop-power.svg)
+
+## How It Works
+
+Grapho is built with Svelte and Astro, with D3 utilities handling things such as scales and shapes.
+
+At its centre is a renderer that takes the data, the graph's settings and a point in time, then returns an SVG. The preview, animation timeline and exports all use that same renderer. A still image is one rendered frame; an animation is a sequence of them.
+
+MP4 export uses WebCodecs through Mediabunny, while GIF export uses gifenc. The graph rendering and exports happen in your browser, without uploading your data to a server.
+
+Charts are saved in the browser's local storage and can be reopened from the Charts menu. That also means they're tied to that browser: they don't sync between devices, and clearing the site's storage removes them.
+
+## Try It
+
+You can use [Grapho at grapho.akif.kr](https://grapho.akif.kr), and the source is available on [GitHub](https://github.com/ak-tr/grapho) under the MIT licence.
+
+This started with wanting to make graphs I enjoyed looking at, and wanting an easier way to put them in my blog. If you try it and find something that could work better, feel free to open an issue on GitHub.
